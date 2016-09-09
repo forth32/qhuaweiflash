@@ -30,5 +30,7 @@ void Disable_EditHeader();
 void HeaderChanged();
 void Start_Flasher();  
 void Reboot_modem();  
+void usbdload();
+void find_ports();  
 };
   

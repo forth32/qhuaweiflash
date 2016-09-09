@@ -330,18 +330,6 @@ return res;
   
 
 //*************************************************
-//  Поиск ttyUSB портов и сбор их имен в таблицу
-//*************************************************
-void find_ports(QComboBox* qbox) {
-
-QDir fdir("/dev");
-
-qbox->addItems(fdir.entryList((QStringList)"ttyUSB*",QDir::System,QDir::Name));
-qbox->setCurrentIndex(0);
-}
-
-
-//*************************************************
 //* Перезагрузка модема
 //*************************************************
 void modem_reboot() {

@@ -7,6 +7,7 @@
 #include "sio.h"
 #include "ptable.h"
 #include "flasher.h"
+#include "usbloader.h"
 
 #include "hexeditor/qhexedit.h"
 
@@ -26,12 +27,15 @@ MainWindow::MainWindow(QMainWindow *parent) : QMainWindow(parent) {
     
 // Настройка элементов окна
 setupUi(this);
+
+RefreshPorts->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
+
 pselector=PortSelector;
 // создание класса таблицы разделов
 ptable=new ptable_list;
 
 // заполнение списка портов
-find_ports(PortSelector);
+find_ports();
 
 // создание окна hex-редактора
 hexedit=new QHexEdit(centralwidget);
@@ -51,6 +55,17 @@ MainWindow::~MainWindow()  {
 delete ptable;  
 }
   
+//*************************************************
+//  Поиск ttyUSB портов и сбор их имен в таблицу
+//*************************************************
+void MainWindow::find_ports() {
+
+QDir fdir("/dev");
+
+PortSelector->clear();
+PortSelector->addItems(fdir.entryList((QStringList)"ttyUSB*",QDir::System,QDir::Name));
+PortSelector->setCurrentIndex(0);
+}
 
   
 //*****************************************
@@ -222,7 +237,7 @@ QString str;
 FILE* in;
 
 filename.sprintf("%02i-%08x-%s.bin",np,ptable->code(np),ptable->name(np));
-QFileDialog::getSaveFileName(this,"Имя файла с образом раздела",filename,"image (*.bin);;All files (*.*)");
+QFileDialog::getOpenFileName(this,"Имя файла с образом раздела",filename,"image (*.bin);;All files (*.*)");
 if (filename.isEmpty()) return;
 in=fopen(filename.toLocal8Bit(),"r");
 if (in == 0) {
@@ -341,6 +356,20 @@ close_port();
 QMessageBox::information(0,"ОK","Команда перезагрузки передана в модем");
 }
 
+
+//********************************************
+// Запуск udb-загрузчика
+//********************************************
+void MainWindow::usbdload() {
+
+if (PortSelector->count() == 0) {
+   QMessageBox::critical(0,"Ошибка","Не найдены последовательне порты");
+   return;
+}
+  
+usbloader* ul=new usbloader;
+ul->show();
+}
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@222
