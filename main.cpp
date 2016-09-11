@@ -160,16 +160,16 @@ QString txt;
 int idx=partlist->currentRow();
 
 // Вывод значений заголовка
-txt.sprintf("%8.8s",ptable->platform(idx));
+txt.sprintf("%-8.8s",ptable->platform(idx));
 Platform_input->setText(txt);
 
-txt.sprintf("%16.16s",ptable->date(idx));
+txt.sprintf("%-16.16s",ptable->date(idx));
 Date_input->setText(txt);
 
-txt.sprintf("%16.16s",ptable->time(idx));
+txt.sprintf("%-16.16s",ptable->time(idx));
 Time_input->setText(txt);
 
-txt.sprintf("%32.32s",ptable->version(idx));
+txt.sprintf("%-32.32s",ptable->version(idx));
 Version_input->setText(txt);
 
 // формирование окна hex-редактора
