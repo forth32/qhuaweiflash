@@ -7,7 +7,7 @@ TARGET = qhuaweiflash
 INCLUDEPATH += .
 QT             += widgets
 
-QMAKE_CXXFLAGS  += -Wno-unused-result -std=c++11
+QMAKE_CXXFLAGS  += -Wno-unused-result -std=c++11 -g
 # Input
 HEADERS += MainWindow.h sio.h ptable.h flasher.h usbloader.h hexeditor/qhexedit.h hexeditor/qhexedit_p.h hexeditor/xbytearray.h  hexeditor/commands.h 
 
