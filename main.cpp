@@ -104,7 +104,7 @@ int i;
 QString str;
 partlist->clear();
 for (i=0;i<ptable->index();i++) {
-  str.sprintf("%02x - %s",ptable->code(i)>>16,ptable->name(i));
+  str.sprintf("%06x - %s",ptable->code(i),ptable->name(i));
   partlist->addItem(str);
 }  
 }  
