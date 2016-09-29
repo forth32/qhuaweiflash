@@ -23,7 +23,7 @@ int npart=0;
 //*****************************************
 //* Конструктор класса
 //*****************************************
-MainWindow::MainWindow(QMainWindow *parent) : QMainWindow(parent) {
+MainWindow::MainWindow(QMainWindow *parent, QString* fwfilename) : QMainWindow(parent) {
     
 // Настройка элементов окна
 setupUi(this);
@@ -45,16 +45,20 @@ hexedit->setAddressWidth(8);
 hexedit->setOverwriteMode(true);
 hexedit->hide();
 
+if (fwfilename != 0) {
+  OpenFwFile(fwfilename->toLocal8Bit().data());
+}
 }
 
+
 //*****************************************
-//* Десруктор класса
+//* Деструктор класса
 //*****************************************
-MainWindow::~MainWindow()  {
+MainWindow::~MainWindow() {
 
 delete ptable;  
 }
-  
+
 //*************************************************
 //  Поиск ttyUSB портов и сбор их имен в таблицу
 //*************************************************
@@ -67,20 +71,14 @@ PortSelector->addItems(fdir.entryList((QStringList)"ttyUSB*",QDir::System,QDir::
 PortSelector->setCurrentIndex(0);
 }
 
-  
 //*****************************************
-//*  Добавление разделов из файла прошивки
+//*  Открытие файла прошивки
 //*****************************************
-void MainWindow::AppendFwFile() {
+void MainWindow::OpenFwFile(QString filename) {
   
-QString fwname;
 FILE* in;
 
-QFileDialog* qf=new QFileDialog(this);
-fwname=qf->getOpenFileName(0,"Выбор файла прошивки","","*.exe *.bin *.fw");
-delete qf;
-if (fwname.isEmpty()) return;
-in=fopen(fwname.toLocal8Bit(),"r");
+in=fopen(filename.toLocal8Bit(),"r");
 if (in == 0) {
   QMessageBox::critical(0,"Ошибка","Ошибка открытия файла");
   return;
@@ -92,6 +90,23 @@ ptable->findparts(in);
 regenerate_partlist();
 partlist->setCurrentRow(0);
 SelectPart();  
+EnableMenu();
+  
+}  
+  
+//*****************************************
+//*  Добавление разделов из файла прошивки
+//*****************************************
+void MainWindow::AppendFwFile() {
+  
+QString fwname;
+
+QFileDialog* qf=new QFileDialog(this);
+fwname=qf->getOpenFileName(0,"Выбор файла прошивки","","*.exe *.bin *.fw");
+delete qf;
+if (fwname.isEmpty()) return;
+OpenFwFile(fwname);
+  
 }
 
 
@@ -120,6 +135,14 @@ fileappend->setEnabled(0);
 filesave->setEnabled(0);
 ptable->clear();
 AppendFwFile();
+EnableMenu();
+}
+
+//*****************************************
+//*  Разрешение пунктов меню
+//*****************************************
+void MainWindow::EnableMenu(){ 
+  
 if (ptable->index() != 0) { 
   menu_part->setEnabled(1);
   Menu_Oper_flash->setEnabled(1);
@@ -173,6 +196,8 @@ txt.sprintf("%-32.32s",ptable->version(idx));
 Version_input->setText(txt);
 
 // формирование окна hex-редактора
+// printf("\n idx=%i",idx); 
+// printf("\n data adr=%08x  data size=%08x",(char*)ptable->iptr(idx),ptable->psize(idx)); fflush(stdout);
 hexcup.setRawData((char*)ptable->iptr(idx),ptable->psize(idx));
 hexedit->setData(hexcup);
 hexedit->setCursorPosition(0);
@@ -259,7 +284,7 @@ ptable->delpart(ci);
 regenerate_partlist();
 if (ci< (ptable->index()-1)) partlist->setCurrentRow(ci);
 else partlist->setCurrentRow(ptable->index()-1);
-  
+SelectPart();  
 }
 
 
@@ -375,10 +400,26 @@ ul->show();
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@222
 
 int main(int argc, char* argv[]) {
-
+  
 QApplication app(argc, argv);
-   
-MainWindow* mw = new  MainWindow(0);
+
+QCoreApplication::setApplicationName("Qt linux huawei flasher");
+QCoreApplication::setApplicationVersion("1.0");
+
+QString* fwfilename;
+
+QCommandLineParser parser;
+    parser.setApplicationDescription("Программа для прошивки и восстановления устройств на чипсете Hisilicon Balong v7");
+    parser.addHelpOption();
+    parser.addPositionalArgument("firmware", QCoreApplication::translate("main", "Файл прошивки"));
+
+parser.process(app);    
+QStringList args = parser.positionalArguments();
+    
+if (args.size() > 0) fwfilename=&args[0];
+else fwfilename=0;
+
+MainWindow* mw = new  MainWindow(0,fwfilename);
 mw->show();
 return app.exec();
 }

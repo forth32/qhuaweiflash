@@ -273,16 +273,24 @@ if (memcmp(replybuf,OKrsp,6) != 0) {
 
 
 iolen=send_cmd(&cmdver,1,(unsigned char*)replybuf);
-if ((iolen == 0)||(replybuf[1] != 0x0d)) {
+if (iolen == 0) {
   QMessageBox::critical(0,"Ошибка протокола HDLC","Невозможно получить версию протокола прошивки");
+  leave();
+  return 0;
+}  
+// отбрасываем начальный 7E если он есть в ответе
+if (replybuf[0] == 0x7e) memcpy(replybuf,replybuf+1,iolen-1);
+
+if (replybuf[0] != 0x0d) {
+  QMessageBox::critical(0,"Ошибка протокола HDLC","Модем отверг команду получения версии протокола");
   leave();
   return 0;
 }  
 
 // выводим версию протокола в форму
-res=replybuf[2];
-replybuf[res+3]=0;
-txt.sprintf("%s",replybuf+3);
+res=replybuf[1];
+replybuf[res+2]=0;
+txt.sprintf("%s",replybuf+2);
 pversion->setText(txt);
 QCoreApplication::processEvents();
 
