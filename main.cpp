@@ -160,7 +160,7 @@ QString filename="firmware.fw";
 FILE* out;
 int i;
 
-QFileDialog::getSaveFileName(this,"Имя файла",filename,"firmware (*.fw);;All files (*.*)");
+filename=QFileDialog::getSaveFileName(this,"Имя файла",filename,"firmware (*.fw);;All files (*.*)");
 if (filename.isEmpty()) return;
 out=fopen(filename.toLocal8Bit(),"w");
 if (out == 0) {
@@ -217,7 +217,7 @@ QString str;
 FILE* out;
 
 filename.sprintf("%02i-%08x-%s.fw",np,ptable->code(np),ptable->name(np));
-QFileDialog::getSaveFileName(this,"Имя файла",filename,"firmware (*.fw);;All files (*.*)");
+filename=QFileDialog::getSaveFileName(this,"Имя файла",filename,"firmware (*.fw);;All files (*.*)");
 if (filename.isEmpty()) return;
 out=fopen(filename.toLocal8Bit(),"w");
 if (out == 0) {
@@ -239,9 +239,10 @@ QString str;
 FILE* out;
 
 filename.sprintf("%02i-%08x-%s.bin",np,ptable->code(np),ptable->name(np));
-QFileDialog::getSaveFileName(this,"Имя извлекаемого файла",filename,"image (*.bin);;All files (*.*)");
+filename=QFileDialog::getSaveFileName(this,"Имя извлекаемого файла",filename,"image (*.bin);;All files (*.*)");
 if (filename.isEmpty()) return;
-out=fopen(filename.toLocal8Bit(),"w");
+// qDebug()  << filename;
+out=fopen(filename.toLocal8Bit().data(),"w");
 if (out == 0) {
   QMessageBox::critical(0,"Ошибка","Ошибка открытия файла");
   return;
@@ -260,16 +261,20 @@ int np=partlist->currentRow();
 QString filename;
 QString str;
 FILE* in;
+// int res;
 
 filename.sprintf("%02i-%08x-%s.bin",np,ptable->code(np),ptable->name(np));
-QFileDialog::getOpenFileName(this,"Имя файла с образом раздела",filename,"image (*.bin);;All files (*.*)");
+filename=QFileDialog::getOpenFileName(this,"Имя файла с образом раздела",filename,"image (*.bin);;CPIO archive (*.cpio) ;;All files (*.*)");
 if (filename.isEmpty()) return;
 in=fopen(filename.toLocal8Bit(),"r");
 if (in == 0) {
   QMessageBox::critical(0,"Ошибка","Ошибка открытия файла");
+  printf("\n file %s",filename.toLocal8Bit().data());
   return;
 }
 ptable->loadimage(np,in);
+SelectPart();
+  
 }
 
 //*****************************************

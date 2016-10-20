@@ -17,6 +17,9 @@ extern ptable_list* ptable;
 // указатель на открытый последовательный порт
 extern int siofd; // fd для работы с Последовательным портом
 
+// размер блока данны, передаваемый модему
+// #define fblock 4096
+#define fblock 2048
 
 //*************************************************
 //* Варианты цифровой подписи
@@ -139,21 +142,21 @@ static struct __attribute__ ((__packed__)) {
   uint8_t cmd=0x42;
   uint32_t blk;
   uint16_t bsize;
-  uint8_t data[4096];
+  uint8_t data[fblock];
 } cmd_dload_block;  
   
-blksize=4096; // начальное значение размера блока
-res=ptable->psize(part)-blk*4096;  // размер оставшегося куска до конца файла
-if (res<4096) blksize=res;  // корректируем размер последнего блока
+blksize=fblock; // начальное значение размера блока
+res=ptable->psize(part)-blk*fblock;  // размер оставшегося куска до конца файла
+if (res<fblock) blksize=res;  // корректируем размер последнего блока
 
 // номер блока
 cmd_dload_block.blk=htonl(blk+1);
 // размер блока
 cmd_dload_block.bsize=htons(blksize);
 // порция данных из образа раздела
-memcpy(cmd_dload_block.data,pimage+blk*4096,blksize);
+memcpy(cmd_dload_block.data,pimage+blk*fblock,blksize);
 // отсылаем блок в модем
-iolen=send_cmd((uint8_t*)&cmd_dload_block,sizeof(cmd_dload_block)-4096+blksize,replybuf); // отсылаем команду
+iolen=send_cmd((uint8_t*)&cmd_dload_block,sizeof(cmd_dload_block)-fblock+blksize,replybuf); // отсылаем команду
 
 if ((iolen == 0) || (replybuf[1] != 2)) {
   printf("\n sent block:\n");
@@ -187,18 +190,18 @@ static struct __attribute__ ((__packed__)) {
   uint32_t size;
   uint8_t garbage[3];
   uint32_t code;
-  uint8_t garbage1[12];
+  uint8_t garbage1[11];
 } cmd_dload_end;
 
 cmd_dload_end.code=htonl(code);
 cmd_dload_end.size=htonl(size);
 iolen=send_cmd((uint8_t*)&cmd_dload_end,sizeof(cmd_dload_end),replybuf);
 if ((iolen == 0) || (replybuf[1] != 2)) {
-  printf("\n sent block:\n");
-  dump(&cmd_dload_end,sizeof(cmd_dload_end),0);
-  printf("\n\n reply\n");
-  dump(replybuf,iolen,0);
-  fflush(stdout);
+//   printf("\n sent block:\n");
+//   dump(&cmd_dload_end,sizeof(cmd_dload_end),0);
+//   printf("\n\n reply\n");
+//   dump(replybuf,iolen,0);
+//   fflush(stdout);
   return false;
 }  
 else return true;
@@ -311,7 +314,7 @@ for(part=0;part<ptable->index();part++) {
 }  
    
  
-maxblock=(ptable->psize(part)+4095)/4096; // число блоков в разделе
+maxblock=(ptable->psize(part)+(fblock-1))/fblock; // число блоков в разделе
 // Поблочный цикл передачи образа раздела
 for(blk=0;blk<maxblock;blk++) {
  // Прогрессбар блоков
@@ -329,10 +332,10 @@ for(blk=0;blk<maxblock;blk++) {
 
 // закрываем раздел
  if (!dload_end(ptable->code(part),ptable->psize(part))) {
-  txt.sprintf("Ошибка закрытия раздела %s",ptable->name(part)); 
-  QMessageBox::critical(0,"ошибка",txt);
-  leave();
-  return 0;
+//   txt.sprintf("Ошибка закрытия раздела %s",ptable->name(part)); 
+//   QMessageBox::critical(0,"ошибка",txt);
+//   leave();
+//   return 0;
  }  
 } // конец цикла по разделам
 
