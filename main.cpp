@@ -152,13 +152,14 @@ if (ptable->index() != 0) {
 }
 
 //*****************************************
-//*  Запись полного файла прошивки
+//*  Запись на диск полного файла прошивки
 //*****************************************
 void MainWindow::SaveFwFile() {
 
 QString filename="firmware.fw";
 FILE* out;
 int i;
+uint8_t hdr[92];
 
 filename=QFileDialog::getSaveFileName(this,"Имя файла",filename,"firmware (*.fw);;All files (*.*)");
 if (filename.isEmpty()) return;
@@ -167,6 +168,13 @@ if (out == 0) {
   QMessageBox::critical(0,"Ошибка","Ошибка создания файла");
   return;
 }
+
+// записываем заголовок - upgrade state
+bzero(hdr,sizeof(hdr));
+hdr[0]=0xd;
+fwrite(hdr,1,sizeof(hdr),out);
+
+// записываем образы всех разделов
 for(i=0;i<ptable->index();i++) ptable->save_part(i,out);
 fclose(out);
 }
