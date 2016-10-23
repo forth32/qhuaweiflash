@@ -254,11 +254,21 @@ fclose(in);
 //* Запись полного образа раздела в файл
 //*******************************************************
 void ptable_list::save_part(int np,FILE* out) {
-  
+ 
+uint32_t pos,i,cnt;
+uint8_t pad=0;  
 
 fwrite(hptr(np),1,sizeof(pheader),out);   // заголовок
 fwrite(table[np].csumblock,1,crcsize(np),out);  // crc
 fwrite(iptr(np),1,psize(np),out);   // тело
+
+// Выравнивание хвоста на границу слова
+pos=ftell(out);
+if ((pos&3) != 0) {
+  cnt=pos-(pos&3); // получаем число лишних байт;
+  for(i=0;i<cnt;i++) fwrite(&pad,1,1,out);  // записываем нули до границы слова
+}  
+
 }
 
 //*******************************************************
