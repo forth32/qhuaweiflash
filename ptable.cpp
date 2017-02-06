@@ -151,7 +151,7 @@ if ((*(uint16_t*)table[npart].pimage) == 0xda78) {
   free(zbuf);
   // перерассчитываем контрольные суммы
   calc_crc16(npart);
-  table[npart].hd.crc=crc16((uint8_t*)&table[npart].hd,sizeof(struct pheader));
+//   table[npart].hd.crc=crc16((uint8_t*)&table[npart].hd,sizeof(struct pheader));
 }
 
 // продвигаем счетчик разделов
@@ -268,7 +268,8 @@ fsize=ftell(in);
 rewind(in);
 
 // выделяем память под новый раздел
-realloc(table[np].pimage,fsize);
+free(table[np].pimage);
+table[np].pimage=(uint8_t*)malloc(fsize);
 
 // читаем новый образ раздела
 fread(table[np].pimage,1,fsize,in);
@@ -295,7 +296,7 @@ fwrite(iptr(np),1,psize(np),out);   // тело
 // Выравнивание хвоста на границу слова
 pos=ftell(out);
 if ((pos&3) != 0) {
-  cnt=pos-(pos&3); // получаем число лишних байт;
+  cnt=4-(pos%4); // получаем число лишних байт;
   for(i=0;i<cnt;i++) fwrite(&pad,1,1,out);  // записываем нули до границы слова
 }  
 
