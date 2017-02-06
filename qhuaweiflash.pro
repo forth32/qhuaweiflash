@@ -14,3 +14,4 @@ HEADERS += MainWindow.h sio.h ptable.h flasher.h usbloader.h hexeditor/qhexedit.
 FORMS += main.ui findparts.ui flasher.ui usbloader.ui
 SOURCES += main.cpp sio.cpp ptable.cpp flasher.cpp usbloader.cpp hexeditor/commands.cpp hexeditor/qhexedit.cpp hexeditor/qhexedit_p.cpp hexeditor/xbytearray.cpp
 RESOURCES = qhuaweiflash.qrc
+LIBS += -lz
