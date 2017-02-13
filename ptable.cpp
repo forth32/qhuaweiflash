@@ -1,4 +1,4 @@
-// Процедуры работы с таблицей разделов
+//Процедуры работы с таблицей разделов
 
 #include <QtWidgets>
 #include <stdio.h>
@@ -6,7 +6,6 @@
 #include <string.h>
 #include <zlib.h>
 #include "ptable.h"
-#include "ui_findparts.h"
 #include "sio.h"
 
 //******************************************************
@@ -175,26 +174,6 @@ npart=0;
 
 
 //*******************************************************
-// Класс прогрессбара разбора разделов
-//*******************************************************
-  
-class pfindbar: public QDialog, public Ui_pfindbar {
-  
-public:
-   pfindbar(QWidget *parent = 0) {
-     setupUi(this);
-   }
-   ~pfindbar() {
-   }  
-public slots:
-
-void setbar(int val) {
-    fbar->setValue(val);
-}
-  
-};  
-  
-//*******************************************************
 //*  Поиск разделов в файле прошивки
 //* 
 //* возвращает число найденных разделов
@@ -284,20 +263,39 @@ fclose(in);
 //*******************************************************
 //* Запись полного образа раздела в файл
 //*******************************************************
-void ptable_list::save_part(int np,FILE* out) {
+void ptable_list::save_part(int np,FILE* out,uint8_t zflag) {
  
 uint32_t pos,i,cnt;
+int res;
 uint8_t pad=0;  
+long unsigned int clen;
 
+
+struct ptb_t origpt=table[np]; // сохраняем старый описатель раздела
+if (zflag) {
+  // сжатие образа раздела
+  table[np].pimage=(uint8_t*)malloc(table[np].hd.psize+64000);
+  clen=table[np].hd.psize+64000;
+  res=compress2(table[np].pimage,&clen,origpt.pimage,origpt.hd.psize,9); 
+  table[np].hd.psize=clen;
+  calc_crc16(np);
+}  
 fwrite(hptr(np),1,sizeof(pheader),out);   // заголовок
 fwrite(table[np].csumblock,1,crcsize(np),out);  // crc
 fwrite(iptr(np),1,psize(np),out);   // тело
-
 // Выравнивание хвоста на границу слова
 pos=ftell(out);
 if ((pos&3) != 0) {
   cnt=4-(pos%4); // получаем число лишних байт;
   for(i=0;i<cnt;i++) fwrite(&pad,1,1,out);  // записываем нули до границы слова
+}  
+if (zflag) {
+  // чистим буфера
+  free(table[np].pimage);
+  free(table[np].csumblock);
+  table[np]=origpt;
+  table[np].csumblock=0;
+  calc_crc16(np);
 }  
 
 }

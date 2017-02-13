@@ -1,3 +1,8 @@
+#ifndef __PTABLE_H
+#define __PTABLE_H
+
+#include "ui_findparts.h"
+
 // структура описания заголовка раздела
 struct __attribute__ ((__packed__)) pheader {
  uint32_t magic;    //   0xa55aaa55
@@ -67,7 +72,7 @@ public:
   
   void findparts(FILE* in);
   void loadimage(int np, FILE* in);
-  void save_part(int n,FILE* out);
+  void save_part(int n,FILE* out, uint8_t zflag);
   void calc_crc16(int n);
   void calc_hd_crc16(int n); 
 
@@ -80,6 +85,29 @@ public:
 };
   
 
+//*******************************************************
+//* Класс прогрессбара разбора разделов
+//*******************************************************
+  
+class pfindbar: public QDialog, public Ui_pfindbar {
+  
+public:
+   pfindbar(QWidget *parent = 0) {
+     setupUi(this);
+   }
+   ~pfindbar() {
+   }  
+public slots:
+
+void setbar(int val) {
+    fbar->setValue(val);
+}
+  
+};  
+  
+
 extern ptable_list* ptable;  
   
 void  find_pname(unsigned int id,unsigned char* pname);
+
+#endif
