@@ -34,5 +34,7 @@ void Reboot_modem();
 void usbdload();
 void find_ports();  
 void EnableMenu();
+void set_date();
+  
 };
   

@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <time.h>
 
 #include "sio.h"
 #include "ptable.h"
@@ -183,8 +184,7 @@ Time_input->setText(txt);
 txt.sprintf("%-32.32s",ptable->version(idx));
 Version_input->setText(txt);
 
-txt.sprintf("%04x",ptable->code(idx)>>16
-);
+txt.sprintf("%04x",ptable->code(idx)>>16);
 pcode->setText(txt);
 
 // формирование окна hex-редактора
@@ -323,6 +323,26 @@ Date_input->setReadOnly(0);
 Time_input->setReadOnly(0);
 Version_input->setReadOnly(0);
 }
+
+
+//********************************************
+//* Установка текущей даты изменения раздела
+//********************************************
+void MainWindow::set_date() {
+
+QString str;
+time_t actime=time(0);
+struct tm* mtime=localtime(&actime);
+
+str.sprintf("%4i.%02i.%02i",mtime->tm_year+1900,mtime->tm_mon+1,mtime->tm_mday);
+Date_input->setText(str);
+Date_input->setModified(true);
+
+str.sprintf("%02i:%02i:%02i",mtime->tm_hour,mtime->tm_min,mtime->tm_sec);
+Time_input->setText(str);
+Time_input->setModified(true);
+}
+
 
 //********************************************
 //* Запись областей редактирования заголовка
