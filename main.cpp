@@ -183,6 +183,10 @@ Time_input->setText(txt);
 txt.sprintf("%-32.32s",ptable->version(idx));
 Version_input->setText(txt);
 
+txt.sprintf("%04x",ptable->code(idx)>>16
+);
+pcode->setText(txt);
+
 // формирование окна hex-редактора
 // printf("\n idx=%i",idx); 
 // printf("\n data adr=%08x  data size=%08x",(char*)ptable->iptr(idx),ptable->psize(idx)); fflush(stdout);
@@ -326,11 +330,17 @@ Version_input->setReadOnly(0);
 void MainWindow::HeaderChanged() {
 
 int32_t ci=partlist->currentRow(); 
+uint32_t code;
 
 if (Platform_input->isModified())  strncpy((char*)ptable->hptr(ci)->unlock,Platform_input->text().toLocal8Bit(),8);
 if (Date_input->isModified())  strncpy((char*)ptable->hptr(ci)->date,Date_input->text().toLocal8Bit(),16);
 if (Time_input->isModified())  strncpy((char*)ptable->hptr(ci)->time,Time_input->text().toLocal8Bit(),16);
 if (Version_input->isModified())  strncpy((char*)ptable->hptr(ci)->version,Version_input->text().toLocal8Bit(),32);
+if (pcode -> isModified()) {
+  sscanf(pcode->text().toLocal8Bit(),"%x",&code);
+  ptable->hptr(ci)->code=code<<16;
+  printf("\n code=%x",ptable->hptr(ci)->code);
+}  
 }
 
 //********************************************
