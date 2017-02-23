@@ -43,7 +43,8 @@ struct  pcl{
   {"System",0x100000},
   {"APP",0x570000}, 
   {"APP",0x5a0000}, 
-  {"Oeminfo",0xa0000},
+  {"APP_EXT_A",0x450000}, 
+  {"APP_EXT_B",0x460000},
   {"CDROMISO",0xb0000},
   {"Oeminfo",0x550000},
   {"Oeminfo",0x510000},
@@ -159,8 +160,9 @@ if ((*(uint16_t*)table[npart].pimage) == 0xda78) {
 
 // продвигаем счетчик разделов
 npart++;
-// отъезжаем немного назад
-fseek(in,-16,SEEK_CUR);
+// отъезжаем, если надо, вперед на границу слова
+res=ftell(in);
+if ((res&3) != 0) fseek(in,(res+4)&(~3),SEEK_SET);
 }
 
 //*******************************************************
@@ -218,8 +220,7 @@ if (feof(in)) {
 fseek(in,-4,SEEK_CUR); 
 
 // Поиск разделов
-while (fread(&i,1,4,in) == 4) {
-  
+do {
   // обновление индикатора
   percent=ftell(in)*100/filesize;
   if (percent>oldpercent) {
@@ -227,14 +228,11 @@ while (fread(&i,1,4,in) == 4) {
    QCoreApplication::processEvents();
    oldpercent=percent;
   } 
-  
-  if (i != dpattern) {
-    fseek(in,-3,SEEK_CUR);  // в предположении, что маркер может начинаться с любого байта
-    continue; 
-  }  
-  fseek(in,-4,SEEK_CUR); // встаем на начало заголовка
-  extract(in); // извлекаем раздел из файла  
-}
+  if (fread(&i,1,4,in) != 4) break; // конец файла
+  if (i != dpattern) break;         // образец не найден - конец цепочки разделов
+  fseek(in,-4,SEEK_CUR);            // отъезжаем назад, на начало заголовка
+  extract(in);                      // извлекаем раздел
+} while(1);
 delete pb;  
 }
 
@@ -270,7 +268,6 @@ fclose(in);
 void ptable_list::save_part(int np,FILE* out,uint8_t zflag) {
  
 uint32_t pos,i,cnt;
-int res;
 uint8_t pad=0;  
 long unsigned int clen;
 
@@ -280,7 +277,7 @@ if (zflag) {
   // сжатие образа раздела
   table[np].pimage=(uint8_t*)malloc(table[np].hd.psize+64000);
   clen=table[np].hd.psize+64000;
-  res=compress2(table[np].pimage,&clen,origpt.pimage,origpt.hd.psize,9); 
+  compress2(table[np].pimage,&clen,origpt.pimage,origpt.hd.psize,9); 
   table[np].hd.psize=clen;
   calc_crc16(np);
 }  
