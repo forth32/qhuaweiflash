@@ -72,7 +72,9 @@ struct  pcl{
 };
 
 for(j=0;pcodes[j].code != 0;j++) {
-  if(pcodes[j].code == id) break;
+  if(pcodes[j].code == id) {
+    break;
+  }  
 }
 if (pcodes[j].code != 0) strcpy((char*)pname,pcodes[j].name); // имя найдено - копируем его в структуру
 else sprintf((char*)pname,"U%08x",id); // имя не найдено - подставляем псевдоимя Uxxxxxxxx в тупоконечном формате
