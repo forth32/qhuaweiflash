@@ -12,63 +12,64 @@
 //*  поиск символического имени раздела по его коду
 //******************************************************
 
-void  find_pname(unsigned int id,unsigned char* pname) {
+void  find_pname(unsigned int id,unsigned char* pname, enum parttypes* ptype) {
 
 unsigned int j;
 struct  pcl{
   char name[20];
   uint32_t code;
+  enum parttypes type;
 } pcodes[]={ 
-  {"M3Boot",0x20000}, 
-  {"M3Boot-ptable",0x10000}, 
-  {"M3Boot_R11",0x200000}, 
-  {"Ptable",0x10000},
-  {"Ptable_ext_A",0x480000},
-  {"Ptable_ext_B",0x490000},
-  {"Fastboot",0x110000},
-  {"Logo",0x130000},
-  {"Kernel",0x30000},
-  {"Kernel_R11",0x90000},
-  {"DTS_R11",0x270000},
-  {"VxWorks",0x40000},
-  {"VxWorks_R11",0x220000},
-  {"M3Image",0x50000},
-  {"M3Image_R11",0x230000},
-  {"DSP",0x60000},
-  {"DSP_R11",0x240000},
-  {"Nvdload",0x70000},
-  {"Nvdload_R11",0x250000},
-  {"Nvimg",0x80000},
-  {"System",0x590000},
-  {"System",0x100000},
-  {"APP",0x570000}, 
-  {"APP",0x5a0000}, 
-  {"APP_EXT_A",0x450000}, 
-  {"APP_EXT_B",0x460000},
-  {"CDROMISO",0xb0000},
-  {"Oeminfo",0xa0000},
-  {"Oeminfo",0x550000},
-  {"Oeminfo",0x510000},
-  {"Oeminfo",0x1a0000},
-  {"WEBUI",0x560000},
-  {"WEBUI",0x5b0000},
-  {"Wimaxcfg",0x170000},
-  {"Wimaxcrf",0x180000},
-  {"Userdata",0x190000},
-  {"Online",0x1b0000},
-  {"Online",0x5d0000},
-  {"Online",0x5e0000},
-  {"Ptable_R1",0x100},
-  {"Bootloader_R1",0x101},
-  {"Bootrom_R1",0x102},
-  {"VxWorks_R1",0x550103},
-  {"Fastboot_R1",0x104},
-  {"Kernel_R1",0x105},
-  {"System_R1",0x107},
-  {"Nvimage_R1",0x66},
-  {"WEBUI_R1",0x113},
-  {"APP_R1",0x109},
-  {"HIFI_R11",0x280000},
+//  --- имя ---       Part ID     тип    
+  {"M3Boot",          0x20000    ,part_bin}, 
+  {"Ptable"          ,0x10000    ,part_ptable}, 
+  {"M3Boot_R11"      ,0x200000   ,part_bin}, 
+  {"Ptable_ext_A"    ,0x480000   ,part_ptable},
+  {"Ptable_ext_B"    ,0x490000   ,part_ptable},
+  {"Fastboot"        ,0x110000   ,part_bin},
+  {"Logo"            ,0x130000   ,part_bin},
+  {"Kernel"          ,0x30000    ,part_bin},
+  {"Kernel_R11"      ,0x90000    ,part_bin},
+  {"DTS_R11"         ,0x270000   ,part_bin},
+  {"VxWorks"         ,0x40000    ,part_bin},
+  {"VxWorks_R11"     ,0x220000   ,part_bin},
+  {"M3Image"         ,0x50000    ,part_bin},
+  {"M3Image_R11"     ,0x230000   ,part_bin},
+  {"DSP"             ,0x60000    ,part_bin},
+  {"DSP_R11"         ,0x240000   ,part_bin},
+  {"Nvdload"         ,0x70000    ,part_nvram},
+  {"Nvdload_R11"     ,0x250000   ,part_nvram},
+  {"Nvimg"           ,0x80000    ,part_nvram},
+  {"System"          ,0x590000   ,part_cpio},
+  {"System"          ,0x100000   ,part_cpio},
+  {"APP"             ,0x570000   ,part_cpio}, 
+  {"APP"             ,0x5a0000   ,part_cpio}, 
+  {"APP_EXT_A"       ,0x450000   ,part_cpio}, 
+  {"APP_EXT_B"       ,0x460000   ,part_cpio},
+  {"CDROMISO"        ,0xb0000    ,part_iso},
+  {"Oeminfo"         ,0xa0000    ,part_bin},
+  {"Oeminfo"         ,0x550000   ,part_bin},
+  {"Oeminfo"         ,0x510000   ,part_bin},
+  {"Oeminfo"         ,0x1a0000   ,part_bin},
+  {"WEBUI"           ,0x560000   ,part_cpio},
+  {"WEBUI"           ,0x5b0000   ,part_cpio},
+  {"Wimaxcfg"        ,0x170000   ,part_bin},
+  {"Wimaxcrf"        ,0x180000   ,part_bin},
+  {"Userdata"        ,0x190000   ,part_cpio},
+  {"Online"          ,0x1b0000   ,part_cpio},
+  {"Online"          ,0x5d0000   ,part_cpio},
+  {"Online"          ,0x5e0000   ,part_cpio},
+  {"Ptable_R1"       ,0x100      ,part_ptable},
+  {"Bootloader_R1"   ,0x101      ,part_bin},
+  {"Bootrom_R1"      ,0x102      ,part_bin},
+  {"VxWorks_R1"      ,0x550103   ,part_bin},
+  {"Fastboot_R1"     ,0x104      ,part_bin},
+  {"Kernel_R1"       ,0x105      ,part_bin},
+  {"System_R1"       ,0x107      ,part_bin},
+  {"Nvimage_R1"      ,0x66       ,part_nvram},
+  {"WEBUI_R1"        ,0x113      ,part_bin},
+  {"APP_R1"          ,0x109      ,part_bin},
+  {"HIFI_R11"        ,0x280000   ,part_bin},
   {0,0}
 };
 
@@ -77,8 +78,14 @@ for(j=0;pcodes[j].code != 0;j++) {
     break;
   }  
 }
-if (pcodes[j].code != 0) strcpy((char*)pname,pcodes[j].name); // имя найдено - копируем его в структуру
-else sprintf((char*)pname,"U%08x",id); // имя не найдено - подставляем псевдоимя Uxxxxxxxx в тупоконечном формате
+if (pcodes[j].code != 0) { 
+    strcpy((char*)pname,pcodes[j].name); // имя найдено - копируем его в структуру
+    *ptype=pcodes[j].type;
+}    
+else {
+    sprintf((char*)pname,"U%08x",id); // имя не найдено - подставляем псевдоимя Uxxxxxxxx в тупоконечном формате
+    *ptype=part_bin;
+}    
 }
 
 //*******************************************************************
@@ -100,7 +107,7 @@ int res;
 // читаем заголовок в структуру
 fread(&table[npart].hd,1,sizeof(pheader),in); // заголовок
 //  Ищем символическое имя раздела по таблице 
-find_pname(code(npart),table[npart].pname);
+find_pname(code(npart),table[npart].pname,&table[npart].ptype);
 
 // загружаем блок контрольных сумм
 table[npart].csumblock=0;  // пока блок не создан

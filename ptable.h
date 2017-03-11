@@ -18,9 +18,16 @@ struct __attribute__ ((__packed__)) pheader {
  uint32_t blocksize;  // размер блока CRC образа прошивки
 }; 
 
+// Типы структуры разделов
+enum parttypes {
+    part_bin, // неформатные двоичные разделы
+    part_cpio,   // разделы CPIO-формата
+    part_nvram,  // разделы nvdload
+    part_iso,    // образы CD
+    part_ptable  // таблицы разделов
+};    
 
 // Структура описания таблицы разделов
-
 
 struct ptb_t{
   unsigned char pname[20];    // буквенное имя раздела
@@ -28,6 +35,7 @@ struct ptb_t{
   uint16_t* csumblock; // блок контрольных сумм
   uint8_t* pimage;   // образ раздела
   uint32_t zflag;     // признак сжатого раздела  
+  enum parttypes ptype;     // тип раздела, согласно enum parttypes
 };
 
 //**********************************************************
@@ -62,7 +70,9 @@ public:
   struct pheader* hptr(int n) { return &table[n].hd; }
   // получение ссылки на образ раздела
   uint8_t* iptr(int n) { return table[n].pimage; }
-
+  // получение типа раздела
+  enum parttypes ptype(int n) { return table[n].ptype; }
+  
   // получение ссылок на описательные поля заголовка
   uint8_t* platform(int n) { return table[n].hd.unlock; }
   uint8_t* date(int n) { return table[n].hd.date; }

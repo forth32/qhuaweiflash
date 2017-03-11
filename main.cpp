@@ -252,11 +252,37 @@ void MainWindow::Menu_Part_Replace() {
 int np=partlist->currentRow();
 QString filename;
 QString str;
+char fileselector[100];
 FILE* in;
-// int res;
+// Выбираем подходящие расширения файлов
+enum parttypes ptype=ptable->ptype(np);
+printf("\n ptype = %i",ptype);
+switch (ptype) {
+  case part_bin:
+    strcpy(fileselector,"image (*.bin)");
+    break;
+    
+  case part_cpio:
+    strcpy(fileselector,"CPIO archive (*.cpio)");
+    break;
+      
+  case part_nvram:
+    strcpy(fileselector,"NVDLOAD image (*.nvd)");
+    break;
+
+  case part_iso:
+    strcpy(fileselector,"ISO image (*.iso)");
+    break;
+
+  case part_ptable:
+    strcpy(fileselector,"Partition table (*.ptable)");
+    break;
+}
+strcat(fileselector,";;All files (*.*)");
+      
 
 filename.sprintf("%02i-%08x-%s.bin",np,ptable->code(np),ptable->name(np));
-filename=QFileDialog::getOpenFileName(this,"Имя файла с образом раздела",filename,"image (*.bin);;CPIO archive (*.cpio) ;;All files (*.*)");
+filename=QFileDialog::getOpenFileName(this,"Имя файла с образом раздела",filename,fileselector);
 if (filename.isEmpty()) return;
 in=fopen(filename.toLocal8Bit(),"r");
 if (in == 0) {
