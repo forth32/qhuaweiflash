@@ -10,7 +10,7 @@ QByteArray hexcup;
 QHexEdit* hexedit;
 
 public:
-  MainWindow(QMainWindow *parent = 0, QString* fwfilename=0);
+  MainWindow(QMainWindow *parent = 0);
   ~MainWindow(); 
 public slots: 
 void  SelectFwFile();  // выбор файла

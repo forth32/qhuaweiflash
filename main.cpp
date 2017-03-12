@@ -20,12 +20,14 @@ QComboBox* pselector;
 ptable_list* ptable;
 int npart=0;
 
+QString* fwfilename=0;
+
 // Методы класса главного окна
 //=============================================
 //*****************************************
 //* Конструктор класса
 //*****************************************
-MainWindow::MainWindow(QMainWindow *parent, QString* fwfilename) : QMainWindow(parent) {
+MainWindow::MainWindow(QMainWindow *parent) : QMainWindow(parent) {
     
 // Настройка элементов окна
 setupUi(this);
@@ -101,14 +103,16 @@ EnableMenu();
 //*****************************************
 void MainWindow::AppendFwFile() {
   
-QString fwname;
+static QString fwname;
 
 QFileDialog* qf=new QFileDialog(this);
 fwname=qf->getOpenFileName(0,"Выбор файла прошивки","","*.exe *.bin *.fw");
 delete qf;
 if (fwname.isEmpty()) return;
 OpenFwFile(fwname);
-  
+
+// если это первый открываемый файл - делаем его имя именем по умолчанию
+if (fwfilename == 0) fwfilename=&fwname;  
 }
 
 
@@ -136,6 +140,7 @@ Menu_Oper_flash->setEnabled(0);
 fileappend->setEnabled(0);
 filesave->setEnabled(0);
 ptable->clear();
+fwfilename=0;
 AppendFwFile();
 EnableMenu();
 }
@@ -455,7 +460,6 @@ QApplication app(argc, argv);
 QCoreApplication::setApplicationName("Qt linux huawei flasher");
 QCoreApplication::setApplicationVersion("1.0");
 
-QString* fwfilename;
 
 QCommandLineParser parser;
     parser.setApplicationDescription("Программа для прошивки и восстановления устройств на чипсете Hisilicon Balong v7");
@@ -468,7 +472,7 @@ QStringList args = parser.positionalArguments();
 if (args.size() > 0) fwfilename=&args[0];
 else fwfilename=0;
 
-MainWindow* mw = new  MainWindow(0,fwfilename);
+MainWindow* mw = new  MainWindow(0);
 mw->show();
 return app.exec();
 }
