@@ -48,7 +48,7 @@ hexedit->setOverwriteMode(true);
 hexedit->hide();
 
 if (fwfilename != 0) {
-  OpenFwFile(fwfilename->toLocal8Bit().data());
+  OpenFwFile(*fwfilename);
 }
 }
 
