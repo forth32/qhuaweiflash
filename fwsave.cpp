@@ -10,13 +10,14 @@
 
 #include "fwsave.h"
 
+extern QString* fwfilename;
 
 //***************************************
 //* Конструктор класса 
 //***************************************
 fwsave::fwsave(QWidget *parent) : QDialog(parent) {
 
-QString deffilename="firmware.fw";
+QString deffilename=*fwfilename;
 QString deffc="0D";
 
 setupUi(this);
@@ -30,7 +31,7 @@ fcode->setText(deffc);
 //***************************************
 void fwsave::browse() {
 
-QString fn="firmware.fw";
+QString fn=*fwfilename;
 
 fn=QFileDialog::getSaveFileName(this,"Имя файла",fn,"firmware (*.fw);;All files (*.*)");
 if (fn.isEmpty()) return;
