@@ -212,7 +212,10 @@ int np=partlist->currentRow();
 QString filename;
 QString str;
 FILE* out;
+uint8_t hdr[92];
 
+
+// записываем образ раздела
 filename.sprintf("%02i-%08x-%s.fw",np,ptable->code(np),ptable->name(np));
 filename=QFileDialog::getSaveFileName(this,"Имя файла",filename,"firmware (*.fw);;All files (*.*)");
 if (filename.isEmpty()) return;
@@ -221,6 +224,12 @@ if (out == 0) {
   QMessageBox::critical(0,"Ошибка","Ошибка создания файла");
   return;
 }
+
+// записываем заголовок - upgrade state
+bzero(hdr,sizeof(hdr));
+hdr[0]=0x0d;
+fwrite(hdr,1,sizeof(hdr),out);
+
 ptable->save_part(np,out,0);
 fclose(out);
 }

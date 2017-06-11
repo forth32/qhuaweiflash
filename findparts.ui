@@ -16,9 +16,9 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>129</x>
      <y>20</y>
-     <width>181</width>
+     <width>214</width>
      <height>20</height>
     </rect>
    </property>
@@ -30,7 +30,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Поиск Разделов</string>
+    <string>Обработка разделов</string>
    </property>
   </widget>
   <widget class="QProgressBar" name="fbar">
