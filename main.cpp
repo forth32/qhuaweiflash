@@ -400,7 +400,8 @@ if (pcode -> isModified()) {
   sscanf(pcode->text().toLocal8Bit(),"%x",&code);
   ptable->hptr(ci)->code=code<<16;
   printf("\n code=%x",ptable->hptr(ci)->code);
-}  
+}
+ptable->calc_hd_crc16(ci);
 }
 
 //********************************************
