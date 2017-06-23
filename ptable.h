@@ -120,4 +120,7 @@ extern ptable_list* ptable;
   
 void  find_pname(unsigned int id,unsigned char* pname);
 
+// тип прошивки
+extern int dload_id;
+
 #endif

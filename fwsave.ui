@@ -51,7 +51,7 @@
       <number>2</number>
      </property>
      <property name="placeholderText">
-      <string>0D</string>
+      <string/>
      </property>
     </widget>
    </item>

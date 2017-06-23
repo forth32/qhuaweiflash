@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "fwsave.h"
+#include "ptable.h"
 
 extern QString* fwfilename;
 
@@ -18,11 +19,12 @@ extern QString* fwfilename;
 fwsave::fwsave(QWidget *parent) : QDialog(parent) {
 
 QString deffilename=*fwfilename;
-QString deffc="0D";
+QString deffc;
 
 setupUi(this);
 setWindowFlags (windowFlags() & ~Qt::WindowContextHelpButtonHint); 
 filename->setText(deffilename);
+deffc.sprintf("%x",dload_id);
 fcode->setText(deffc); 
 }
 
