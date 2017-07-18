@@ -18,14 +18,18 @@ extern QString* fwfilename;
 //***************************************
 fwsave::fwsave(QWidget *parent) : QDialog(parent) {
 
+uint32_t i;  
+  
 QString deffilename=*fwfilename;
-QString deffc;
 
 setupUi(this);
 setWindowFlags (windowFlags() & ~Qt::WindowContextHelpButtonHint); 
 filename->setText(deffilename);
-deffc.sprintf("%x",dload_id);
-fcode->setText(deffc); 
+// формируем список типов прошивок
+for(i=0;i<8;i++) {
+ fcode->insertItem(i,fw_description(i));
+}   
+fcode->setCurrentIndex(dload_id&7); 
 }
 
 //***************************************
@@ -49,7 +53,6 @@ int fwsave::exec() {
 FILE* out;
 int i;
 uint8_t hdr[92];
-uint32_t filecode;
 uint8_t zflag=0;
 uint32_t percent;
 
@@ -60,12 +63,10 @@ if (out == 0) {
   return -1;
 }
 
-// выделяем код типа прошивки
-sscanf(fcode->displayText().toLocal8Bit(),"%x",&filecode);
-
 // записываем заголовок - upgrade state
 bzero(hdr,sizeof(hdr));
-hdr[0]=filecode;
+// выделяем код типа прошивки
+hdr[0]=fcode->currentIndex();
 fwrite(hdr,1,sizeof(hdr),out);
 
 // записываем образы всех разделов

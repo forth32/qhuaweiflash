@@ -117,7 +117,9 @@ void setbar(int val) {
   
 
 extern ptable_list* ptable;  
-  
+
+char* fw_description(uint8_t code);
+
 void  find_pname(unsigned int id,unsigned char* pname);
 
 // тип прошивки

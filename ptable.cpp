@@ -99,14 +99,14 @@ char* fw_description(uint8_t code) {
   
 // таблица типов подписей
 char* fwtypes[]={
-"UNKNOWN",        // 0
-"ONLY_FW",        // 1
-"ONLY_ISO",       // 2
-"FW_ISO",         // 3
-"ONLY_WEBUI",     // 4
-"FW_WEBUI",       // 5
-"ISO_WEBUI",      // 6
-"FW_ISO_WEBUI"    // 7
+"00-UNKNOWN",        // 0
+"01-ONLY_FW",        // 1
+"02-ONLY_ISO",       // 2
+"03-FW_ISO",         // 3
+"04-ONLY_WEBUI",     // 4
+"05-FW_WEBUI",       // 5
+"06-ISO_WEBUI",      // 6
+"07-FW_ISO_WEBUI"    // 7
 };  
 
 return fwtypes[code&0x7];  
