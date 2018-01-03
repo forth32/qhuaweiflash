@@ -7,6 +7,7 @@
 #include <zlib.h>
 #include "ptable.h"
 #include "sio.h"
+#include "signver.h"
 
 int dload_id=-1;
 
@@ -72,6 +73,7 @@ struct  pcl{
   {"WEBUI_R1"        ,0x113      ,part_bin},
   {"APP_R1"          ,0x109      ,part_bin},
   {"HIFI_R11"        ,0x280000   ,part_bin},
+  {"Firmwares"       ,0x1e0000   ,part_bin},
   {0,0}
 };
 
@@ -270,8 +272,9 @@ if (dload_id == -1) {
     QMessageBox::critical(0,"Ошибка","Неверный код типа прошивки (dload_id) в заголовке");
     printf("\n Неверный код типа прошивки (dload_id) в заголовке - %x",dload_id);
     exit(0);
-  }  
-printf("\n Код файла прошивки: %x (%s)",dload_id,fw_description(dload_id));
+  }
+  dload_id&=7; // удаляем бит наличия подписи
+  printf("\n Код файла прошивки: %x (%s)",dload_id,fw_description(dload_id));
 }
 
 // Поиск разделов

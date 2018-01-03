@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>504</width>
+    <width>626</width>
     <height>405</height>
    </rect>
   </property>
@@ -31,48 +31,22 @@
   <widget class="QCheckBox" name="dsign">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>80</y>
-     <width>87</width>
+     <x>4</x>
+     <y>54</y>
+     <width>301</width>
      <height>22</height>
     </rect>
    </property>
    <property name="text">
-    <string>Подпись:</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="signlist">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>70</y>
-     <width>371</width>
-     <height>33</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>40</y>
-     <width>181</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Тип   Размер   Описание</string>
+    <string>Использовать цифровую подпись</string>
    </property>
   </widget>
   <widget class="QCheckBox" name="rebootflag">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>130</y>
-     <width>271</width>
+     <x>4</x>
+     <y>104</y>
+     <width>331</width>
      <height>22</height>
     </rect>
    </property>
@@ -86,8 +60,8 @@
   <widget class="QPushButton" name="cancel">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>360</y>
+     <x>114</x>
+     <y>334</y>
      <width>85</width>
      <height>27</height>
     </rect>
@@ -99,8 +73,8 @@
   <widget class="QPushButton" name="start">
    <property name="geometry">
     <rect>
-     <x>280</x>
-     <y>360</y>
+     <x>274</x>
+     <y>334</y>
      <width>85</width>
      <height>27</height>
     </rect>
@@ -112,8 +86,8 @@
   <widget class="Line" name="line">
    <property name="geometry">
     <rect>
-     <x>-3</x>
-     <y>160</y>
+     <x>-9</x>
+     <y>134</y>
      <width>511</width>
      <height>20</height>
     </rect>
@@ -125,8 +99,8 @@
   <widget class="QProgressBar" name="partbar">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>250</y>
+     <x>74</x>
+     <y>224</y>
      <width>411</width>
      <height>23</height>
     </rect>
@@ -138,8 +112,8 @@
   <widget class="QProgressBar" name="totalbar">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>300</y>
+     <x>74</x>
+     <y>274</y>
      <width>411</width>
      <height>23</height>
     </rect>
@@ -151,8 +125,8 @@
   <widget class="QLabel" name="partname">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>250</y>
+     <x>4</x>
+     <y>224</y>
      <width>91</width>
      <height>17</height>
     </rect>
@@ -164,8 +138,8 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>300</y>
+     <x>4</x>
+     <y>274</y>
      <width>54</width>
      <height>17</height>
     </rect>
@@ -177,9 +151,9 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>180</y>
-     <width>181</width>
+     <x>4</x>
+     <y>154</y>
+     <width>221</width>
      <height>17</height>
     </rect>
    </property>
@@ -190,8 +164,8 @@
   <widget class="QLabel" name="pversion">
    <property name="geometry">
     <rect>
-     <x>200</x>
-     <y>180</y>
+     <x>240</x>
+     <y>150</y>
      <width>201</width>
      <height>17</height>
     </rect>
@@ -203,9 +177,9 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>210</y>
-     <width>111</width>
+     <x>4</x>
+     <y>184</y>
+     <width>131</width>
      <height>17</height>
     </rect>
    </property>
@@ -216,8 +190,8 @@
   <widget class="QLabel" name="cpart">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>210</y>
+     <x>150</x>
+     <y>180</y>
      <width>281</width>
      <height>17</height>
     </rect>
@@ -229,22 +203,6 @@
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>dsign</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>signlist</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>53</x>
-     <y>90</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>240</x>
-     <y>86</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>cancel</sender>
    <signal>clicked()</signal>

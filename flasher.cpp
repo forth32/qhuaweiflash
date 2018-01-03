@@ -10,37 +10,17 @@
 #include "sio.h"
 #include "ptable.h"
 #include "flasher.h"
+#include "signver.h"
 
 // указатель на класс таблицы разделов
 extern ptable_list* ptable;
-
+int32_t signsize;
 // указатель на открытый последовательный порт
 extern int siofd; // fd для работы с Последовательным портом
 
 // размер блока данны, передаваемый модему
 // #define fblock 4096
 #define fblock 2048
-
-//*************************************************
-//* Варианты цифровой подписи
-//*************************************************
-
-struct sgn{
-  uint8_t type;
-  uint32_t len;
-  char* descr;
-}; 
-
-struct sgn signbase[] = {
-  {1,2958,"Основная прошивка"},
-  {1,2694,"Прошивка E3372s-stick"},
-  {2,1110,"Вебинтерфейс+ISO для HLINK-модема"},
-  {6,1110,"Вебинтерфейс+ISO для HLINK-модема"},
-  {2,846,"ISO (dashboard) для stick-модема"},
-  {99,1110,"универсальная"},
-  {0,0,0}
-};
-
 
 //****************************************************
 //* Определение версии прошивальщика
@@ -79,10 +59,17 @@ QString txt;
 setupUi(this);
 setWindowFlags (windowFlags() & ~Qt::WindowContextHelpButtonHint); 
 
-for (i=0;signbase[i].len != 0;i++) {
-  txt.sprintf("%02i  %5i       %s",signbase[i].type,signbase[i].len,signbase[i].descr);
-  signlist->addItem(txt);
-}  
+// проверяем наличие подписи и деактивируем управляющие кнопки, если ее нет
+
+if (signlen == -1) {
+//   printf("\n no sign! \n");
+  dsign->setChecked(0);
+  dsign->setEnabled(0);
+}
+else {
+  dsign->setChecked(1);
+  dsign->setEnabled(1);  
+}
 }
 
 //***************************************************
@@ -246,18 +233,9 @@ if (res == 0) {
 }  
 
 // цифровая подпись
-if (dsign->isChecked()) {
- // готовим АТ-команду 
- sprintf(signver,"^SIGNVER=%i,0,778A8D175E602B7B779D9E05C330B5279B0661BF2EED99A20445B366D63DD697,%i",
-	 signbase[signlist->currentIndex()].type,
-	 signbase[signlist->currentIndex()].len);
- //  Отправлем signver...
- res=atcmd(signver,replybuf);
- if (memcmp(replybuf,SVrsp,sizeof(SVrsp)) != 0) {
-  QMessageBox::critical(0,"Ошибка ^signver","Ошибка передачи цифровой подписи");
-  leave();
-  return 0;
- }
+if (dsign->isChecked()) { 
+  res=send_signver();
+  if (!res) return 0; 
 }  
 
 // Входим в HDLC-режим

@@ -10,6 +10,7 @@
 
 #include "fwsave.h"
 #include "ptable.h"
+#include "signver.h"
 
 extern QString* fwfilename;
 
@@ -67,6 +68,7 @@ if (out == 0) {
 bzero(hdr,sizeof(hdr));
 // выделяем код типа прошивки
 hdr[0]=fcode->currentIndex();
+if (signlen != -1) hdr[0]|=0x8;
 fwrite(hdr,1,sizeof(hdr),out);
 
 // записываем образы всех разделов

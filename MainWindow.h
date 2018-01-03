@@ -35,6 +35,7 @@ void usbdload();
 void find_ports();  
 void EnableMenu();
 void set_date();
-  
+void ShowSignInfo();
+
 };
   

@@ -340,7 +340,7 @@
      <x>0</x>
      <y>0</y>
      <width>851</width>
-     <height>27</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
@@ -364,6 +364,8 @@
     <addaction name="Menu_Oper_flash"/>
     <addaction name="Menu_Oper_USBDload"/>
     <addaction name="Menu_Oper_Reboot"/>
+    <addaction name="separator"/>
+    <addaction name="Menu_Oper_signinfo"/>
    </widget>
    <widget class="QMenu" name="menu_part">
     <property name="enabled">
@@ -485,6 +487,14 @@
   <action name="Menu_Oper_Reboot">
    <property name="text">
     <string>Перезагрузка модема</string>
+   </property>
+  </action>
+  <action name="Menu_Oper_signinfo">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Информация о цифровой подписи</string>
    </property>
   </action>
  </widget>
@@ -707,8 +717,8 @@
    <slot>HeaderChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>135</x>
-     <y>473</y>
+     <x>119</x>
+     <y>476</y>
     </hint>
     <hint type="destinationlabel">
      <x>396</x>
@@ -876,6 +886,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>Menu_Oper_signinfo</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ShowSignInfo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>425</x>
+     <y>309</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>SelectFwFile()</slot>
@@ -897,5 +923,6 @@
   <slot>usbdload()</slot>
   <slot>find_ports()</slot>
   <slot>set_date()</slot>
+  <slot>ShowSignInfo()</slot>
  </slots>
 </ui>

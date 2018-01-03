@@ -10,6 +10,8 @@
 #include "flasher.h"
 #include "usbloader.h"
 #include "fwsave.h"
+#include "signinfo.h"
+#include "signver.h"
 
 #include "hexeditor/qhexedit.h"
 
@@ -93,7 +95,15 @@ if (in == 0) {
 ptable->findparts(in); 
 regenerate_partlist();
 partlist->setCurrentRow(0);
-SelectPart();  
+SelectPart(); 
+// поиск цифровой подписи
+if (signlen == -1) {
+  // ищем цифровую подпись
+  search_sign();
+  printf("\n signlen = %i",signlen);
+  if (signlen != -1) dload_id|=8; // вставляем флаг наличия подписи
+}
+
 EnableMenu();
   
 }  
@@ -111,10 +121,12 @@ delete qf;
 if (fwname.isEmpty()) return;
 OpenFwFile(fwname);
 
-// если это первый открываемый файл - делаем его имя именем по умолчанию
-if (fwfilename == 0) fwfilename=&fwname;  
+// если это первый открываемый файл 
+if (fwfilename == 0) {
+  //   - делаем его имя именем по умолчанию
+  fwfilename=&fwname;
 }
-
+}
 
 //********************************************
 //*  Формирование экранного списка разделов
@@ -156,6 +168,7 @@ if (ptable->index() != 0) {
   fileappend->setEnabled(1);
   filesave->setEnabled(1);
 }
+if ((dload_id&8) != 0) Menu_Oper_signinfo->setEnabled(1);
 }
 
 //*****************************************
@@ -382,7 +395,21 @@ str.sprintf("%02i:%02i:%02i",mtime->tm_hour,mtime->tm_min,mtime->tm_sec);
 Time_input->setText(str);
 Time_input->setModified(true);
 }
+//******************************************************
+//* Копирование строки с обрезкой хвостовых пробелов 
+//******************************************************
+void fieldcopy(uint8_t* to,QByteArray from, uint32_t len) {
+  
+int i;
 
+for (i=0;i<len;i++) {
+  if (from.at(i) != ' ') to[i]=from.at(i);
+  else break;
+}  
+if (i != len) {
+  for(;i<len;i++) to[i]=0;
+}  
+}
 
 //********************************************
 //* Запись областей редактирования заголовка
@@ -392,10 +419,10 @@ void MainWindow::HeaderChanged() {
 int32_t ci=partlist->currentRow(); 
 uint32_t code;
 
-if (Platform_input->isModified())  strncpy((char*)ptable->hptr(ci)->unlock,Platform_input->text().toLocal8Bit(),8);
-if (Date_input->isModified())  strncpy((char*)ptable->hptr(ci)->date,Date_input->text().toLocal8Bit(),16);
-if (Time_input->isModified())  strncpy((char*)ptable->hptr(ci)->time,Time_input->text().toLocal8Bit(),16);
-if (Version_input->isModified())  strncpy((char*)ptable->hptr(ci)->version,Version_input->text().toLocal8Bit(),32);
+if (Platform_input->isModified())  fieldcopy((uint8_t*)ptable->hptr(ci)->unlock,Platform_input->text().toLocal8Bit(),8);
+if (Date_input->isModified())  fieldcopy((uint8_t*)ptable->hptr(ci)->date,Date_input->text().toLocal8Bit(),16);
+if (Time_input->isModified())  fieldcopy((uint8_t*)ptable->hptr(ci)->time,Time_input->text().toLocal8Bit(),16);
+if (Version_input->isModified())  fieldcopy((uint8_t*)ptable->hptr(ci)->version,Version_input->text().toLocal8Bit(),32);
 if (pcode -> isModified()) {
   sscanf(pcode->text().toLocal8Bit(),"%x",&code);
   ptable->hptr(ci)->code=code<<16;
@@ -460,6 +487,31 @@ usbloader* ul=new usbloader;
 ul->show();
 }
 
+//********************************************8
+//* Конструктор панели информации о подписи
+//*********************************************
+signinfo::signinfo(QWidget *parent) : QDialog(parent) {
+
+setupUi(this);
+setWindowFlags (windowFlags() & ~Qt::WindowContextHelpButtonHint); 
+}
+
+
+//********************************************
+//* Вывод информации о цифровой подписи
+//********************************************
+void MainWindow::ShowSignInfo() {
+
+signinfo* sd=new signinfo;
+char str[200];
+
+sd->stype->setText(fw_description(dload_id));
+sprintf(str,"%i",signlen);
+sd->ssize->setText(str);
+sd->shash->setText(signver_hash);
+sd->show();
+  
+}  
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@222
 
