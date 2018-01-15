@@ -7,7 +7,8 @@ class MainWindow: public QMainWindow, public Ui_MainWindow {
 Q_OBJECT
 
 QByteArray hexcup;
-QHexEdit* hexedit;
+QHexEdit* hexedit;   // hex-редактор сырых образов разделов
+QTableWidget* ptedit; // редактор таблицы разделов 
 
 public:
   MainWindow(QMainWindow *parent = 0);

@@ -22,8 +22,8 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>15</y>
+      <x>20</x>
+      <y>20</y>
       <width>171</width>
       <height>20</height>
      </rect>
@@ -43,8 +43,8 @@
    <widget class="QComboBox" name="PortSelector">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>10</y>
+      <x>190</x>
+      <y>15</y>
       <width>91</width>
       <height>31</height>
      </rect>
@@ -281,8 +281,8 @@
    <widget class="QToolButton" name="RefreshPorts">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>13</y>
+      <x>300</x>
+      <y>18</y>
       <width>25</width>
       <height>27</height>
      </rect>
@@ -332,6 +332,61 @@
     <property name="text">
      <string>Код</string>
     </property>
+   </widget>
+   <widget class="Line" name="line_4">
+    <property name="geometry">
+     <rect>
+      <x>336</x>
+      <y>0</y>
+      <width>20</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="modebuttons">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>0</y>
+      <width>301</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Режим просмотра</string>
+    </property>
+    <widget class="QRadioButton" name="dump_mode">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>116</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>HEX-дамп</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="structure_mode">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>30</y>
+       <width>116</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Структура</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -845,8 +900,8 @@
    <slot>find_ports()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>471</x>
-     <y>52</y>
+     <x>324</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel">
      <x>500</x>
@@ -895,6 +950,22 @@
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>425</x>
+     <y>309</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dump_mode</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>SelectPart()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>417</x>
+     <y>72</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>

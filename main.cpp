@@ -12,6 +12,7 @@
 #include "fwsave.h"
 #include "signinfo.h"
 #include "signver.h"
+#include "parts.h"
 
 #include "hexeditor/qhexedit.h"
 
@@ -43,13 +44,8 @@ ptable=new ptable_list;
 // заполнение списка портов
 find_ports();
 
-// создание окна hex-редактора
-hexedit=new QHexEdit(centralwidget);
-hexedit->setObjectName(QStringLiteral("HexEditor"));
-hexedit->setGeometry(QRect(230, 100, 600, 470));
-hexedit->setAddressWidth(8);
-hexedit->setOverwriteMode(true);
-hexedit->hide();
+hexedit=0;
+ptedit=0;
 
 if (fwfilename != 0) {
   OpenFwFile(*fwfilename);
@@ -186,6 +182,7 @@ fw_saver();
 void MainWindow::SelectPart() {
 
 QString txt;  
+QStringList(plst);
 
 int idx=partlist->currentRow();
 
@@ -205,15 +202,42 @@ Version_input->setText(txt);
 txt.sprintf("%04x",ptable->code(idx)>>16);
 pcode->setText(txt);
 
-// формирование окна hex-редактора
-// printf("\n idx=%i",idx); 
-// printf("\n data adr=%08x  data size=%08x",(char*)ptable->iptr(idx),ptable->psize(idx)); fflush(stdout);
-hexcup.setRawData((char*)ptable->iptr(idx),ptable->psize(idx));
-hexedit->setData(hexcup);
-hexedit->setCursorPosition(0);
-hexedit->show();
-  
+if (hexedit != 0) {
+  delete hexedit;
+  hexedit=0;
 }  
+if (ptedit != 0) {
+  delete ptedit;
+  ptedit=0;
+}  
+
+if (structure_mode->isChecked()) {
+   // проверяем на таблицу разделов
+   if (is_ptable(ptable->iptr(idx))) {
+     // формирование редактора таблицы разделов
+    ptedit=new QTableWidget(0,9 ,centralwidget);
+    ptedit->setGeometry(QRect(230, 100, 600, 470));
+    plst << "Name" << "start" <<"len" <<"loadsize" <<"loadaddr" << "entry" << "flags" << "type" << "count";
+    ptedit->setHorizontalHeaderLabels(plst);
+    parts_fill(ptedit,ptable->iptr(idx));
+    ptedit->show();
+    return;
+   }  
+}   
+// неформатный тип 
+// создание окна hex-редактора
+ hexedit=new QHexEdit(centralwidget);
+ hexedit->setObjectName(QStringLiteral("HexEditor"));
+ hexedit->setGeometry(QRect(230, 100, 600, 470));
+ hexedit->setAddressWidth(8);
+ hexedit->setOverwriteMode(true);
+
+ // формирование данных окна hex-редактора
+ hexcup.setRawData((char*)ptable->iptr(idx),ptable->psize(idx));
+ hexedit->setData(hexcup);
+ hexedit->setCursorPosition(0);
+ hexedit->show();
+}
 
 
 //*****************************************
