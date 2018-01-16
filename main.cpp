@@ -220,7 +220,6 @@ if (oemedit != 0) {
 
 // Режимы структурного просмотра
 if (structure_mode->isChecked()) {
-   printf("\n parttype = %i",ptable->ptype(idx)); fflush(stdout);
    // проверяем на таблицу разделов
    if ((ptable->ptype(idx) == part_ptable) && (is_ptable(ptable->iptr(idx)))) {
     partmode=part_ptable; 
@@ -240,6 +239,7 @@ if (structure_mode->isChecked()) {
     oemedit->setGeometry(QRect(230, 200, 500, 27));
     oemedit->setText((char*)ptable->iptr(idx));
     oemedit->show();
+    return;
    } 
 }   
 // неформатный тип 
