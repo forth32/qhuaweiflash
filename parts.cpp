@@ -38,8 +38,8 @@ for(pnum=0;
    
    // добавлякм строку
    ptedit->setRowCount(pnum+1);
-
    item=new QTableWidgetItem(pt->part[pnum].name);
+   item->setFlags(Qt::ItemIsEditable);
    ptedit->setItem(pnum,0,item);
 
    sprintf(str,"%i",pt->part[pnum].start/0x20000);

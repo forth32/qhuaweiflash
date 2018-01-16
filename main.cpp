@@ -6,7 +6,6 @@
 #include <time.h>
 
 #include "sio.h"
-#include "ptable.h"
 #include "flasher.h"
 #include "usbloader.h"
 #include "fwsave.h"
@@ -202,19 +201,30 @@ Version_input->setText(txt);
 txt.sprintf("%04x",ptable->code(idx)>>16);
 pcode->setText(txt);
 
+// Удаляем все элементы просмотра разделов
+
 if (hexedit != 0) {
   delete hexedit;
   hexedit=0;
 }  
+
 if (ptedit != 0) {
   delete ptedit;
   ptedit=0;
 }  
 
+if (oemedit != 0) {
+  delete oemedit;
+  oemedit=0;
+}  
+
+// Режимы структурного просмотра
 if (structure_mode->isChecked()) {
+   printf("\n parttype = %i",ptable->ptype(idx)); fflush(stdout);
    // проверяем на таблицу разделов
-   if (is_ptable(ptable->iptr(idx))) {
-     // формирование редактора таблицы разделов
+   if ((ptable->ptype(idx) == part_ptable) && (is_ptable(ptable->iptr(idx)))) {
+    partmode=part_ptable; 
+    // формирование редактора таблицы разделов
     ptedit=new QTableWidget(0,9 ,centralwidget);
     ptedit->setGeometry(QRect(230, 100, 600, 470));
     plst << "Name" << "start" <<"len" <<"loadsize" <<"loadaddr" << "entry" << "flags" << "type" << "count";
@@ -222,10 +232,19 @@ if (structure_mode->isChecked()) {
     parts_fill(ptedit,ptable->iptr(idx));
     ptedit->show();
     return;
-   }  
+   }
+   
+   // Разделы oeminfo
+   if (ptable->ptype(idx) == part_oem) {
+    oemedit=new QLineEdit(centralwidget);
+    oemedit->setGeometry(QRect(230, 200, 500, 27));
+    oemedit->setText((char*)ptable->iptr(idx));
+    oemedit->show();
+   } 
 }   
 // неформатный тип 
 // создание окна hex-редактора
+ partmode=part_bin;
  hexedit=new QHexEdit(centralwidget);
  hexedit->setObjectName(QStringLiteral("HexEditor"));
  hexedit->setGeometry(QRect(230, 100, 600, 470));

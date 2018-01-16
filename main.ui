@@ -19,37 +19,6 @@
     <normaloff>:/icon.ico</normaloff>:/icon.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>171</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>11</pointsize>
-      <weight>75</weight>
-      <italic>false</italic>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Прошивочный порт:</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="PortSelector">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>15</y>
-      <width>91</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QListWidget" name="partlist">
     <property name="geometry">
      <rect>
@@ -278,25 +247,6 @@
      <enum>Qt::Vertical</enum>
     </property>
    </widget>
-   <widget class="QToolButton" name="RefreshPorts">
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>18</y>
-      <width>25</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>...</string>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>20</width>
-      <height>20</height>
-     </size>
-    </property>
-   </widget>
    <widget class="QToolButton" name="setdate">
     <property name="geometry">
      <rect>
@@ -336,7 +286,7 @@
    <widget class="Line" name="line_4">
     <property name="geometry">
      <rect>
-      <x>336</x>
+      <x>210</x>
       <y>0</y>
       <width>20</width>
       <height>61</height>
@@ -349,9 +299,9 @@
    <widget class="QGroupBox" name="modebuttons">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>230</x>
       <y>0</y>
-      <width>301</width>
+      <width>221</width>
       <height>61</height>
      </rect>
     </property>
@@ -385,6 +335,48 @@
      </property>
      <property name="checked">
       <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>141</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Порт прошивки</string>
+    </property>
+    <widget class="QToolButton" name="RefreshPorts">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>30</y>
+       <width>25</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="PortSelector">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>27</y>
+       <width>91</width>
+       <height>31</height>
+      </rect>
      </property>
     </widget>
    </widget>
@@ -966,6 +958,22 @@
     <hint type="sourcelabel">
      <x>417</x>
      <y>72</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>425</x>
+     <y>309</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>partlist</sender>
+   <signal>currentRowChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>SelectPart()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>100</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>

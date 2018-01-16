@@ -24,7 +24,8 @@ enum parttypes {
     part_cpio,   // разделы CPIO-формата
     part_nvram,  // разделы nvdload
     part_iso,    // образы CD
-    part_ptable  // таблицы разделов
+    part_ptable, // таблицы разделов
+    part_oem     // oeminfo 
 };    
 
 // Структура описания таблицы разделов

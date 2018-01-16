@@ -1,5 +1,6 @@
 #include <ui_main.h>
 #include <QtWidgets>
+#include "ptable.h"
 #include "hexeditor/qhexedit.h"
 
 class MainWindow: public QMainWindow, public Ui_MainWindow {
@@ -7,8 +8,11 @@ class MainWindow: public QMainWindow, public Ui_MainWindow {
 Q_OBJECT
 
 QByteArray hexcup;
-QHexEdit* hexedit;   // hex-редактор сырых образов разделов
-QTableWidget* ptedit; // редактор таблицы разделов 
+QHexEdit* hexedit=0;   // hex-редактор сырых образов разделов
+QTableWidget* ptedit=0; // редактор таблицы разделов 
+QLineEdit* oemedit=0;   // редактор oeminfo-разделов
+
+enum parttypes partmode=part_bin;
 
 public:
   MainWindow(QMainWindow *parent = 0);
