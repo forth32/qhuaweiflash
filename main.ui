@@ -742,70 +742,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>Platform_input</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>HeaderChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>119</x>
-     <y>476</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>396</x>
-     <y>314</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Date_input</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>HeaderChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>136</x>
-     <y>503</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>396</x>
-     <y>314</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Time_input</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>HeaderChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>136</x>
-     <y>533</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>396</x>
-     <y>314</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Version_input</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>HeaderChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>100</x>
-     <y>593</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>396</x>
-     <y>314</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>partlist</sender>
    <signal>currentRowChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -898,22 +834,6 @@
     <hint type="destinationlabel">
      <x>324</x>
      <y>509</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pcode</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>HeaderChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>193</x>
-     <y>464</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>249</x>
-     <y>464</y>
     </hint>
    </hints>
   </connection>

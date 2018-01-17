@@ -193,6 +193,8 @@ QString txt;
 QStringList(plst);
 
 int idx=partlist->currentRow();
+if (hrow != -1) HeaderChanged(); // сохраняем заголовок
+hrow=idx; // сохранияем для будущей записи заголовка
 
 // Вывод значений заголовка
 txt.sprintf("%-8.8s",ptable->platform(idx));
@@ -468,9 +470,22 @@ if (i != len) {
 //********************************************
 void MainWindow::HeaderChanged() {
 
-int32_t ci=partlist->currentRow(); 
+int32_t ci=hrow; // строка списка разделов, соответствующая заголовку 
 uint32_t code;
+QMessageBox::StandardButton reply;
 
+// проверяем, изменилось ли хоть что-то
+if (!(
+     (Platform_input->isModified()) ||
+     (Date_input->isModified()) ||
+     (Time_input->isModified()) ||
+     (Version_input->isModified()) ||
+     (pcode -> isModified())
+   )) return;  
+
+reply=QMessageBox::warning(this,"Запись заголовка","Заголовок раздела изменен, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
+if (reply != QMessageBox::Ok) return;
+printf("\n write----------------------"); fflush(stdout);
 if (Platform_input->isModified())  fieldcopy((uint8_t*)ptable->hptr(ci)->unlock,Platform_input->text().toLocal8Bit(),8);
 if (Date_input->isModified())  fieldcopy((uint8_t*)ptable->hptr(ci)->date,Date_input->text().toLocal8Bit(),16);
 if (Time_input->isModified())  fieldcopy((uint8_t*)ptable->hptr(ci)->time,Time_input->text().toLocal8Bit(),16);
