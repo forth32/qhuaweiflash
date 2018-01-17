@@ -36,6 +36,7 @@ void regenerate_partlist();
 void Menu_Part_EditHeader();  
 void Disable_EditHeader();
 void HeaderChanged();
+void DataChanged();
 void Start_Flasher();  
 void Reboot_modem();  
 void usbdload();
