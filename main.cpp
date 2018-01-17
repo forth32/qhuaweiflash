@@ -12,6 +12,7 @@
 #include "signinfo.h"
 #include "signver.h"
 #include "parts.h"
+#include "headcopy.h"
 
 #include "hexeditor/qhexedit.h"
 
@@ -174,6 +175,14 @@ void MainWindow::SaveFwFile() {
 fw_saver();  
 }
 
+//*****************************************
+//* Копирование заголовков
+//*****************************************
+void MainWindow::HeadCopy() {
+
+head_copy();
+SelectPart();
+}
 
 //*****************************************
 //*  Выбор раздела из списка

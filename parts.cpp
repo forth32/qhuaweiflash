@@ -40,6 +40,7 @@ for(pnum=0;
    ptedit->setRowCount(pnum+1);
    item=new QTableWidgetItem(pt->part[pnum].name);
    item->setFlags(Qt::ItemIsEditable);
+   item->setForeground(QBrush(Qt::red));
    ptedit->setItem(pnum,0,item);
 
    sprintf(str,"%i",pt->part[pnum].start/0x20000);
@@ -52,14 +53,17 @@ for(pnum=0;
 
    sprintf(str,"%08x",pt->part[pnum].lsize);
    item=new QTableWidgetItem(str);
+   if (pt->part[pnum].lsize != 0) item->setForeground(QBrush(Qt::green));
    ptedit->setItem(pnum,3,item);
 
    sprintf(str,"%08x",pt->part[pnum].loadaddr);
    item=new QTableWidgetItem(str);
    ptedit->setItem(pnum,4,item);
+   if (pt->part[pnum].loadaddr != 0) item->setForeground(QBrush(Qt::green));
 
    sprintf(str,"%08x",pt->part[pnum].entry);
    item=new QTableWidgetItem(str);
+   if (pt->part[pnum].entry != 0) item->setForeground(QBrush(Qt::blue));
    ptedit->setItem(pnum,5,item);
 
    sprintf(str,"%08x",pt->part[pnum].nproperty);

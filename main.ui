@@ -416,7 +416,7 @@
    </widget>
    <widget class="QMenu" name="menu_part">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="title">
      <string>Раздел</string>
@@ -425,7 +425,7 @@
     <addaction name="MoveDown"/>
     <addaction name="Delete"/>
     <addaction name="separator"/>
-    <addaction name="part_edit_header"/>
+    <addaction name="part_copy_header"/>
     <addaction name="separator"/>
     <addaction name="part_store"/>
     <addaction name="part_extract"/>
@@ -507,9 +507,9 @@
     <string>Ctrl+Del</string>
    </property>
   </action>
-  <action name="part_edit_header">
+  <action name="part_copy_header">
    <property name="text">
-    <string>Редактировать заголовок</string>
+    <string>Копировать заголовок раздела</string>
    </property>
   </action>
   <action name="Menu_Oper_flash">
@@ -742,22 +742,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>part_edit_header</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>Menu_Part_EditHeader()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>396</x>
-     <y>314</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>Platform_input</sender>
    <signal>textChanged(QString)</signal>
    <receiver>MainWindow</receiver>
@@ -892,8 +876,8 @@
    <slot>find_ports()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>324</x>
-     <y>74</y>
+     <x>144</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>500</x>
@@ -956,8 +940,8 @@
    <slot>SelectPart()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>417</x>
-     <y>72</y>
+     <x>355</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>
@@ -974,6 +958,22 @@
     <hint type="sourcelabel">
      <x>100</x>
      <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>425</x>
+     <y>309</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>part_copy_header</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>HeadCopy()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>
@@ -1003,5 +1003,6 @@
   <slot>find_ports()</slot>
   <slot>set_date()</slot>
   <slot>ShowSignInfo()</slot>
+  <slot>HeadCopy()</slot>
  </slots>
 </ui>
