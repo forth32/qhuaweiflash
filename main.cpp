@@ -511,25 +511,32 @@ ptable->calc_hd_crc16(ci);
 void MainWindow::DataChanged() {
 
 char* tdata;  
-int i;
 QMessageBox::StandardButton reply;
 
 //  Измененный раздел oeminfo  
 if (oemedit != 0) {
   tdata=new char[ptable->psize(hrow)];
   bzero(tdata,ptable->psize(hrow));
-  memcpy(tdata,oemedit->text().toLocal8Bit(),oemedit->text().size());
-  for (i=ptable->psize(hrow)-1;i>=0;i--) {
-    if ((tdata[i] != 0) && (tdata[i] != 0x20)) break;
-    tdata[i]=0;
-  }
+  fieldcopy((uint8_t*)tdata,oemedit->text().toLocal8Bit(),oemedit->text().size());
   if (memcmp(tdata,ptable->iptr(hrow),ptable->psize(hrow)) != 0) {
     reply=QMessageBox::warning(this,"Запись раздела","Содержимое раздела изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
     if (reply == QMessageBox::Ok) memcpy(ptable->iptr(hrow),tdata,ptable->psize(hrow));
   }
   delete tdata;
+  return;
 }
 
+if (hexedit != 0) {
+  tdata=new char[ptable->psize(hrow)];
+  hexcup=hexedit->data();
+  memcpy(tdata,hexcup.data(),ptable->psize(hrow));
+  if (memcmp(tdata,ptable->iptr(hrow),ptable->psize(hrow)) != 0) {
+    reply=QMessageBox::warning(this,"Запись раздела","Содержимое раздела изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
+    if (reply == QMessageBox::Ok) memcpy(ptable->iptr(hrow),tdata,ptable->psize(hrow));
+  }
+  delete tdata;
+  return;
+}  
   
 }  
 
