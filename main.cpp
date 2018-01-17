@@ -343,10 +343,6 @@ FILE* in;
 enum parttypes ptype=ptable->ptype(np);
 printf("\n ptype = %i",ptype);
 switch (ptype) {
-  case part_bin:
-    strcpy(fileselector,"image (*.bin)");
-    break;
-    
   case part_cpio:
     strcpy(fileselector,"CPIO archive (*.cpio)");
     break;
@@ -362,6 +358,13 @@ switch (ptype) {
   case part_ptable:
     strcpy(fileselector,"Partition table (*.ptable)");
     break;
+
+  case part_bin:
+  default:  
+    strcpy(fileselector,"image (*.bin)");
+    break;
+   
+    
 }
 strcat(fileselector,";;All files (*.*)");
       
@@ -458,7 +461,7 @@ Time_input->setModified(true);
 //******************************************************
 void fieldcopy(uint8_t* to,QByteArray from, uint32_t len) {
   
-int i;
+uint32_t i;
 
 for (i=0;i<len;i++) {
   if (from.at(i) != ' ') to[i]=from.at(i);
@@ -506,6 +509,27 @@ ptable->calc_hd_crc16(ci);
 //* Запись измененных данных
 //********************************************
 void MainWindow::DataChanged() {
+
+char* tdata;  
+int i;
+QMessageBox::StandardButton reply;
+
+//  Измененный раздел oeminfo  
+if (oemedit != 0) {
+  tdata=new char[ptable->psize(hrow)];
+  bzero(tdata,ptable->psize(hrow));
+  memcpy(tdata,oemedit->text().toLocal8Bit(),oemedit->text().size());
+  for (i=ptable->psize(hrow)-1;i>=0;i--) {
+    if ((tdata[i] != 0) && (tdata[i] != 0x20)) break;
+    tdata[i]=0;
+  }
+  if (memcmp(tdata,ptable->iptr(hrow),ptable->psize(hrow)) != 0) {
+    reply=QMessageBox::warning(this,"Запись раздела","Содержимое раздела изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
+    if (reply == QMessageBox::Ok) memcpy(ptable->iptr(hrow),tdata,ptable->psize(hrow));
+  }
+  delete tdata;
+}
+
   
 }  
 

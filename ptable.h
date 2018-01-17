@@ -103,7 +103,7 @@ public:
 class pfindbar: public QDialog, public Ui_pfindbar {
   
 public:
-   pfindbar(QWidget *parent = 0) {
+   pfindbar() {
      setupUi(this);
    }
    ~pfindbar() {
