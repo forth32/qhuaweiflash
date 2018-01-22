@@ -379,6 +379,7 @@ if (in == 0) {
   return;
 }
 ptable->loadimage(np,in);
+hrow=-1; // предыдущие данные НЕ СОХРАНЯТЬ !!!!
 SelectPart();
   
 }
