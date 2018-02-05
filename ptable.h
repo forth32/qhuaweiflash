@@ -2,13 +2,14 @@
 #define __PTABLE_H
 
 #include "ui_findparts.h"
+struct cpfiledir;
 
 // структура описания заголовка раздела
 struct __attribute__ ((__packed__)) pheader {
  uint32_t magic;    //   0xa55aaa55
  uint32_t hdsize;   // размер заголовка
- uint32_t hdversion;
- uint8_t unlock[8];
+ uint32_t hdversion; // вресия заголовка
+ uint8_t unlock[8]; // платформа
  uint32_t code;     // тип раздела
  uint32_t psize;    // разме поля данных
  uint8_t date[16];
@@ -37,6 +38,7 @@ struct ptb_t{
   uint8_t* pimage;   // образ раздела
   uint32_t zflag;     // признак сжатого раздела  
   enum parttypes ptype;     // тип раздела, согласно enum parttypes
+  QVector<cpfiledir>* rootdir=0;   // для файловых разделов - указатель на вектор корневого раздела
 };
 
 //**********************************************************

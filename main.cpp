@@ -13,6 +13,7 @@
 #include "signver.h"
 #include "parts.h"
 #include "headcopy.h"
+#include "cpio.h"
 
 #include "hexeditor/qhexedit.h"
 
@@ -262,7 +263,7 @@ if (structure_mode->isChecked()) {
  partmode=part_bin;
  hexedit=new QHexEdit(centralwidget);
  hexedit->setObjectName(QStringLiteral("HexEditor"));
- hexedit->setGeometry(QRect(230, 100, 600, 470));
+//  hexedit->setGeometry(QRect(230, 100, 600, 470));
  hexedit->setAddressWidth(8);
  hexedit->setOverwriteMode(true);
 
@@ -270,7 +271,8 @@ if (structure_mode->isChecked()) {
  hexcup.setRawData((char*)ptable->iptr(idx),ptable->psize(idx));
  hexedit->setData(hexcup);
  hexedit->setCursorPosition(0);
- hexedit->show();
+ EditorLayout->addWidget(hexedit);
+//  EditorLayout->show();
 }
 
 
