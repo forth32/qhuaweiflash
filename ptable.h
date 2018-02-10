@@ -2,7 +2,7 @@
 #define __PTABLE_H
 
 #include "ui_findparts.h"
-struct cpfiledir;
+#include "cpio.h"
 
 // структура описания заголовка раздела
 struct __attribute__ ((__packed__)) pheader {
@@ -38,7 +38,7 @@ struct ptb_t{
   uint8_t* pimage;   // образ раздела
   uint32_t zflag;     // признак сжатого раздела  
   enum parttypes ptype;     // тип раздела, согласно enum parttypes
-  QVector<cpfiledir>* rootdir=0;   // для файловых разделов - указатель на вектор корневого раздела
+  QList<cpfiledir*>* rootdir=0;   // для файловых разделов - указатель на вектор корневого раздела
 };
 
 //**********************************************************
@@ -75,13 +75,14 @@ public:
   uint8_t* iptr(int n) { return table[n].pimage; }
   // получение типа раздела
   enum parttypes ptype(int n) { return table[n].ptype; }
+  // ссылка на каталог файлов для cpio-разделов
+  QList<cpfiledir*>* rootdir(int n) {return table[n].rootdir;}
   
   // получение ссылок на описательные поля заголовка
   uint8_t* platform(int n) { return table[n].hd.unlock; }
   uint8_t* date(int n) { return table[n].hd.date; }
   uint8_t* time(int n) { return table[n].hd.time; }
   uint8_t* version(int n) { return table[n].hd.version; }
-  
   
   void findparts(FILE* in);
   void loadimage(int np, FILE* in);

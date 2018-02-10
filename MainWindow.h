@@ -11,6 +11,7 @@ QByteArray hexcup;
 QHexEdit* hexedit=0;   // hex-редактор сырых образов разделов
 QTableWidget* ptedit=0; // редактор таблицы разделов 
 QLineEdit* oemedit=0;   // редактор oeminfo-разделов
+QTableWidget* cpioedit=0; // редактор cpio-разделов
 
 int hrow=-1;   // строка списка разделов, соответствующая текущему заголовку
 
@@ -19,6 +20,9 @@ enum parttypes partmode=part_bin;
 public:
   MainWindow(QMainWindow *parent = 0);
   ~MainWindow(); 
+void cpio_create_list(QList<cpfiledir*>*);
+void cpio_delete_list();
+
 public slots: 
 void  SelectFwFile();  // выбор файла
 void  AppendFwFile();  // добавление файла
@@ -45,6 +49,6 @@ void EnableMenu();
 void set_date();
 void ShowSignInfo();
 void HeadCopy();
-
+void cpio_process_file(int row, int col);
 };
   

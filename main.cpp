@@ -47,6 +47,7 @@ find_ports();
 
 hexedit=0;
 ptedit=0;
+cpioedit=0;
 
 if (fwfilename != 0) {
   OpenFwFile(*fwfilename);
@@ -194,13 +195,13 @@ QString txt;
 QStringList(plst);
 
 int idx=partlist->currentRow();
+if (hrow == idx) return; // ложный сигнал, выбран все тот же элемент списка
 // Проверяем и, если надо, сохраняем измененные данные
 if (hrow != -1) {
   HeaderChanged(); // сохраняем заголовок
   DataChanged();
 }  
 hrow=idx; // сохранияем для будущей записи заголовка
-
 // Вывод значений заголовка
 txt.sprintf("%-8.8s",ptable->platform(idx));
 Platform_input->setText(txt);
@@ -225,26 +226,37 @@ if (hexedit != 0) {
 }  
 
 if (ptedit != 0) {
+  EditorLayout->removeWidget(ptedit);
   delete ptedit;
   ptedit=0;
 }  
 
 if (oemedit != 0) {
+  EditorLayout->removeWidget(oemedit);
   delete oemedit;
   oemedit=0;
 }  
 
+if (cpioedit != 0) {
+  EditorLayout->removeWidget(cpioedit);
+  cpio_delete_list();
+  delete cpioedit;
+  cpioedit=0;
+}  
+
 // Режимы структурного просмотра
 if (structure_mode->isChecked()) {
-   // проверяем на таблицу разделов
+  
+   // Разделы ptable (таблица разделов флешки)
    if ((ptable->ptype(idx) == part_ptable) && (is_ptable(ptable->iptr(idx)))) {
     partmode=part_ptable; 
     // формирование редактора таблицы разделов
     ptedit=new QTableWidget(0,9 ,centralwidget);
-    ptedit->setGeometry(QRect(230, 100, 600, 470));
+//     ptedit->setGeometry(QRect(230, 100, 600, 470));
     plst << "Name" << "start" <<"len" <<"loadsize" <<"loadaddr" << "entry" << "flags" << "type" << "count";
     ptedit->setHorizontalHeaderLabels(plst);
     parts_fill(ptedit,ptable->iptr(idx));
+    EditorLayout->addWidget(ptedit);
     ptedit->show();
     return;
    }
@@ -252,11 +264,18 @@ if (structure_mode->isChecked()) {
    // Разделы oeminfo
    if (ptable->ptype(idx) == part_oem) {
     oemedit=new QLineEdit(centralwidget);
-    oemedit->setGeometry(QRect(230, 200, 500, 27));
+//     oemedit->setGeometry(QRect(230, 200, 500, 27));
+    EditorLayout->addWidget(oemedit);
     oemedit->setText((char*)ptable->iptr(idx));
     oemedit->show();
     return;
    } 
+   
+   // файловые разделы
+   if (is_cpio(ptable->iptr(idx))) {
+     cpio_create_list(ptable->rootdir(idx));
+     return;
+   }  
 }   
 // неформатный тип 
 // создание окна hex-редактора
@@ -273,6 +292,7 @@ if (structure_mode->isChecked()) {
  hexedit->setCursorPosition(0);
  EditorLayout->addWidget(hexedit);
 //  EditorLayout->show();
+ hexedit->show();
 }
 
 
@@ -495,7 +515,6 @@ if (!(
 
 reply=QMessageBox::warning(this,"Запись заголовка","Заголовок раздела изменен, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
 if (reply != QMessageBox::Ok) return;
-printf("\n write----------------------"); fflush(stdout);
 if (Platform_input->isModified())  fieldcopy((uint8_t*)ptable->hptr(ci)->unlock,Platform_input->text().toLocal8Bit(),8);
 if (Date_input->isModified())  fieldcopy((uint8_t*)ptable->hptr(ci)->date,Date_input->text().toLocal8Bit(),16);
 if (Time_input->isModified())  fieldcopy((uint8_t*)ptable->hptr(ci)->time,Time_input->text().toLocal8Bit(),16);
@@ -503,7 +522,6 @@ if (Version_input->isModified())  fieldcopy((uint8_t*)ptable->hptr(ci)->version,
 if (pcode -> isModified()) {
   sscanf(pcode->text().toLocal8Bit(),"%x",&code);
   ptable->hptr(ci)->code=code<<16;
-  printf("\n code=%x",ptable->hptr(ci)->code);
 }
 ptable->calc_hd_crc16(ci);
 }
