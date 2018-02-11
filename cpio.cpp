@@ -22,15 +22,20 @@ void dump(void* mem,int len,long base);
 cpfiledir::cpfiledir(uint8_t* iptr) {
   
 phdr=new cpio_header_t;
+
 memcpy(phdr,iptr,sizeof(cpio_header_t)); // копируем себе заголовок
+int nsz=nsize();
 
 // имя файла
-filename=new char[nsize()];
-memcpy(filename,iptr+sizeof(cpio_header_t),nsize());
+filename=new char[nsz];
+memcpy(filename,iptr+sizeof(cpio_header_t),nsz);
 
 // тело файла
 fimage=new char[fsize()];
-memcpy(fimage,iptr+sizeof(cpio_header_t)+nsize(),fsize());
+memcpy(fimage,iptr+sizeof(cpio_header_t)+nsz,fsize());
+
+// printf("\n ---file %s ---\n",fname());
+// dump(iptr,sizeof(cpio_header_t)+nsz+20,0);
 }
 
 //******************************************************
@@ -71,7 +76,10 @@ uint32_t cpfiledir:: nsize() {
   
 uint32_t val;
 sscanf(phdr->c_namesize,"%8x",&val);
-return val;
+val+=sizeof(cpio_header_t); // добавляем размер заголовка
+if ((val&3) != 0) val=(val&0xfffffffc)+4; // округляем до 4 байт вверх
+return val-sizeof(cpio_header_t);
+// return val;
 }
 
 //**********************************************************
@@ -291,17 +299,18 @@ for (i=0;i<dir->count();i++) {
   // имя файла
   str=dir->at(i)->cfname();
   item=new QTableWidgetItem(str);
-//"""""""""""""""""""""""""""""""@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// if (((dir->at(i)->fmode())&C_ISLNK) == C_ISLNK) {
-//   printf("\n --file %s --\n",dir->at(i)->fname());
-//   dump(dir->at(i)->fdata(),dir->at(i)->fsize(),0);
-//?????????????????????????????????????????????????????  
-// }
   // Выбор иконки файла
   showsize=0;
   if (i == 0) item->setIcon(QIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowBack))); 
   else if (dir->at(i)->subdir != 0) item->setIcon(QIcon(QApplication::style()->standardIcon(QStyle::SP_DirIcon))); 
-  else if (((dir->at(i)->fmode())&C_ISLNK) == C_ISLNK) item->setIcon(QIcon(QApplication::style()->standardIcon(QStyle::SP_FileLinkIcon)));
+  else if (((dir->at(i)->fmode())&C_ISLNK) == C_ISLNK) {
+    // симлмнк
+    item->setIcon(QIcon(QApplication::style()->standardIcon(QStyle::SP_FileLinkIcon)));
+    // добавляем к имени симлинка ссылку на имя файла
+    str.append(" -> ");
+    str.append(dir->at(i)->fdata()); 
+    item->setText(str);
+  }  
   else  {
     // выполняемые файлы
     if ((((dir->at(i)->fmode())&C_IXUSR) != 0)) item->setIcon(QIcon(QApplication::style()->standardIcon(QStyle::SP_ComputerIcon)));
@@ -373,9 +382,9 @@ for (i=0;i<dir->count();i++) {
   cpioedit->setCurrentCell(0,0);
   
   // Обработчики горячих кнопок
-  keyF3 = new QShortcut(this);
-  keyF3->setKey(Qt::Key_F3);    // Устанавливаем код клавиши F3
-  connect(keyF3, SIGNAL(activated()), this, SLOT(F3_processor()));
+  keyF11 = new QShortcut(this);
+  keyF11->setKey(Qt::Key_F11);    // Устанавливаем код клавиши F3
+  connect(keyF11, SIGNAL(activated()), this, SLOT(F11_processor()));
 }
 
 //*********************************************************************
@@ -387,16 +396,20 @@ EditorLayout->removeWidget(cpioedit);
   
 disconnect(cpioedit,SIGNAL(cellActivated(int,int)),this,SLOT(cpio_process_file(int,int)));  
 disconnect(cpioedit,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(cpio_process_file(int,int)));  
-disconnect(keyF3, SIGNAL(activated()), this, SLOT(F3_processor()));
+disconnect(keyF11, SIGNAL(activated()), this, SLOT(F11_processor()));
 delete cpioedit;
-delete keyF3;
+delete keyF11;
 cpioedit=0;
 }
 
 //*********************************************************************
 //* Обработчик кнопки F3 - просмотр файла
 //*********************************************************************
-void MainWindow::F3_processor() {
+
+//*********************************************************************
+//* Обработчик кнопки F11 - извлечение файла
+//*********************************************************************
+void MainWindow::F11_processor() {
 
 FILE* out;  
 cpfiledir* fd;
@@ -409,13 +422,24 @@ item=cpioedit->item(row,0);
 qfn=item->text();
 idx=find_file(qfn,currentdir);
 if (idx == -1) {
-  printf("\n file not found"); fflush(stdout);
+  // такой ошибки быть не должно - файл всегда должен быть найден
   return;
 }  
 
 fd=currentdir->at(idx);
-printf("\n write file %s",fd->fname()); fflush(stdout);
-out=fopen("data.bin","w");
+
+if (((fd->fmode()) & C_ISREG) == 0) {
+  // нерегулярный файл - его извлекать нельзя
+  QMessageBox::critical(0,"Ошибка","Нерегулярные файлы извлекать нельзя");  
+  return;
+}
+
+QString fn=fd->cfname();
+
+fn=QFileDialog::getSaveFileName(this,"Сохранение файла",fn,"All files (*.*)");
+if (fn.isEmpty()) return;
+printf("\n write %s ---",fn.toLocal8Bit().data());
+out=fopen(fn.toLocal8Bit().data(),"w");
 fwrite(fd->fdata(),1,fd->fsize(),out);
 fclose(out);
 }

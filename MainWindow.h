@@ -16,6 +16,7 @@ QTableWidget* ptedit=0; // редактор таблицы разделов
 QLineEdit* oemedit=0;   // редактор oeminfo-разделов
 QTableWidget* cpioedit=0; // редактор cpio-разделов
 QShortcut* keyF3;    // обработчик F3
+QShortcut* keyF11;    // обработчик F11
 
 int hrow=-1;   // строка списка разделов, соответствующая текущему заголовку
 int structure_mode_save=-1; // предыдущее состояние переключателя дамп-формат
@@ -55,6 +56,7 @@ void set_date();
 void ShowSignInfo();
 void HeadCopy();
 void cpio_process_file(int row, int col);
-void F3_processor();
+// void F3_processor();
+void F11_processor();
 };
   
