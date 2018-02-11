@@ -170,40 +170,43 @@
      <rect>
       <x>10</x>
       <y>0</y>
-      <width>141</width>
+      <width>241</width>
       <height>61</height>
      </rect>
     </property>
     <property name="title">
-     <string>Порт прошивки</string>
+     <string>Загрузочный порт модема</string>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <widget class="QComboBox" name="PortSelector">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>27</y>
+       <width>121</width>
+       <height>31</height>
+      </rect>
+     </property>
+    </widget>
     <widget class="QToolButton" name="RefreshPorts">
      <property name="geometry">
       <rect>
-       <x>110</x>
+       <x>130</x>
        <y>30</y>
-       <width>25</width>
+       <width>101</width>
        <height>27</height>
       </rect>
      </property>
      <property name="text">
-      <string>...</string>
+      <string>Обновить</string>
      </property>
      <property name="iconSize">
       <size>
        <width>20</width>
        <height>20</height>
       </size>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="PortSelector">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>27</y>
-       <width>91</width>
-       <height>31</height>
-      </rect>
      </property>
     </widget>
    </widget>
@@ -878,22 +881,6 @@
     <hint type="destinationlabel">
      <x>425</x>
      <y>314</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>RefreshPorts</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>find_ports()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>144</x>
-     <y>86</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>500</x>
-     <y>52</y>
     </hint>
    </hints>
   </connection>

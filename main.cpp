@@ -195,13 +195,18 @@ QString txt;
 QStringList(plst);
 
 int idx=partlist->currentRow();
-if (hrow == idx) return; // ложный сигнал, выбран все тот же элемент списка
 // Проверяем и, если надо, сохраняем измененные данные
-if (hrow != -1) {
+if ((hrow != -1)&&(hrow != idx)) {
   HeaderChanged(); // сохраняем заголовок
-  DataChanged();
+  DataChanged();  // сохранияем блок данных
 }  
+
+if ((hrow == idx) && (structure_mode_save == structure_mode->isChecked()))  return; // ложный сигнал, выбран все тот же элемент списка
+
+structure_mode_save=structure_mode->isChecked();
 hrow=idx; // сохранияем для будущей записи заголовка
+
+
 // Вывод значений заголовка
 txt.sprintf("%-8.8s",ptable->platform(idx));
 Platform_input->setText(txt);
@@ -238,10 +243,8 @@ if (oemedit != 0) {
 }  
 
 if (cpioedit != 0) {
-  EditorLayout->removeWidget(cpioedit);
+  
   cpio_delete_list();
-  delete cpioedit;
-  cpioedit=0;
 }  
 
 // Режимы структурного просмотра
@@ -273,7 +276,7 @@ if (structure_mode->isChecked()) {
    
    // файловые разделы
    if (is_cpio(ptable->iptr(idx))) {
-     cpio_create_list(ptable->rootdir(idx));
+     cpio_create_list(ptable->rootdir(idx),0);
      return;
    }  
 }   

@@ -3,6 +3,9 @@
 #include "ptable.h"
 #include "hexeditor/qhexedit.h"
 
+//******************************************************************************
+//* Класс главного окна
+//******************************************************************************
 class MainWindow: public QMainWindow, public Ui_MainWindow {
   
 Q_OBJECT
@@ -12,15 +15,17 @@ QHexEdit* hexedit=0;   // hex-редактор сырых образов раз�
 QTableWidget* ptedit=0; // редактор таблицы разделов 
 QLineEdit* oemedit=0;   // редактор oeminfo-разделов
 QTableWidget* cpioedit=0; // редактор cpio-разделов
+QShortcut* keyF3;    // обработчик F3
 
 int hrow=-1;   // строка списка разделов, соответствующая текущему заголовку
+int structure_mode_save=-1; // предыдущее состояние переключателя дамп-формат
 
 enum parttypes partmode=part_bin;
 
 public:
   MainWindow(QMainWindow *parent = 0);
   ~MainWindow(); 
-void cpio_create_list(QList<cpfiledir*>*);
+void cpio_create_list(QList<cpfiledir*>*, int);
 void cpio_delete_list();
 
 public slots: 
@@ -50,5 +55,6 @@ void set_date();
 void ShowSignInfo();
 void HeadCopy();
 void cpio_process_file(int row, int col);
+void F3_processor();
 };
   

@@ -78,6 +78,7 @@ uint8_t* imageptr;
 
 // поиск в разделах 0 и 1
 for (i=0;i<2;i++) {
+  if (ptable->index() == i) break;
   imageptr=ptable->iptr(i)+ptable->psize(i);
   pt=*(uint32_t*)(imageptr-4);
   if (pt == 0xffaaaffa) { 

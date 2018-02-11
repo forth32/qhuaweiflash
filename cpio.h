@@ -65,16 +65,21 @@ typedef struct cpio_header cpio_header_t;
 class cpfiledir {
 
   cpio_header_t* phdr; // ссылка на заголовок
-  
+  char* filename; // указатель на имя файла
+  char* fimage; // указатель на тело файла
+    
 public:
   cpfiledir(uint8_t* hdr);
   ~cpfiledir();
   QList<cpfiledir*>* subdir=0; // ссылка на контейнер поддиректории
 
-   char* fname() {return (char*)phdr+sizeof(cpio_header_t);} // ссылка на имя файла
-   char* fdata() {return fname()+nsize();}  // ссылка на тело файла
+//    char* fname() {return (char*)phdr+sizeof(cpio_header_t);} // ссылка на имя файла
+   char* fname() {return filename;} // ссылка на имя файла
+//    char* fdata() {return fname()+nsize();}  // ссылка на тело файла
+   char* fdata() {return fimage;}  // ссылка на тело файла
    char* cfname(); // имя файла без пути к нему
-
+   void setfname(char* name);
+   
   uint32_t fsize(); // размер файла
   uint32_t nsize(); // размер имени файла
   uint32_t totalsize() { return sizeof(cpio_header_t)+nsize()+fsize();} // полный размер архивной записи о файле
