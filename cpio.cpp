@@ -438,7 +438,6 @@ QString fn=fd->cfname();
 
 fn=QFileDialog::getSaveFileName(this,"Сохранение файла",fn,"All files (*.*)");
 if (fn.isEmpty()) return;
-printf("\n write %s ---",fn.toLocal8Bit().data());
 out=fopen(fn.toLocal8Bit().data(),"w");
 fwrite(fd->fdata(),1,fd->fsize(),out);
 fclose(out);

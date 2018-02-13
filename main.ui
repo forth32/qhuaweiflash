@@ -221,7 +221,7 @@
     </property>
     <layout class="QVBoxLayout" name="EditorLayout">
      <property name="sizeConstraint">
-      <enum>QLayout::SetMaximumSize</enum>
+      <enum>QLayout::SetMinimumSize</enum>
      </property>
     </layout>
    </widget>
