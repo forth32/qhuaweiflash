@@ -133,11 +133,14 @@ void MainWindow::regenerate_partlist() {
 
 int i;
 QString str;
+partlist->blockSignals(true);
 partlist->clear();
 for (i=0;i<ptable->index();i++) {
   str.sprintf("%06x - %s",ptable->code(i),ptable->name(i));
   partlist->addItem(str);
 }  
+hrow=-1;
+partlist->blockSignals(false);
 }  
 
 //*****************************************
@@ -195,6 +198,7 @@ QString txt;
 QStringList(plst);
 
 int idx=partlist->currentRow();
+if (idx == -1) return; // пустой список
 // Проверяем и, если надо, сохраняем измененные данные
 if ((hrow != -1)&&(hrow != idx)) {
   HeaderChanged(); // сохраняем заголовок
@@ -226,6 +230,7 @@ pcode->setText(txt);
 // Удаляем все элементы просмотра разделов
 
 if (hexedit != 0) {
+  EditorLayout->removeWidget(hexedit);
   delete hexedit;
   hexedit=0;
 }  
@@ -240,6 +245,12 @@ if (oemedit != 0) {
   EditorLayout->removeWidget(oemedit);
   delete oemedit;
   oemedit=0;
+}  
+
+if (label != 0) {
+  EditorLayout->removeWidget(label);
+  delete label;
+  label=0;
 }  
 
 if (cpioedit != 0) {
@@ -266,11 +277,21 @@ if (structure_mode->isChecked()) {
    
    // Разделы oeminfo
    if (ptable->ptype(idx) == part_oem) {
+    label=new QLabel("Версия WEBUI или DASHBOARD");
+    label->setAlignment(Qt::AlignHCenter|Qt::AlignTop);
+    label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    EditorLayout->addWidget(label);
+    label->resize(300,20);
+    label->show();
+    printf("\n label h = %i",label->height()); fflush(stdout);
+    
     oemedit=new QLineEdit(centralwidget);
+    oemedit->setAlignment(Qt::AlignHCenter|Qt::AlignTop);
 //     oemedit->setGeometry(QRect(230, 200, 500, 27));
     EditorLayout->addWidget(oemedit);
     oemedit->setText((char*)ptable->iptr(idx));
     oemedit->show();
+    printf("\n label o = %i",oemedit->height()); fflush(stdout);
     return;
    } 
    

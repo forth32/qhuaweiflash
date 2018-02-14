@@ -15,6 +15,7 @@ QHexEdit* hexedit=0;   // hex-редактор сырых образов раз�
 QTableWidget* ptedit=0; // редактор таблицы разделов 
 QLineEdit* oemedit=0;   // редактор oeminfo-разделов
 QTableWidget* cpioedit=0; // редактор cpio-разделов
+QLabel* label=0;
 QShortcut* keyF3;    // обработчик F3
 QShortcut* keyF11;    // обработчик F11
 
