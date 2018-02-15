@@ -1,4 +1,3 @@
-// 
 #include <QtWidgets>
 
 // Процедуры обработки цифровых подписей
@@ -106,7 +105,7 @@ void MainWindow::ShowSignInfo() {
 
 QDialog* sd=new QDialog;
 
-QDialogButtonBox* btn=new QDialogButtonBox(QDialogButtonBox::Apply,sd);
+QDialogButtonBox* btn=new QDialogButtonBox(QDialogButtonBox::Ok,sd);
 
 QFormLayout* lm=new QFormLayout(sd);
 char str[200];
@@ -123,7 +122,7 @@ lm->addRow("Хеш ключа",hash);
 
 lm->addRow(0,btn);
 
-// connect(btn,accepted(),sd,accept());
+connect(btn,SIGNAL(accepted()),sd,SLOT(accept()));
 sd->exec();
 
 delete btn;
