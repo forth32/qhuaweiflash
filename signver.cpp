@@ -17,6 +17,7 @@
 
 #include "sio.h"
 #include "ptable.h"
+#include "MainWindow.h"
 // #include "flasher.h"
 // #include "util.h"
 // #include "zlib.h"
@@ -97,4 +98,38 @@ for (i=0;i<2;i++) {
 // не найдена
 return -1;
 }
-  
+ 
+//********************************************
+//* Вывод информации о цифровой подписи
+//********************************************
+void MainWindow::ShowSignInfo() {
+
+QDialog* sd=new QDialog;
+
+QDialogButtonBox* btn=new QDialogButtonBox(QDialogButtonBox::Apply,sd);
+
+QFormLayout* lm=new QFormLayout(sd);
+char str[200];
+
+QLabel* dlid=new QLabel(fw_description(dload_id));
+lm->addRow("Тип прошивки",dlid);
+
+sprintf(str,"%i",signlen);
+QLabel* signln=new QLabel(str);
+lm->addRow("Размер подписи",signln);
+
+QLabel* hash=new QLabel(signver_hash);
+lm->addRow("Хеш ключа",hash);
+
+lm->addRow(0,btn);
+
+// connect(btn,accepted(),sd,accept());
+sd->exec();
+
+delete btn;
+delete dlid;
+delete hash;
+delete signln; 
+delete lm;
+delete sd;
+}

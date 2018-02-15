@@ -9,7 +9,6 @@
 #include "flasher.h"
 #include "usbloader.h"
 #include "fwsave.h"
-#include "signinfo.h"
 #include "signver.h"
 #include "parts.h"
 #include "headcopy.h"
@@ -641,31 +640,7 @@ usbloader* ul=new usbloader;
 ul->show();
 }
 
-//********************************************8
-//* Конструктор панели информации о подписи
-//*********************************************
-signinfo::signinfo(QWidget *parent) : QDialog(parent) {
 
-setupUi(this);
-setWindowFlags (windowFlags() & ~Qt::WindowContextHelpButtonHint); 
-}
-
-
-//********************************************
-//* Вывод информации о цифровой подписи
-//********************************************
-void MainWindow::ShowSignInfo() {
-
-signinfo* sd=new signinfo;
-char str[200];
-
-sd->stype->setText(fw_description(dload_id));
-sprintf(str,"%i",signlen);
-sd->ssize->setText(str);
-sd->shash->setText(signver_hash);
-sd->show();
-  
-}  
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@222
 

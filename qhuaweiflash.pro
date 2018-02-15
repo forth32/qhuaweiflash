@@ -9,9 +9,9 @@ QT             += widgets
 
 QMAKE_CXXFLAGS  += -Wno-unused-result -std=c++11 -g
 # Input
-HEADERS += MainWindow.h sio.h ptable.h flasher.h usbloader.h fwsave.h signver.h signinfo.h parts.h headcopy.h cpio.h hexeditor/qhexedit.h hexeditor/qhexedit_p.h hexeditor/xbytearray.h  hexeditor/commands.h 
+HEADERS += MainWindow.h sio.h ptable.h flasher.h usbloader.h fwsave.h signver.h parts.h headcopy.h cpio.h hexeditor/qhexedit.h hexeditor/qhexedit_p.h hexeditor/xbytearray.h  hexeditor/commands.h 
 
-FORMS += main.ui findparts.ui flasher.ui usbloader.ui fwsave.ui signinfo.ui headcopy.ui
+FORMS += main.ui findparts.ui flasher.ui usbloader.ui fwsave.ui headcopy.ui
 SOURCES += main.cpp sio.cpp ptable.cpp flasher.cpp usbloader.cpp fwsave.cpp signver.cpp parts.cpp headcopy.cpp cpio.cpp hexeditor/commands.cpp hexeditor/qhexedit.cpp hexeditor/qhexedit_p.cpp hexeditor/xbytearray.cpp
 RESOURCES = qhuaweiflash.qrc
 LIBS += -lz
