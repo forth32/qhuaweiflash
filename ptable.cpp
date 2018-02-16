@@ -237,8 +237,24 @@ uint32_t filesize;
 // буфер префикса BIN-файла
 uint8_t prefix[0x5c];
 
-pfindbar* pb=new pfindbar;
+// Создаем панель диалога прогресс-бара
+QWidget* pb=new QWidget();
+QVBoxLayout* lm=new QVBoxLayout(pb);
+
+QLabel* label = new QLabel("Обработка разделов",pb);
+QFont font;
+font.setPointSize(14);
+font.setBold(true);
+font.setWeight(75);
+label->setFont(font);
+lm->addWidget(label);
+
+QProgressBar* fbar = new QProgressBar(pb);
+fbar->setValue(0);
+lm->addWidget(fbar);
+
 pb->show();
+
 // получаем размер файла
 fseek(in,0,SEEK_END);
 filesize=ftell(in);
@@ -249,7 +265,7 @@ while (fread(&i,1,4,in) == 4) {
   // обновление индикатора
   percent=ftell(in)*100/filesize;
   if (percent>oldpercent) {
-   pb->fbar->setValue(percent);
+   fbar->setValue(percent);
    QCoreApplication::processEvents();
    oldpercent=percent;
   } 
@@ -258,7 +274,7 @@ while (fread(&i,1,4,in) == 4) {
 }
 if (feof(in)) {
   QMessageBox::critical(0,"Ошибка"," В файле не найдены разделы - файл не содержит образа прошивки");
-  return;
+    exit(0);
 }  
 
 // текущая позиция в файле должна быть не ближе 0x60 от начала - размер заголовка всего файла
@@ -267,7 +283,6 @@ if (ftell(in)<0x60) {
     exit(0);
 }    
 fseek(in,-0x60,SEEK_CUR); // отъезжаем на начало BIN-файла
-
 // вынимаем префикс
 fread(prefix,0x5c,1,in);
 if (dload_id == -1) {
@@ -288,7 +303,7 @@ do {
   // обновление индикатора
   percent=ftell(in)*100/filesize;
   if (percent>oldpercent) {
-   pb->fbar->setValue(percent);
+   fbar->setValue(percent);
    QCoreApplication::processEvents();
    oldpercent=percent;
   } 
@@ -297,6 +312,10 @@ do {
   fseek(in,-4,SEEK_CUR);            // отъезжаем назад, на начало заголовка
   extract(in);                      // извлекаем раздел
 } while(1);
+
+delete fbar;
+delete lm;
+delete label;
 delete pb;  
 }
 
