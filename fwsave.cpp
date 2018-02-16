@@ -71,19 +71,38 @@ hdr[0]=fcode->currentIndex();
 if (signlen != -1) hdr[0]|=0x8;
 fwrite(hdr,1,sizeof(hdr),out);
 
-// записываем образы всех разделов
-pfindbar* pb=new pfindbar;
+// Формируем окно прогресс-бара
+QWidget* pb=new QWidget();
+QVBoxLayout* lm=new QVBoxLayout(pb);
+
+QLabel* label = new QLabel("Сохранение разделов",pb);
+QFont font;
+font.setPointSize(14);
+font.setBold(true);
+font.setWeight(75);
+label->setFont(font);
+lm->addWidget(label);
+
+QProgressBar* fbar = new QProgressBar(pb);
+fbar->setValue(0);
+lm->addWidget(fbar);
+
 pb->show();
 
+// записываем образы всех разделов
 if (compressflag->isChecked()) zflag=1;
 
 for(i=0;i<ptable->index();i++) {
   ptable->save_part(i,out,zflag);
   percent=(i+1)*100/(ptable->index());
-  pb->fbar->setValue(percent);
+  fbar->setValue(percent);
   QCoreApplication::processEvents();
 }
-delete pb;
+delete fbar;
+delete lm;
+delete label;
+delete pb;  
+
 fclose(out);
 accept();
 return 0;

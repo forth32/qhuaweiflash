@@ -241,7 +241,7 @@ uint8_t prefix[0x5c];
 QWidget* pb=new QWidget();
 QVBoxLayout* lm=new QVBoxLayout(pb);
 
-QLabel* label = new QLabel("Обработка разделов",pb);
+QLabel* label = new QLabel("Поиск и загрузка разделов",pb);
 QFont font;
 font.setPointSize(14);
 font.setBold(true);

@@ -1,7 +1,6 @@
 #ifndef __PTABLE_H
 #define __PTABLE_H
 
-#include "ui_findparts.h"
 #include "cpio.h"
 
 // структура описания заголовка раздела
@@ -97,28 +96,7 @@ public:
   // перемещение вниз
   void movedown(int n);  
 };
-  
-
-//*******************************************************
-//* Класс прогрессбара разбора разделов
-//*******************************************************
-  
-class pfindbar: public QDialog, public Ui_pfindbar {
-  
-public:
-   pfindbar() {
-     setupUi(this);
-   }
-   ~pfindbar() {
-   }  
-public slots:
-
-void setbar(int val) {
-    fbar->setValue(val);
-}
-  
-};  
-  
+    
 
 extern ptable_list* ptable;  
 
