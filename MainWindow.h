@@ -60,4 +60,5 @@ void cpio_process_file(int row, int col);
 // void F3_processor();
 void F11_processor();
 };
-  
+
+void head_copy();

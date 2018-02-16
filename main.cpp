@@ -11,7 +11,6 @@
 #include "fwsave.h"
 #include "signver.h"
 #include "parts.h"
-#include "headcopy.h"
 #include "cpio.h"
 
 #include "hexeditor/qhexedit.h"
