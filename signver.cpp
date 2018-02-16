@@ -108,6 +108,7 @@ QDialog* sd=new QDialog;
 QDialogButtonBox* btn=new QDialogButtonBox(QDialogButtonBox::Ok,sd);
 
 QFormLayout* lm=new QFormLayout(sd);
+
 char str[200];
 
 QLabel* dlid=new QLabel(fw_description(dload_id));

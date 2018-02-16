@@ -276,21 +276,28 @@ if (structure_mode->isChecked()) {
    
    // Разделы oeminfo
    if (ptable->ptype(idx) == part_oem) {
-    label=new QLabel("Версия WEBUI или DASHBOARD");
+//    label=new QLabel("Версия WEBUI или DASHBOARD");
+    label=new QLabel("    Версия WEBUI или DASHBOARD   ",verticalLayoutWidget);
     label->setAlignment(Qt::AlignHCenter|Qt::AlignTop);
-    label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    EditorLayout->addWidget(label);
-    label->resize(300,20);
-    label->show();
-    printf("\n label h = %i",label->height()); fflush(stdout);
+//     label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    label->setTextFormat(Qt::RichText);
+
+    QFont font;
+    font.setPointSize(14);
+    font.setBold(true);
+    font.setWeight(75);
+    label->setFont(font);
+    label->setGeometry(20,200,500,30);
     
-    oemedit=new QLineEdit(centralwidget);
-    oemedit->setAlignment(Qt::AlignHCenter|Qt::AlignTop);
-//     oemedit->setGeometry(QRect(230, 200, 500, 27));
-    EditorLayout->addWidget(oemedit);
+    label->show();
+    
+//     oemedit=new QLineEdit(centralwidget);
+    oemedit=new QLineEdit(verticalLayoutWidget);
+    oemedit->setAlignment(Qt::AlignLeft|Qt::AlignTop);
+//     EditorLayout->addWidget(oemedit);
     oemedit->setText((char*)ptable->iptr(idx));
+    oemedit->setGeometry(20,300,500,30);
     oemedit->show();
-    printf("\n label o = %i",oemedit->height()); fflush(stdout);
     return;
    } 
    
