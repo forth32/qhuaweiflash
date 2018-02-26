@@ -6,7 +6,6 @@
 #include <time.h>
 
 #include "sio.h"
-#include "flasher.h"
 #include "usbloader.h"
 #include "fwsave.h"
 #include "signver.h"
@@ -14,6 +13,8 @@
 #include "cpio.h"
 
 #include "hexeditor/qhexedit.h"
+
+void flasher();
 
 // ссылка на селектор портов
 QComboBox* pselector;
