@@ -612,8 +612,7 @@ if (PortSelector->count() == 0) {
    return;
 }
   
-flasher* fl=new flasher;
-fl->show();
+flasher();
 }
 
 //********************************************

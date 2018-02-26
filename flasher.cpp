@@ -9,8 +9,9 @@
 
 #include "sio.h"
 #include "ptable.h"
-#include "flasher.h"
 #include "signver.h"
+
+void flasher();
 
 // указатель на класс таблицы разделов
 extern ptable_list* ptable;
@@ -47,39 +48,6 @@ QMessageBox::critical(0,"Ошибка",str);
 return -1;
 }
 
-
-//***************************************
-//* Конструктор класса прошивальщика
-//***************************************
-flasher::flasher(QWidget *parent) : QDialog(parent) {
-
-int i;  
-QString txt;
-
-setupUi(this);
-setWindowFlags (windowFlags() & ~Qt::WindowContextHelpButtonHint); 
-
-// проверяем наличие подписи и деактивируем управляющие кнопки, если ее нет
-
-if (signlen == -1) {
-//   printf("\n no sign! \n");
-  dsign->setChecked(0);
-  dsign->setEnabled(0);
-}
-else {
-  dsign->setChecked(1);
-  dsign->setEnabled(1);  
-}
-}
-
-//***************************************************
-//* Завершение работы панели прошивки
-//***************************************************
-void flasher::leave() {
-  
-close_port();
-reject();
-}
 
 //***************************************************
 // Отправка команды начала раздела
@@ -194,48 +162,128 @@ if ((iolen == 0) || (replybuf[1] != 2)) {
 else return true;
 }  
 
-  
-//***************************************
+
+//******************************************************************************* 
 //* Запуск процесса прошивки
-//***************************************
-int flasher::exec() {
-  
-char signver[200];
+//******************************************************************************* 
+void flasher() {
+
 int32_t res,part;
 uint32_t iolen,blk,maxblock;
 uint8_t replybuf[4096];
 QString txt;
 unsigned char cmdver=0x0c;
+uint8_t signflag=0,rebootflag=0;
+
 
 // Варианты ответа модема на HDLC-команды
 unsigned char OKrsp[]={0x0d, 0x0a, 0x4f, 0x4b, 0x0d, 0x0a};
-// ответ на ^signver
-unsigned char SVrsp[]={0x0d, 0x0a, 0x30, 0x0d, 0x0a, 0x0d, 0x0a, 0x4f, 0x4b, 0x0d, 0x0a};
+  
+QDialog* Flasher=new QDialog;
+Flasher->setWindowTitle("Прошивка модема");
+QVBoxLayout* vl=new QVBoxLayout(Flasher);  
 
+QFont font;
+font.setPointSize(17);
+font.setBold(true);
+font.setWeight(75);
+
+QLabel* lbl1=new QLabel("Прошивка модема");
+lbl1->setFont(font);
+
+vl->addWidget(lbl1,10,Qt::AlignHCenter);
+
+QCheckBox* dsign = new QCheckBox("Использовать цифровую подпись",Flasher);
+vl->addWidget(dsign);
+
+// проверяем наличие подписи и деактивируем управляющие кнопки, если ее нет
+
+if (signlen == -1) {
+//   printf("\n no sign! \n");
+  dsign->setChecked(0);
+  dsign->setEnabled(0);
+}
+else {
+  dsign->setChecked(1);
+  dsign->setEnabled(1);  
+}
+
+
+QCheckBox* creboot = new QCheckBox("Перезагрузка по окончании прошивки",Flasher);
+creboot->setChecked(true);
+vl->addWidget(creboot);
+
+QDialogButtonBox* buttonBox = new QDialogButtonBox(Flasher);
+buttonBox->setOrientation(Qt::Horizontal);
+buttonBox->setStandardButtons(QDialogButtonBox::Cancel);
+buttonBox->addButton("Start",QDialogButtonBox::AcceptRole);
+vl->addWidget(buttonBox,10,Qt::AlignHCenter);
+
+QObject::connect(buttonBox, SIGNAL(accepted()), Flasher, SLOT(accept()));
+QObject::connect(buttonBox, SIGNAL(rejected()), Flasher, SLOT(reject()));
+
+// Запускаем диалог
+res=Flasher->exec();
+
+// Вынимаем параметры диалога
+signflag=dsign->isChecked();
+rebootflag=creboot->isChecked();
+
+// Удаляем текущий диалог
+delete buttonBox;
+delete creboot;
+delete dsign;
+delete lbl1;
+delete vl;
+delete Flasher;
+if (res != QDialog::Accepted) return;
+
+Flasher=new QDialog; 
+
+QFormLayout* glm=new QFormLayout(Flasher);
+
+QLabel* pversion = new QLabel(Flasher);
+glm->addRow("Версия протокола:",pversion);
+
+QLabel* cpart = new QLabel(Flasher);
+glm->addRow("Текущий раздел:",cpart);
+
+QProgressBar* partbar = new QProgressBar(Flasher);
+partbar->setValue(0);
+glm->addRow("Раздел:",partbar);
+
+QProgressBar* totalbar = new QProgressBar(Flasher);
+totalbar->setValue(0);
+glm->addRow("Всего:",totalbar);
+
+Flasher->show();
+  
 // Настройка SIO
 if (!open_port())  {
   QMessageBox::critical(0,"Ошибка","Последовательный порт не открывается");
-  leave();
-  return 0;
+  goto leave;
 }  
   
 tcflush(siofd,TCIOFLUSH);  // очистка выходного буфера
 
 res=dloadversion();
 if (res == -1) {
-  leave(); // неправильная версия прошивочного сервера
-  return 0;
+  QMessageBox::critical(0,"Ошибка","Неподдерживаемая версия протокола прошивки");
+  goto leave;
 }
+
 if (res == 0) {
   QMessageBox::critical(0,"Ошибка","Порт не находится в режиме прошивки");
-  leave();
-  return 0;
+  goto leave;
 }  
 
 // цифровая подпись
-if (dsign->isChecked()) { 
+if (signflag) { 
   res=send_signver();
-  if (!res) return 0; 
+  if (!res) {
+    QMessageBox::critical(0,"Ошибка","Ошибка проверки цифровой подписи");
+    goto leave;
+  }  
 }  
 
 // Входим в HDLC-режим
@@ -243,29 +291,24 @@ usleep(100000);
 res=atcmd("^DATAMODE",replybuf);
 if (res != 6) {
   QMessageBox::critical(0,"Ошибка входа в HDLC","Неправильный ответ на команду ^datamode");
-  leave();
-  return 0;
+  goto leave;
 }  
 if (memcmp(replybuf,OKrsp,6) != 0) {
   QMessageBox::critical(0,"Ошибка входа в HDLC","Команда ^datamode отвергнута модемом");
-  leave();
-  return 0;
+  goto leave;
 }  
-
 
 iolen=send_cmd(&cmdver,1,(unsigned char*)replybuf);
 if (iolen == 0) {
   QMessageBox::critical(0,"Ошибка протокола HDLC","Невозможно получить версию протокола прошивки");
-  leave();
-  return 0;
+  goto leave;
 }  
 // отбрасываем начальный 7E если он есть в ответе
 if (replybuf[0] == 0x7e) memcpy(replybuf,replybuf+1,iolen-1);
 
 if (replybuf[0] != 0x0d) {
   QMessageBox::critical(0,"Ошибка протокола HDLC","Модем отверг команду получения версии протокола");
-  leave();
-  return 0;
+  goto leave;
 }  
 
 // выводим версию протокола в форму
@@ -287,11 +330,9 @@ for(part=0;part<ptable->index();part++) {
  if (!dload_start(ptable->code(part),ptable->psize(part))) {
   txt.sprintf("Раздел %s отвергнут",ptable->name(part)); 
   QMessageBox::critical(0,"Ошибка",txt);
-  leave();
-  return 0;
+  goto leave;
 }  
-   
- 
+    
 maxblock=(ptable->psize(part)+(fblock-1))/fblock; // число блоков в разделе
 // Поблочный цикл передачи образа раздела
 for(blk=0;blk<maxblock;blk++) {
@@ -303,8 +344,7 @@ for(blk=0;blk<maxblock;blk++) {
   if (!dload_block(part,blk,ptable->iptr(part))) {
    txt.sprintf("Блок %i раздела %s отвергнут",blk,ptable->name(part)); 
    QMessageBox::critical(0,"ошибка",txt);
-   leave();
-   return 0;
+   goto leave;
  }  
 }    
 
@@ -318,21 +358,24 @@ for(blk=0;blk<maxblock;blk++) {
 } // конец цикла по разделам
 
 // Выводим модем из HDLC или, если надо, перезагружаем модем.
-if (rebootflag->isChecked())   modem_reboot();
+if (rebootflag)   modem_reboot();
 else end_hdlc();
 
-close_port();
+
 totalbar->setValue(100);
 QCoreApplication::processEvents();
+QMessageBox::information(0,"ОК","Запись завершена без ошибок");
 
 // Завершаем процесс
-QMessageBox::information(0,"ОК","Запись завершена без ошибок");
-accept();
-return 0;
-}
+leave:
 
+close_port();
+
+delete totalbar;
+delete partbar;
+delete cpart;
+delete pversion;
+delete glm;
+delete Flasher;
  
- 
- 
- 
- 
+}
