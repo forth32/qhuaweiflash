@@ -190,8 +190,11 @@ font.setWeight(75);
 
 QLabel* lbl1=new QLabel("Прошивка модема");
 lbl1->setFont(font);
+lbl1->setScaledContents(true);
+lbl1->setStyleSheet("QLabel { color : blue; }");
 
-vl->addWidget(lbl1,10,Qt::AlignHCenter);
+
+vl->addWidget(lbl1,4,Qt::AlignHCenter);
 
 QCheckBox* dsign = new QCheckBox("Использовать цифровую подпись",Flasher);
 vl->addWidget(dsign);
@@ -361,8 +364,8 @@ for(blk=0;blk<maxblock;blk++) {
 if (rebootflag)   modem_reboot();
 else end_hdlc();
 
-
 totalbar->setValue(100);
+partbar->setValue(100);
 QCoreApplication::processEvents();
 QMessageBox::information(0,"ОК","Запись завершена без ошибок");
 

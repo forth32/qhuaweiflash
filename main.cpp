@@ -637,13 +637,12 @@ QMessageBox::information(0,"ОK","Команда перезагрузки пер
 //********************************************
 void MainWindow::usbdload() {
 
+ 
 if (PortSelector->count() == 0) {
    QMessageBox::critical(0,"Ошибка","Не найдены последовательне порты");
    return;
 }
-  
-usbloader* ul=new usbloader;
-ul->show();
+usbdload();
 }
 
 
