@@ -301,7 +301,6 @@ QCheckBox* isbadflag= new QCheckBox("Отключить контроль деф�
 vl->addWidget(isbadflag);
 
 QCheckBox* patchflag= new QCheckBox("Отключить патч eraseall (ОПАСНО!!!)",qd);
-patchflag->setChecked(1);
 vl->addWidget(patchflag);
 
 QDialogButtonBox* buttonBox = new QDialogButtonBox(qd);
@@ -395,9 +394,9 @@ if (fflag) {
 }  
 
 // ERASE-патч
-if (pflag) {
+if (!pflag) {
   res=pv7r2(pbuf[1], part[1].size)+ pv7r11(pbuf[1], part[1].size) + pv7r1(pbuf[1], part[1].size) + pv7r22(pbuf[1], part[1].size) + pv7r22_2(pbuf[1], part[1].size);
-  if (res != 0)  {
+  if (res == 0)  {
    QMessageBox::critical(0,"Ошибка","Не найдена сигнатура патча, загрузка не выполняется");
    return;
   }  
@@ -406,7 +405,7 @@ if (pflag) {
 // isbad-патч
 if (bflag) {
   res=perasebad(pbuf[1], part[1].size);
-  if (res != 0)  {
+  if (res == 0)  {
    QMessageBox::critical(0,"Ошибка","Не найдена сигнатура BAD ERASE, загрузка не выполняется");
    return;
   }  
