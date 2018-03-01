@@ -892,7 +892,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>201</x>
-     <y>504</y>
+     <y>564</y>
     </hint>
     <hint type="destinationlabel">
      <x>324</x>
@@ -923,8 +923,8 @@
    <slot>SelectPart()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>355</x>
-     <y>84</y>
+     <x>440</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>
@@ -961,6 +961,22 @@
     <hint type="destinationlabel">
      <x>425</x>
      <y>309</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RefreshPorts</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>find_ports()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>197</x>
+     <y>78</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>354</x>
+     <y>134</y>
     </hint>
    </hints>
   </connection>
