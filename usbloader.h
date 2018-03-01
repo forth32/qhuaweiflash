@@ -35,4 +35,4 @@ struct lhead{
   uint32_t offset; // смещение до компонента от начала файла
 };
 
-void usbdload();
+void usbload();

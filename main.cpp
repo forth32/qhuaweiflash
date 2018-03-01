@@ -642,7 +642,7 @@ if (PortSelector->count() == 0) {
    QMessageBox::critical(0,"Ошибка","Не найдены последовательне порты");
    return;
 }
-usbdload();
+usbload();
 }
 
 

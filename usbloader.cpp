@@ -9,6 +9,7 @@
 
 #include "sio.h"
 #include "usbloader.h"
+#include "ulpatcher.h"
 
 // указатель на открытый последовательный порт
 extern int siofd; // fd для работы с Последовательным портом
@@ -232,7 +233,7 @@ return sendcmd(&cmdeod,sizeof(cmdeod));
 //***************************************
 //* Запуск загрузки
 //***************************************
-void usbdload() {
+void usbload() {
 
 // хранилище каталога компонентов загрузчика
 struct lhead part[5];
@@ -246,13 +247,14 @@ uint32_t bl,datasize,pktcount;
 uint32_t adr,i,fsize;
 uint8_t c;
 int32_t res;
-int32_t pflag,fflag;
+int32_t pflag,fflag,bflag;
 char filename[200];
 char ptfilename[200];
 
 FILE* in;
 
 usbldialog* qd=new usbldialog;
+qd->setWindowTitle("Загрузка usbloader");
 QVBoxLayout* vl=new QVBoxLayout(qd);
 
 QFont font;
@@ -278,22 +280,28 @@ qd->fname=new QLineEdit(qd);
 gvl->addWidget(qd->fname,0,1);
 
 QToolButton* fselector = new QToolButton(qd);
+fselector->setText("...");
 gvl->addWidget(fselector,0,2);
 
 QLabel* lbl3=new QLabel("Таблица разделов:");
-gvl->addWidget(lbl2,1,0);
+gvl->addWidget(lbl3,1,0);
 
 qd->ptfname=new QLineEdit(qd);
 gvl->addWidget(qd->ptfname,1,1);
 
 QToolButton* ptselector = new QToolButton(qd);
+ptselector->setText("...");
 gvl->addWidget(ptselector,1,2);
 
 // кнопки выбора режима загрузки
 QCheckBox* fbflag = new QCheckBox("Загрузка в режиме FASTBOOT",qd);
 vl->addWidget(fbflag);
 
+QCheckBox* isbadflag= new QCheckBox("Отключить контроль дефектных блоков",qd);
+vl->addWidget(isbadflag);
+
 QCheckBox* patchflag= new QCheckBox("Отключить патч eraseall (ОПАСНО!!!)",qd);
+patchflag->setChecked(1);
 vl->addWidget(patchflag);
 
 QDialogButtonBox* buttonBox = new QDialogButtonBox(qd);
@@ -304,8 +312,8 @@ vl->addWidget(buttonBox,10,Qt::AlignHCenter);
 
 QObject::connect(buttonBox, SIGNAL(accepted()), qd, SLOT(accept()));
 QObject::connect(buttonBox, SIGNAL(rejected()), qd, SLOT(reject()));
-QObject::connect(fselector, SIGNAL(triggered()), qd, SLOT(browse()));
-QObject::connect(ptselector, SIGNAL(triggered()), qd, SLOT(ptbrowse()));
+QObject::connect(fselector, SIGNAL(clicked()), qd, SLOT(browse()));
+QObject::connect(ptselector, SIGNAL(clicked()), qd, SLOT(ptbrowse()));
 
 // Запускаем диалог
 res=qd->exec();
@@ -313,6 +321,7 @@ res=qd->exec();
 // вынимаем данные из диалога
 fflag=fbflag->isChecked();
 pflag=patchflag->isChecked();
+bflag=isbadflag->isChecked();
 strcpy(filename,qd->fname->displayText().toLocal8Bit());
 strcpy(ptfilename,qd->ptfname->displayText().toLocal8Bit());
 
@@ -321,6 +330,7 @@ delete lbl1;
 delete lbl2;
 delete lbl3;
 delete patchflag;
+delete isbadflag;
 delete fbflag;
 delete ptselector;
 delete fselector;
@@ -383,6 +393,25 @@ fclose(in);
 if (fflag) {
   if (!fastboot_only(pbuf,part)) return;
 }  
+
+// ERASE-патч
+if (pflag) {
+  res=pv7r2(pbuf[1], part[1].size)+ pv7r11(pbuf[1], part[1].size) + pv7r1(pbuf[1], part[1].size) + pv7r22(pbuf[1], part[1].size) + pv7r22_2(pbuf[1], part[1].size);
+  if (res != 0)  {
+   QMessageBox::critical(0,"Ошибка","Не найдена сигнатура патча, загрузка не выполняется");
+   return;
+  }  
+}  
+
+// isbad-патч
+if (bflag) {
+  res=perasebad(pbuf[1], part[1].size);
+  if (res != 0)  {
+   QMessageBox::critical(0,"Ошибка","Не найдена сигнатура BAD ERASE, загрузка не выполняется");
+   return;
+  }  
+}  
+
 
 // Замещаем таблицу разделов
 if (strlen(ptfilename) != 0) {
