@@ -22,7 +22,7 @@ public:
 public slots: 
   void browse();
   void ptbrowse();
-//   int exec();
+  void ptclear();
 };  
 
 //****************************************************************

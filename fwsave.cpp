@@ -65,7 +65,8 @@ filename->setText(deffilename);
 lm->addWidget(filename, 0, 1, 1, 2);
 
 QToolButton* fselector = new QToolButton(fsd);
-fselector->setText("...");
+fselector->setIcon(QIcon(QApplication::style()->standardIcon(QStyle::SP_DirIcon))); 
+// fselector->setText("...");
 lm->addWidget(fselector, 0, 3, 1, 1);
 
 QCheckBox* compressflag = new QCheckBox("Сжать образы разделов",fsd);

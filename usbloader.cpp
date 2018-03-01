@@ -150,6 +150,13 @@ name=QFileDialog::getOpenFileName(this,"Выбор файла таблицы р�
 ptfname->setText(name);
 }
 
+//***************************************
+//* Очистка имени файла таблицы разделов
+//***************************************
+void usbldialog::ptclear() {
+
+ptfname->setText("");
+}
 
 //***************************************
 // fastboot-патч
@@ -244,12 +251,13 @@ uint8_t* pbuf[5]={0,0,0,0,0};
 uint16_t numparts; // число компонентов для загрузки
   
 uint32_t bl,datasize,pktcount;
-uint32_t adr,i,fsize;
+uint32_t adr,i,fsize,totalsize=0,loadedsize=0;
 uint8_t c;
 int32_t res;
 int32_t pflag,fflag,bflag;
-char filename[200];
-char ptfilename[200];
+// имена файлов - объявлены статическими и сохраняются при перезагрузке диалога
+static char filename[200]={0};
+static char ptfilename[200]={0};
 
 FILE* in;
 
@@ -277,21 +285,30 @@ QLabel* lbl2=new QLabel("usbloader:");
 gvl->addWidget(lbl2,0,0);
 
 qd->fname=new QLineEdit(qd);
+if (strlen(filename) != 0) qd->fname->setText(filename);
 gvl->addWidget(qd->fname,0,1);
 
 QToolButton* fselector = new QToolButton(qd);
-fselector->setText("...");
+// fselector->setText("...");
+fselector->setIcon(QIcon(QApplication::style()->standardIcon(QStyle::SP_DirIcon))); 
 gvl->addWidget(fselector,0,2);
 
 QLabel* lbl3=new QLabel("Таблица разделов:");
 gvl->addWidget(lbl3,1,0);
 
 qd->ptfname=new QLineEdit(qd);
+if (strlen(ptfilename) != 0) qd->ptfname->setText(ptfilename);
 gvl->addWidget(qd->ptfname,1,1);
 
 QToolButton* ptselector = new QToolButton(qd);
-ptselector->setText("...");
+// ptselector->setText("...");
+ptselector->setIcon(QIcon(QApplication::style()->standardIcon(QStyle::SP_DirIcon))); 
 gvl->addWidget(ptselector,1,2);
+
+QToolButton* ptclear = new QToolButton(qd);
+// ptclear->setText("X");
+ptclear->setIcon(QIcon(QApplication::style()->standardIcon(QStyle::SP_TrashIcon))); 
+gvl->addWidget(ptclear,1,3);
 
 // кнопки выбора режима загрузки
 QCheckBox* fbflag = new QCheckBox("Загрузка в режиме FASTBOOT",qd);
@@ -313,6 +330,7 @@ QObject::connect(buttonBox, SIGNAL(accepted()), qd, SLOT(accept()));
 QObject::connect(buttonBox, SIGNAL(rejected()), qd, SLOT(reject()));
 QObject::connect(fselector, SIGNAL(clicked()), qd, SLOT(browse()));
 QObject::connect(ptselector, SIGNAL(clicked()), qd, SLOT(ptbrowse()));
+QObject::connect(ptclear, SIGNAL(clicked()), qd, SLOT(ptclear()));
 
 // Запускаем диалог
 res=qd->exec();
@@ -359,6 +377,7 @@ if (i != 0x20000) {
 
 // читаем заголовок загрузчика
 fseek(in,36,SEEK_SET); // начало каталога компонентов в файле
+
 fread(&part,sizeof(part),1,in);
 
 // Ищем конец каталога компонентов
@@ -383,7 +402,9 @@ for(i=0;i<numparts;i++) {
       QMessageBox::critical(0,"Ошибка","Неожиданный конец файла");
       fclose(in);
       return;
- }  
+ }
+ // общий размер загрузчика
+ totalsize+=part[i].size;
 }
 
 fclose(in);
@@ -455,9 +476,6 @@ ind->show();
 
 for(bl=0;bl<numparts;bl++) {
 
- // Прогрессбар компонентов
- totalbar->setValue(bl*100/numparts);
- QCoreApplication::processEvents();
   
  // стартовый пакет  
  if (!start_part(part[bl].size,part[bl].adr,part[bl].lmode)) {
@@ -473,7 +491,8 @@ for(bl=0;bl<numparts;bl++) {
     if ((adr+1024)>=part[bl].size) datasize=part[bl].size-adr; 
      
     // обновляем прогрессбар блоков 
-    partbar->setValue(adr*100/part[bl].size);
+    partbar->setValue(adr*100/part[bl].size);            // для раздела
+    totalbar->setValue((loadedsize+adr)*100/totalsize);  // общий
     QCoreApplication::processEvents();
     
     if (!send_data_packet(pktcount++,(uint8_t*)(pbuf[bl]+adr),datasize)) {
@@ -481,6 +500,8 @@ for(bl=0;bl<numparts;bl++) {
       goto leave;
     }  
   }
+  // обновляем размер уже загруженных данных
+  loadedsize+=part[bl].size;
 
 
   if (!close_part(pktcount)) {
