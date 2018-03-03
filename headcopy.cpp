@@ -67,11 +67,6 @@ res=qd->exec();
 src=from->currentIndex();
 dst=to->currentIndex()-1;
 
-delete label1;
-delete label2;
-delete from;
-delete to;
-delete lm;
 delete qd;
 if (res !=  QDialog::Accepted) return;
 

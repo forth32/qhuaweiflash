@@ -141,9 +141,6 @@ for(i=0;i<ptable->index();i++) {
   fbar->setValue(percent);
   QCoreApplication::processEvents();
 }
-delete fbar;
-delete plm;
-delete lb;
 delete pb;  
 
 fclose(out);

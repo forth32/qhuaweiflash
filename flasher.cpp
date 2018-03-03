@@ -233,11 +233,6 @@ signflag=dsign->isChecked();
 rebootflag=creboot->isChecked();
 
 // Удаляем текущий диалог
-delete buttonBox;
-delete creboot;
-delete dsign;
-delete lbl1;
-delete vl;
 delete Flasher;
 if (res != QDialog::Accepted) return;
 
@@ -374,11 +369,6 @@ leave:
 
 close_port();
 
-delete totalbar;
-delete partbar;
-delete cpart;
-delete pversion;
-delete glm;
 delete Flasher;
  
 }

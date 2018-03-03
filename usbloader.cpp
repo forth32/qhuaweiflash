@@ -343,16 +343,6 @@ strcpy(filename,qd->fname->displayText().toLocal8Bit());
 strcpy(ptfilename,qd->ptfname->displayText().toLocal8Bit());
 
 // удаляем панель диалога
-delete lbl1;
-delete lbl2;
-delete lbl3;
-delete patchflag;
-delete isbadflag;
-delete fbflag;
-delete ptselector;
-delete fselector;
-delete gvl;
-delete vl;
 delete qd;
 
 if (res != QDialog::Accepted) return;
@@ -518,9 +508,6 @@ QMessageBox::information(0,"ОК","Загрузка окончена");
 
 leave:
 close_port();
-delete totalbar;
-delete partbar;
-delete lmf;
 delete ind;
 
 }
