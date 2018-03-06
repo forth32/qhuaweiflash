@@ -24,8 +24,10 @@ int structure_mode_save=-1; // предыдущее состояние пере�
 enum parttypes partmode=part_bin;
 
 public:
-  MainWindow();
-  ~MainWindow(); 
+
+MainWindow();
+~MainWindow(); 
+
 void cpio_create_list(QList<cpfiledir*>*, int);
 void cpio_delete_list();
 

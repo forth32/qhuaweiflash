@@ -239,6 +239,7 @@ if (structure_mode->isChecked()) {
    }
    
    // Разделы oeminfo
+/*
    if (ptable->ptype(idx) == part_oem) {
 //    label=new QLabel("Версия WEBUI или DASHBOARD");
     label=new QLabel("    Версия WEBUI или DASHBOARD   ",verticalLayoutWidget);
@@ -264,7 +265,7 @@ if (structure_mode->isChecked()) {
     oemedit->show();
     return;
    } 
-   
+  */ 
    // файловые разделы
    if (is_cpio(ptable->iptr(idx))) {
      cpio_create_list(ptable->rootdir(idx),0);
@@ -632,7 +633,7 @@ QStringList args = parser.positionalArguments();
 if (args.size() > 0) fwfilename=&args[0];
 else fwfilename=0;
 
-MainWindow* mw = new  MainWindow(0);
+MainWindow* mw = new  MainWindow;
 mw->show();
 return app.exec();
 }

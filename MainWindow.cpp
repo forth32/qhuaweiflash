@@ -3,11 +3,14 @@
 //*********************************************************************
 
 #include "MainWindow.h"
+// ссылка на селектор портов
+extern QComboBox* pselector;
+extern QString* fwfilename;
 
 //************************************************ 
 //* Конструктор класса главного окна
 //************************************************
-void   MainWindow::MainWindow() : QMainWindow(0) {
+MainWindow::MainWindow(): QMainWindow() {
 
 // MainWindow->resize(920, 737);
 
@@ -22,7 +25,7 @@ setCentralWidget(centralwidget);
 // Левое окно - редактор заголовков
 hdrpanel=new QWidget(centralwidget);
 centralwidget->addWidget(hdrpanel);
-vlhdr=new QVboxLayout(hdrpanel);
+vlhdr=new QVBoxLayout(hdrpanel);
 
 // Список разделов
 hdlbl1=new QLabel("Список разделов",hdrpanel);
@@ -91,113 +94,107 @@ setStatusBar(statusbar);
 plbl=new QLabel("Порт модема:");
 statusbar->addPermanentWidget(plbl);
 
-PortSelector = new QComboBox(groupBox);
+PortSelector = new QComboBox(centralwidget);
 statusbar->addPermanentWidget(PortSelector);
 
-RefreshPorts = new QToolButton(groupBox);
+RefreshPorts = new QToolButton(centralwidget);
 RefreshPorts->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
 statusbar->addPermanentWidget(RefreshPorts);
 
-// Обработчики главного меню
-fileopen = new QAction(MainWindow);
-fileopen->setObjectName(QStringLiteral("fileopen"));
-fileappend = new QAction(MainWindow);
-fileappend->setObjectName(QStringLiteral("fileappend"));
-fileappend->setEnabled(false);
-part_store = new QAction(MainWindow);
-part_store->setObjectName(QStringLiteral("part_store"));
-part_extract = new QAction(MainWindow);
-part_extract->setObjectName(QStringLiteral("part_extract"));
-part_replace = new QAction(MainWindow);
-part_replace->setObjectName(QStringLiteral("part_replace"));
-file_exit = new QAction(MainWindow);
-file_exit->setObjectName(QStringLiteral("file_exit"));
-filesave = new QAction(MainWindow);
-filesave->setObjectName(QStringLiteral("filesave"));
-filesave->setEnabled(false);
-MoveUp = new QAction(MainWindow);
-MoveUp->setObjectName(QStringLiteral("MoveUp"));
-MoveDown = new QAction(MainWindow);
-MoveDown->setObjectName(QStringLiteral("MoveDown"));
-Delete = new QAction(MainWindow);
-Delete->setObjectName(QStringLiteral("Delete"));
-part_copy_header = new QAction(MainWindow);
-part_copy_header->setObjectName(QStringLiteral("part_copy_header"));
-Menu_Oper_flash = new QAction(MainWindow);
-Menu_Oper_flash->setObjectName(QStringLiteral("Menu_Oper_flash"));
-Menu_Oper_flash->setEnabled(false);
-Menu_Oper_USBDload = new QAction(MainWindow);
-Menu_Oper_USBDload->setObjectName(QStringLiteral("Menu_Oper_USBDload"));
-Menu_Oper_Reboot = new QAction(MainWindow);
-Menu_Oper_Reboot->setObjectName(QStringLiteral("Menu_Oper_Reboot"));
-Menu_Oper_signinfo = new QAction(MainWindow);
-Menu_Oper_signinfo->setObjectName(QStringLiteral("Menu_Oper_signinfo"));
-Menu_Oper_signinfo->setEnabled(false);
-
 // Главное меню
-menubar = new QMenuBar(MainWindow);
-// menubar->setObjectName(QStringLiteral("menubar"));
-// menubar->setGeometry(QRect(0, 0, 920, 30));
-menu_file = new QMenu(menubar);
-menu_file->setObjectName(QStringLiteral("menu_file"));
-menu_oper = new QMenu(menubar);
-menu_oper->setObjectName(QStringLiteral("menu_oper"));
-menu_oper->setEnabled(true);
-menu_part = new QMenu(menubar);
-menu_part->setObjectName(QStringLiteral("menu_part"));
+menubar = new QMenuBar(this);
+menu_file = new QMenu("Файл",menubar);
+menubar->addAction(menu_file->menuAction());
+
+menu_part = new QMenu("Раздел",menubar);
 menu_part->setEnabled(true);
+menubar->addAction(menu_part->menuAction());
+
+menu_oper = new QMenu("Операции",menubar);
+menu_oper->setEnabled(true);
+menubar->addAction(menu_oper->menuAction());
+
 setMenuBar(menubar);
 
-// Элементы главного меню
-menubar->addAction(menu_file->menuAction());
-menubar->addAction(menu_part->menuAction());
-menubar->addAction(menu_oper->menuAction());
+// Обработчики главного меню
+fileopen = new QAction("Открыть",this);
 menu_file->addAction(fileopen);
+
+fileappend = new QAction("Добавить",this);
+fileappend->setEnabled(false);
 menu_file->addAction(fileappend);
 menu_file->addSeparator();
+
+filesave = new QAction("Сохранить",this);
+filesave->setEnabled(false);
 menu_file->addAction(filesave);
 menu_file->addSeparator();
+
+file_exit = new QAction("Выход",this);
 menu_file->addAction(file_exit);
-menu_oper->addAction(Menu_Oper_flash);
-menu_oper->addAction(Menu_Oper_USBDload);
-menu_oper->addAction(Menu_Oper_Reboot);
-menu_oper->addSeparator();
-menu_oper->addAction(Menu_Oper_signinfo);
-menu_part->addAction(MoveUp);
-menu_part->addAction(MoveDown);
-menu_part->addAction(Delete);
-menu_part->addSeparator();
-menu_part->addAction(part_copy_header);
-menu_part->addSeparator();
+//----------------
+part_store = new QAction("Извлечь без заголовка",this);
 menu_part->addAction(part_store);
+
+part_extract = new QAction("Извлечь с заголовком",this);
 menu_part->addAction(part_extract);
+
+part_replace = new QAction("Заменить образ раздела",this);
 menu_part->addAction(part_replace);
 
-// Установка обработчиков сигналов
-QObject::connect(fileopen, SIGNAL(triggered()), MainWindow, SLOT(SelectFwFile()));
-QObject::connect(partlist, SIGNAL(itemActivated(QListWidgetItem*)), MainWindow, SLOT(SelectPart()));
-QObject::connect(fileappend, SIGNAL(triggered()), MainWindow, SLOT(AppendFwFile()));
-QObject::connect(part_extract, SIGNAL(triggered()), MainWindow, SLOT(Menu_Part_Extract()));
-QObject::connect(part_store, SIGNAL(triggered()), MainWindow, SLOT(Menu_Part_Store()));
-QObject::connect(partlist, SIGNAL(itemClicked(QListWidgetItem*)), MainWindow, SLOT(SelectPart()));
-QObject::connect(part_replace, SIGNAL(triggered()), MainWindow, SLOT(Menu_Part_Replace()));
-QObject::connect(file_exit, SIGNAL(triggered()), MainWindow, SLOT(Terminate()));
-QObject::connect(filesave, SIGNAL(triggered()), MainWindow, SLOT(SaveFwFile()));
-QObject::connect(Delete, SIGNAL(triggered()), MainWindow, SLOT(Menu_Part_Delete()));
-QObject::connect(MoveUp, SIGNAL(triggered()), MainWindow, SLOT(Menu_Part_MoveUp()));
-QObject::connect(MoveDown, SIGNAL(triggered()), MainWindow, SLOT(Menu_Part_MoveDown()));
-QObject::connect(partlist, SIGNAL(currentRowChanged(int)), MainWindow, SLOT(Disable_EditHeader()));
-QObject::connect(Menu_Oper_flash, SIGNAL(triggered()), MainWindow, SLOT(Start_Flasher()));
-QObject::connect(Menu_Oper_Reboot, SIGNAL(triggered()), MainWindow, SLOT(Reboot_modem()));
-QObject::connect(Menu_Oper_USBDload, SIGNAL(triggered()), MainWindow, SLOT(usbdload()));
-QObject::connect(setdate, SIGNAL(clicked()), MainWindow, SLOT(set_date()));
-QObject::connect(Menu_Oper_signinfo, SIGNAL(triggered()), MainWindow, SLOT(ShowSignInfo()));
-QObject::connect(dump_mode, SIGNAL(toggled(bool)), MainWindow, SLOT(SelectPart()));
-QObject::connect(partlist, SIGNAL(currentRowChanged(int)), MainWindow, SLOT(SelectPart()));
-QObject::connect(part_copy_header, SIGNAL(triggered()), MainWindow, SLOT(HeadCopy()));
-QObject::connect(RefreshPorts, SIGNAL(clicked()), MainWindow, SLOT(find_ports()));
+MoveUp = new QAction("Переместить вверх",this);
+menu_part->addAction(MoveUp);
 
-QMetaObject::connectSlotsByName(MainWindow);
+MoveDown = new QAction("Переместить вниз",this);
+menu_part->addAction(MoveDown);
+
+Delete = new QAction("Удалить",this);
+menu_part->addAction(Delete);
+
+part_copy_header = new QAction("Копировать заголовок",this);
+menu_part->addAction(part_copy_header);
+//----------------
+Menu_Oper_flash = new QAction("Прошть модем",this);
+Menu_Oper_flash->setEnabled(false);
+menu_oper->addAction(Menu_Oper_flash);
+
+Menu_Oper_USBDload = new QAction("Загрузка usbdloader",this);
+menu_oper->addAction(Menu_Oper_USBDload);
+menu_oper->addSeparator();
+
+Menu_Oper_Reboot = new QAction("Перезагрузка модема",this);
+menu_oper->addAction(Menu_Oper_Reboot);
+menu_oper->addSeparator();
+
+Menu_Oper_signinfo = new QAction("Информация о цифровой подписи",this);
+Menu_Oper_signinfo->setEnabled(false);
+menu_oper->addAction(Menu_Oper_signinfo);
+
+// Установка обработчиков сигналов
+QObject::connect(fileopen, SIGNAL(triggered()), this, SLOT(SelectFwFile()));
+QObject::connect(partlist, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(SelectPart()));
+QObject::connect(fileappend, SIGNAL(triggered()), this, SLOT(AppendFwFile()));
+QObject::connect(part_extract, SIGNAL(triggered()), this, SLOT(Menu_Part_Extract()));
+QObject::connect(part_store, SIGNAL(triggered()), this, SLOT(Menu_Part_Store()));
+QObject::connect(partlist, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(SelectPart()));
+QObject::connect(part_replace, SIGNAL(triggered()), this, SLOT(Menu_Part_Replace()));
+QObject::connect(file_exit, SIGNAL(triggered()), this, SLOT(Terminate()));
+QObject::connect(filesave, SIGNAL(triggered()), this, SLOT(SaveFwFile()));
+QObject::connect(Delete, SIGNAL(triggered()), this, SLOT(Menu_Part_Delete()));
+QObject::connect(MoveUp, SIGNAL(triggered()), this, SLOT(Menu_Part_MoveUp()));
+QObject::connect(MoveDown, SIGNAL(triggered()), this, SLOT(Menu_Part_MoveDown()));
+QObject::connect(partlist, SIGNAL(currentRowChanged(int)), this, SLOT(Disable_EditHeader()));
+QObject::connect(Menu_Oper_flash, SIGNAL(triggered()), this, SLOT(Start_Flasher()));
+QObject::connect(Menu_Oper_Reboot, SIGNAL(triggered()), this, SLOT(Reboot_modem()));
+QObject::connect(Menu_Oper_USBDload, SIGNAL(triggered()), this, SLOT(usbdload()));
+QObject::connect(setdate, SIGNAL(clicked()), this, SLOT(set_date()));
+QObject::connect(Menu_Oper_signinfo, SIGNAL(triggered()), this, SLOT(ShowSignInfo()));
+QObject::connect(dump_mode, SIGNAL(toggled(bool)), this, SLOT(SelectPart()));
+QObject::connect(partlist, SIGNAL(currentRowChanged(int)), this, SLOT(SelectPart()));
+QObject::connect(part_copy_header, SIGNAL(triggered()), this, SLOT(HeadCopy()));
+QObject::connect(RefreshPorts, SIGNAL(clicked()), this, SLOT(find_ports()));
+
+QMetaObject::connectSlotsByName(this);
   
 // внешняя ссылка на выбиралку порта
 pselector=PortSelector;
@@ -217,7 +214,7 @@ cpioedit=0;
 if (fwfilename != 0) {
   OpenFwFile(*fwfilename);
 }
-
+}
 
 //*****************************************
 //* Деструктор класса
