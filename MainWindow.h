@@ -1,4 +1,3 @@
-#include <ui_main.h>
 #include <QtWidgets>
 #include "ptable.h"
 #include "hexeditor/qhexedit.h"
@@ -6,7 +5,7 @@
 //******************************************************************************
 //* Класс главного окна
 //******************************************************************************
-class MainWindow: public QMainWindow, public Ui_MainWindow {
+class MainWindow: public QMainWindow {
   
 Q_OBJECT
 
@@ -25,11 +24,75 @@ int structure_mode_save=-1; // предыдущее состояние пере�
 enum parttypes partmode=part_bin;
 
 public:
-  MainWindow(QMainWindow *parent = 0);
+  MainWindow();
   ~MainWindow(); 
 void cpio_create_list(QList<cpfiledir*>*, int);
 void cpio_delete_list();
 
+// Базовый виджет - вертикальный сплиттер
+QSplitter *centralwidget;
+
+// Иконка главного окна
+QIcon icon;
+
+// Обработчики меню
+QAction *fileopen;
+QAction *fileappend;
+QAction *part_store;
+QAction *part_extract;
+QAction *part_replace;
+QAction *file_exit;
+QAction *filesave;
+QAction *MoveUp;
+QAction *MoveDown;
+QAction *Delete;
+QAction *part_copy_header;
+QAction *Menu_Oper_flash;
+QAction *Menu_Oper_USBDload;
+QAction *Menu_Oper_Reboot;
+QAction *Menu_Oper_signinfo;
+
+// Элементы интерфейса
+
+// Элементы редактора заголовка
+QWidget* hdrpanel; // корневой виджет
+QVBoxLayout* vlhdr; // основной вертикальный компоновщик
+QLabel* hdlbl1;
+QListWidget *partlist; // список разделов
+QLabel* hdlbl2;
+QFormLayout* lphdr;    // редакторы полей заголовка
+QLineEdit *Date_input;
+QLineEdit *Time_input;
+QToolButton *setdate;
+QLineEdit *Version_input;
+QLineEdit *pcode;
+QLabel* hdlbl3;
+QLineEdit *Platform_input;
+
+// Элементы редактора раздела
+QWidget* edpanel;
+QVBoxLayout* EditorLayout;
+
+// Кнопки сырой-форматный
+QBoxLayout* laymode;
+QGroupBox *modebuttons;
+QRadioButton *dump_mode;
+QRadioButton *structure_mode;
+
+// Главное меню
+QMenuBar *menubar;
+QMenu *menu_file;
+QMenu *menu_oper;
+QMenu *menu_part;
+
+// Статусбар
+QStatusBar *statusbar;
+// Выбор порта
+QLabel* plbl;
+QComboBox *PortSelector;
+QToolButton *RefreshPorts;
+
+// Слоты обработчиков главного меню
 public slots: 
 void  SelectFwFile();  // выбор файла
 void  AppendFwFile();  // добавление файла
@@ -57,8 +120,8 @@ void set_date();
 void ShowSignInfo();
 void HeadCopy();
 void cpio_process_file(int row, int col);
-// void F3_processor();
 void F11_processor();
 };
 
+// Независимые от лкасса обработчики
 void head_copy();

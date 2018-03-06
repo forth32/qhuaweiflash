@@ -25,42 +25,6 @@ int npart=0;
 
 QString* fwfilename=0;
 
-// Методы класса главного окна
-//=============================================
-//*****************************************
-//* Конструктор класса
-//*****************************************
-MainWindow::MainWindow(QMainWindow *parent) : QMainWindow(parent) {
-    
-// Настройка элементов окна
-setupUi(this);
-
-RefreshPorts->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
-
-pselector=PortSelector;
-// создание класса таблицы разделов
-ptable=new ptable_list;
-
-// заполнение списка портов
-find_ports();
-
-hexedit=0;
-ptedit=0;
-cpioedit=0;
-
-if (fwfilename != 0) {
-  OpenFwFile(*fwfilename);
-}
-}
-
-
-//*****************************************
-//* Деструктор класса
-//*****************************************
-MainWindow::~MainWindow() {
-
-delete ptable;  
-}
 
 //*************************************************
 //  Поиск ttyUSB портов и сбор их имен в таблицу
