@@ -12,7 +12,13 @@ extern QString* fwfilename;
 //************************************************
 MainWindow::MainWindow(): QMainWindow() {
 
-// MainWindow->resize(920, 737);
+this->resize(1000, 737);
+
+// Шрифт для надписей на основной панели
+QFont font;
+font.setPointSize(14);
+font.setBold(true);
+font.setWeight(75);
 
 // Формируем иконку главного окна
 icon.addFile(QStringLiteral(":/icon.ico"), QSize(), QIcon::Normal, QIcon::Off);
@@ -29,11 +35,14 @@ vlhdr=new QVBoxLayout(hdrpanel);
 
 // Список разделов
 hdlbl1=new QLabel("Список разделов",hdrpanel);
+hdlbl1->setFont(font);
 vlhdr->addWidget(hdlbl1);
+
 partlist = new QListWidget(hdrpanel);
 vlhdr->addWidget(partlist);
 
 hdlbl2=new QLabel("Заголовок раздела",hdrpanel);
+hdlbl2->setFont(font);
 vlhdr->addWidget(hdlbl2);
 
 // Компоновщик для параметров редактирования
@@ -73,7 +82,7 @@ centralwidget->addWidget(edpanel);
 EditorLayout=new QVBoxLayout(edpanel);
 
 // Кнопки сырой-форматный
-laymode=new QHBoxLayout(0);
+laymode=new QVBoxLayout(0);
 modebuttons = new QGroupBox("Вид");
 
 dump_mode = new QRadioButton("НЕХ-дамп");
@@ -171,30 +180,30 @@ Menu_Oper_signinfo->setEnabled(false);
 menu_oper->addAction(Menu_Oper_signinfo);
 
 // Установка обработчиков сигналов
-QObject::connect(fileopen, SIGNAL(triggered()), this, SLOT(SelectFwFile()));
-QObject::connect(partlist, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(SelectPart()));
-QObject::connect(fileappend, SIGNAL(triggered()), this, SLOT(AppendFwFile()));
-QObject::connect(part_extract, SIGNAL(triggered()), this, SLOT(Menu_Part_Extract()));
-QObject::connect(part_store, SIGNAL(triggered()), this, SLOT(Menu_Part_Store()));
-QObject::connect(partlist, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(SelectPart()));
-QObject::connect(part_replace, SIGNAL(triggered()), this, SLOT(Menu_Part_Replace()));
-QObject::connect(file_exit, SIGNAL(triggered()), this, SLOT(Terminate()));
-QObject::connect(filesave, SIGNAL(triggered()), this, SLOT(SaveFwFile()));
-QObject::connect(Delete, SIGNAL(triggered()), this, SLOT(Menu_Part_Delete()));
-QObject::connect(MoveUp, SIGNAL(triggered()), this, SLOT(Menu_Part_MoveUp()));
-QObject::connect(MoveDown, SIGNAL(triggered()), this, SLOT(Menu_Part_MoveDown()));
-QObject::connect(partlist, SIGNAL(currentRowChanged(int)), this, SLOT(Disable_EditHeader()));
-QObject::connect(Menu_Oper_flash, SIGNAL(triggered()), this, SLOT(Start_Flasher()));
-QObject::connect(Menu_Oper_Reboot, SIGNAL(triggered()), this, SLOT(Reboot_modem()));
-QObject::connect(Menu_Oper_USBDload, SIGNAL(triggered()), this, SLOT(usbdload()));
-QObject::connect(setdate, SIGNAL(clicked()), this, SLOT(set_date()));
-QObject::connect(Menu_Oper_signinfo, SIGNAL(triggered()), this, SLOT(ShowSignInfo()));
-QObject::connect(dump_mode, SIGNAL(toggled(bool)), this, SLOT(SelectPart()));
-QObject::connect(partlist, SIGNAL(currentRowChanged(int)), this, SLOT(SelectPart()));
-QObject::connect(part_copy_header, SIGNAL(triggered()), this, SLOT(HeadCopy()));
-QObject::connect(RefreshPorts, SIGNAL(clicked()), this, SLOT(find_ports()));
+connect(fileopen, SIGNAL(triggered()), this, SLOT(SelectFwFile()));
+connect(partlist, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(SelectPart()));
+connect(fileappend, SIGNAL(triggered()), this, SLOT(AppendFwFile()));
+connect(part_extract, SIGNAL(triggered()), this, SLOT(Menu_Part_Extract()));
+connect(part_store, SIGNAL(triggered()), this, SLOT(Menu_Part_Store()));
+connect(partlist, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(SelectPart()));
+connect(part_replace, SIGNAL(triggered()), this, SLOT(Menu_Part_Replace()));
+connect(file_exit, SIGNAL(triggered()), this, SLOT(Terminate()));
+connect(filesave, SIGNAL(triggered()), this, SLOT(SaveFwFile()));
+connect(Delete, SIGNAL(triggered()), this, SLOT(Menu_Part_Delete()));
+connect(MoveUp, SIGNAL(triggered()), this, SLOT(Menu_Part_MoveUp()));
+connect(MoveDown, SIGNAL(triggered()), this, SLOT(Menu_Part_MoveDown()));
+connect(partlist, SIGNAL(currentRowChanged(int)), this, SLOT(Disable_EditHeader()));
+connect(Menu_Oper_flash, SIGNAL(triggered()), this, SLOT(Start_Flasher()));
+connect(Menu_Oper_Reboot, SIGNAL(triggered()), this, SLOT(Reboot_modem()));
+connect(Menu_Oper_USBDload, SIGNAL(triggered()), this, SLOT(usbdload()));
+connect(setdate, SIGNAL(clicked()), this, SLOT(set_date()));
+connect(Menu_Oper_signinfo, SIGNAL(triggered()), this, SLOT(ShowSignInfo()));
+connect(dump_mode, SIGNAL(toggled(bool)), this, SLOT(SelectPart()));
+connect(partlist, SIGNAL(currentRowChanged(int)), this, SLOT(SelectPart()));
+connect(part_copy_header, SIGNAL(triggered()), this, SLOT(HeadCopy()));
+connect(RefreshPorts, SIGNAL(clicked()), this, SLOT(find_ports()));
 
-QMetaObject::connectSlotsByName(this);
+// QMetaObject::connectSlotsByName(this);
   
 // внешняя ссылка на выбиралку порта
 pselector=PortSelector;
