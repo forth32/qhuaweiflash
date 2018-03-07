@@ -31,6 +31,7 @@ setCentralWidget(centralwidget);
 // Левое окно - редактор заголовков
 hdrpanel=new QWidget(centralwidget);
 centralwidget->addWidget(hdrpanel);
+centralwidget->setStretchFactor(0,1);
 vlhdr=new QVBoxLayout(hdrpanel);
 
 // Список разделов
@@ -50,40 +51,48 @@ lphdr=new QFormLayout(0);
 vlhdr->addLayout(lphdr);
 // элементы редактора заголовка
 pcode = new QLineEdit(hdrpanel);
+pcode->setMaxLength(4);
 pcode->setReadOnly(true);
 lphdr->addRow("Код раздела",pcode);
 
 Platform_input = new QLineEdit(hdrpanel);
+Platform_input->setMaxLength(8);
 Platform_input->setReadOnly(true);
 lphdr->addRow("Платформа",Platform_input);
 
 Date_input = new QLineEdit(hdrpanel);
+Date_input->setMaxLength(16);
 Date_input->setReadOnly(true);
 lphdr->addRow("Дата",Date_input);
 
 Time_input = new QLineEdit(hdrpanel);
+Time_input->setMaxLength(16);
 Time_input->setReadOnly(true);
 lphdr->addRow("Время",Time_input);
 
 setdate = new QToolButton(hdrpanel);
-setdate->setText("Текущая дата");
+setdate->setText("Установить текущую дату");
 vlhdr->addWidget(setdate);
 
-hdlbl3=new QLabel("Вресия прошивки",hdrpanel);
+hdlbl3=new QLabel("Версия прошивки",hdrpanel);
 vlhdr->addWidget(hdlbl3);
 
 Version_input = new QLineEdit(hdrpanel);
+Version_input->setMaxLength(32);
 Version_input->setReadOnly(true);
 vlhdr->addWidget(Version_input);
 
 // Правое окно - редактор разделов
 edpanel=new QWidget(centralwidget);
 centralwidget->addWidget(edpanel);
+centralwidget->setStretchFactor(1,5);
 EditorLayout=new QVBoxLayout(edpanel);
 
 // Кнопки сырой-форматный
-laymode=new QVBoxLayout(0);
+laymode=new QHBoxLayout(0);
 modebuttons = new QGroupBox("Вид");
+// modebuttons->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+modebuttons->setFlat(false);
 
 dump_mode = new QRadioButton("НЕХ-дамп");
 laymode->addWidget(dump_mode);
@@ -93,7 +102,8 @@ structure_mode->setChecked(true);
 laymode->addWidget(structure_mode);
 
 modebuttons->setLayout(laymode);
-EditorLayout->addWidget(modebuttons);
+modebuttons->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+EditorLayout->addWidget(modebuttons,0);
 
 // Статусбар
 statusbar = new QStatusBar(this);

@@ -76,6 +76,7 @@ struct  pcl{
   {"APP_R1"          ,0x109      ,part_bin},
   {"HIFI_R11"        ,0x280000   ,part_bin},
   {"Firmwares"       ,0x1e0000   ,part_bin},
+  {"Teeos"	     ,0x290000   ,part_bin},
   {0,0}
 };
 

@@ -216,6 +216,12 @@ if (label != 0) {
   label=0;
 }  
 
+if (spacer != 0) {
+  EditorLayout->removeItem(spacer);
+  delete spacer;
+  spacer=0;
+}  
+
 if (cpioedit != 0) {
   
   cpio_delete_list();
@@ -239,12 +245,11 @@ if (structure_mode->isChecked()) {
    }
    
    // Разделы oeminfo
-/*
+
    if (ptable->ptype(idx) == part_oem) {
-//    label=new QLabel("Версия WEBUI или DASHBOARD");
-    label=new QLabel("    Версия WEBUI или DASHBOARD   ",verticalLayoutWidget);
+    label=new QLabel("Версия WEBUI или DASHBOARD");
     label->setAlignment(Qt::AlignHCenter|Qt::AlignTop);
-//     label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    EditorLayout->addWidget(label);
     label->setTextFormat(Qt::RichText);
 
     QFont font;
@@ -252,20 +257,21 @@ if (structure_mode->isChecked()) {
     font.setBold(true);
     font.setWeight(75);
     label->setFont(font);
-    label->setGeometry(20,200,500,30);
-    
     label->show();
     
 //     oemedit=new QLineEdit(centralwidget);
-    oemedit=new QLineEdit(verticalLayoutWidget);
+    oemedit=new QLineEdit;
     oemedit->setAlignment(Qt::AlignLeft|Qt::AlignTop);
-//     EditorLayout->addWidget(oemedit);
+    EditorLayout->addWidget(oemedit);
     oemedit->setText((char*)ptable->iptr(idx));
-    oemedit->setGeometry(20,300,500,30);
     oemedit->show();
+    
+    spacer=new QSpacerItem(10,500,QSizePolicy::Minimum,QSizePolicy::Maximum);
+    EditorLayout->addSpacerItem(spacer);
+    
     return;
    } 
-  */ 
+ 
    // файловые разделы
    if (is_cpio(ptable->iptr(idx))) {
      cpio_create_list(ptable->rootdir(idx),0);
