@@ -137,6 +137,7 @@ setMenuBar(menubar);
 
 // Обработчики главного меню
 fileopen = new QAction("Открыть",this);
+fileopen->setShortcut(QKeySequence::Open);
 menu_file->addAction(fileopen);
 
 fileappend = new QAction("Добавить",this);
@@ -146,10 +147,12 @@ menu_file->addSeparator();
 
 filesave = new QAction("Сохранить",this);
 filesave->setEnabled(false);
+filesave->setShortcut(QKeySequence::Save);
 menu_file->addAction(filesave);
 menu_file->addSeparator();
 
 file_exit = new QAction("Выход",this);
+file_exit->setShortcut(QKeySequence::Quit);
 menu_file->addAction(file_exit);
 //----------------
 part_store = new QAction("Извлечь без заголовка",this);
@@ -162,12 +165,15 @@ part_replace = new QAction("Заменить образ раздела",this);
 menu_part->addAction(part_replace);
 
 MoveUp = new QAction("Переместить вверх",this);
+MoveUp->setShortcut(QKeySequence("Ctrl+Up"));
 menu_part->addAction(MoveUp);
 
 MoveDown = new QAction("Переместить вниз",this);
+MoveDown->setShortcut(QKeySequence("Ctrl+Down"));
 menu_part->addAction(MoveDown);
 
 Delete = new QAction("Удалить",this);
+Delete->setShortcut(QKeySequence("Ctrl+Del"));
 menu_part->addAction(Delete);
 
 part_copy_header = new QAction("Копировать заголовок",this);
@@ -175,9 +181,11 @@ menu_part->addAction(part_copy_header);
 //----------------
 Menu_Oper_flash = new QAction("Прошть модем",this);
 Menu_Oper_flash->setEnabled(false);
+Menu_Oper_flash->setShortcut(QKeySequence("Alt+B"));
 menu_oper->addAction(Menu_Oper_flash);
 
 Menu_Oper_USBDload = new QAction("Загрузка usbdloader",this);
+Menu_Oper_USBDload->setShortcut(QKeySequence("Alt+U"));
 menu_oper->addAction(Menu_Oper_USBDload);
 menu_oper->addSeparator();
 
@@ -186,6 +194,7 @@ menu_oper->addAction(Menu_Oper_Reboot);
 menu_oper->addSeparator();
 
 Menu_Oper_signinfo = new QAction("Информация о цифровой подписи",this);
+Menu_Oper_signinfo->setShortcut(QKeySequence("Alt+D"));
 Menu_Oper_signinfo->setEnabled(false);
 menu_oper->addAction(Menu_Oper_signinfo);
 
