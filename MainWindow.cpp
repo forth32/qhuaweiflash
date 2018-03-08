@@ -52,22 +52,26 @@ vlhdr->addLayout(lphdr);
 // элементы редактора заголовка
 pcode = new QLineEdit(hdrpanel);
 pcode->setMaxLength(4);
+pcode->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 pcode->setReadOnly(true);
 lphdr->addRow("Код раздела",pcode);
 
 Platform_input = new QLineEdit(hdrpanel);
 Platform_input->setMaxLength(8);
 Platform_input->setReadOnly(true);
+Platform_input->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 lphdr->addRow("Платформа",Platform_input);
 
 Date_input = new QLineEdit(hdrpanel);
 Date_input->setMaxLength(16);
 Date_input->setReadOnly(true);
+Date_input->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 lphdr->addRow("Дата",Date_input);
 
 Time_input = new QLineEdit(hdrpanel);
 Time_input->setMaxLength(16);
 Time_input->setReadOnly(true);
+Time_input->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 lphdr->addRow("Время",Time_input);
 
 setdate = new QToolButton(hdrpanel);
@@ -77,9 +81,15 @@ vlhdr->addWidget(setdate);
 hdlbl3=new QLabel("Версия прошивки",hdrpanel);
 vlhdr->addWidget(hdlbl3);
 
+QSize qs=Time_input->sizeHint();
+qDebug()  <<qs;
+qs.rwidth() *=2;
+qDebug()  <<qs;
 Version_input = new QLineEdit(hdrpanel);
 Version_input->setMaxLength(32);
 Version_input->setReadOnly(true);
+Version_input->resize(qs);
+Version_input->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Fixed);
 vlhdr->addWidget(Version_input);
 
 // Правое окно - редактор разделов
