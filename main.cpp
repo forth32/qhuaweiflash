@@ -625,13 +625,15 @@ int main(int argc, char* argv[]) {
 QApplication app(argc, argv);
 
 QCoreApplication::setApplicationName("Qt linux huawei flasher");
-QCoreApplication::setApplicationVersion("1.0");
+QCoreApplication::setApplicationVersion("3.0");
+app.setOrganizationName("forth32");
 
 
 QCommandLineParser parser;
-    parser.setApplicationDescription("Программа для прошивки и восстановления устройств на чипсете Hisilicon Balong v7");
-    parser.addHelpOption();
-    parser.addPositionalArgument("firmware", QCoreApplication::translate("main", "Файл прошивки"));
+
+parser.setApplicationDescription("Программа для прошивки и восстановления устройств на чипсете Hisilicon Balong v7");
+parser.addHelpOption();
+parser.addPositionalArgument("firmware", "Файл прошивки");
 
 parser.process(app);    
 QStringList args = parser.positionalArguments();
@@ -640,6 +642,7 @@ if (args.size() > 0) fwfilename=&args[0];
 else fwfilename=0;
 
 MainWindow* mw = new  MainWindow;
+mw->setAttribute(Qt::WA_DeleteOnClose);
 mw->show();
 return app.exec();
 }

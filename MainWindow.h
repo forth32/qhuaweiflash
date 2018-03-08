@@ -15,9 +15,14 @@ QTableWidget* ptedit=0; // редактор таблицы разделов
 QLineEdit* oemedit=0;   // редактор oeminfo-разделов
 QTableWidget* cpioedit=0; // редактор cpio-разделов
 QLabel* label=0;
-QSpacerItem* spacer=0;
+QSpacerItem* spacer=0; // подпорка под короткие формы редакторов
+
+// Специальные обработчики клавиатурных команд
 QShortcut* keyF3;    // обработчик F3
 QShortcut* keyF11;    // обработчик F11
+
+// Хранилище настроек
+QSettings* config;
 
 int hrow=-1;   // строка списка разделов, соответствующая текущему заголовку
 int structure_mode_save=-1; // предыдущее состояние переключателя дамп-формат
@@ -27,7 +32,7 @@ enum parttypes partmode=part_bin;
 public:
 
 MainWindow();
-~MainWindow(); 
+virtual ~MainWindow(); 
 
 void cpio_create_list(QList<cpfiledir*>*, int);
 void cpio_delete_list();

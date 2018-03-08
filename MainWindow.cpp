@@ -14,6 +14,9 @@ MainWindow::MainWindow(): QMainWindow() {
 
 this->resize(1000, 737);
 
+// Класс для загрузки конфигов
+config=new QSettings("forth32","qhuaweiflash",this);
+
 // Шрифт для надписей на основной панели
 QFont font;
 font.setPointSize(14);
@@ -23,6 +26,10 @@ font.setWeight(75);
 // Формируем иконку главного окна
 icon.addFile(QStringLiteral(":/icon.ico"), QSize(), QIcon::Normal, QIcon::Off);
 setWindowIcon(icon);
+
+// Достаем из конфига размеры главного окна
+QRect mainrect=config->value("/config/MainWindowRect").toRect();
+if (mainrect != QRect(0,0,0,0)) setGeometry(mainrect);
 
 // Сплиттер - корневой виджет окна
 centralwidget=new QSplitter(Qt::Horizontal, this);
@@ -82,9 +89,7 @@ hdlbl3=new QLabel("Версия прошивки",hdrpanel);
 vlhdr->addWidget(hdlbl3);
 
 QSize qs=Time_input->sizeHint();
-qDebug()  <<qs;
 qs.rwidth() *=2;
-qDebug()  <<qs;
 Version_input = new QLineEdit(hdrpanel);
 Version_input->setMaxLength(32);
 Version_input->setReadOnly(true);
@@ -129,6 +134,9 @@ statusbar->addPermanentWidget(PortSelector);
 RefreshPorts = new QToolButton(centralwidget);
 RefreshPorts->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
 statusbar->addPermanentWidget(RefreshPorts);
+
+// Восстанавливаем состояние сплиттера
+centralwidget->restoreState(config->value("/config/splitter").toByteArray());
 
 // Главное меню
 menubar = new QMenuBar(this);
@@ -216,7 +224,8 @@ connect(part_extract, SIGNAL(triggered()), this, SLOT(Menu_Part_Extract()));
 connect(part_store, SIGNAL(triggered()), this, SLOT(Menu_Part_Store()));
 connect(partlist, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(SelectPart()));
 connect(part_replace, SIGNAL(triggered()), this, SLOT(Menu_Part_Replace()));
-connect(file_exit, SIGNAL(triggered()), this, SLOT(Terminate()));
+// connect(file_exit, SIGNAL(triggered()), qApp, SLOT(quit()));
+     connect(file_exit, SIGNAL(triggered()), this, SLOT(close()));
 connect(filesave, SIGNAL(triggered()), this, SLOT(SaveFwFile()));
 connect(Delete, SIGNAL(triggered()), this, SLOT(Menu_Part_Delete()));
 connect(MoveUp, SIGNAL(triggered()), this, SLOT(Menu_Part_MoveUp()));
@@ -259,5 +268,15 @@ if (fwfilename != 0) {
 //*****************************************
 MainWindow::~MainWindow() {
 
+QRect mainrect;  
+
 delete ptable;  
+
+// геометрия главного окна
+mainrect=geometry();
+config->setValue("/config/MainWindowRect",mainrect);
+
+// геометрия сплиттера
+config->setValue("/config/splitter",centralwidget->saveState());
+
 }
