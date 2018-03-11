@@ -289,7 +289,7 @@ if (structure_mode->isChecked()) {
 
  // формирование данных окна hex-редактора
  hexcup.setRawData((char*)ptable->iptr(idx),ptable->psize(idx));
- hexedit->setData(hexcup);
+ hexedit->insert(0,hexcup);
  hexedit->setCursorPosition(0);
  EditorLayout->addWidget(hexedit);
 //  EditorLayout->show();
