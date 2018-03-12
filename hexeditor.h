@@ -19,6 +19,8 @@ QAction* w32;
 QAction* w48;
 QAction* w64;
 QActionGroup* wsel;
+QAction* menu_undo;
+QAction* menu_redo;
 
 int bpl=16; // ширина строки редактора в байтах
 

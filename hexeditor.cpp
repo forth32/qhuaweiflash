@@ -8,7 +8,7 @@
 hexeditor::hexeditor(char* data, uint32_t len, QWidget* parent) : QWidget(parent) {
   
 dhex=new QHexEdit(this);
-dhex->setAddressWidth(8);
+dhex->setAddressWidth(6);
 dhex->setOverwriteMode(true);
 hexcup.setRawData(data,len);
 dhex->setData(hexcup);
@@ -17,6 +17,10 @@ dhex->show();
 
 lm=new QVBoxLayout(this);
 lm->addWidget(dhex);
+
+// меню undo-redo
+menu_undo=mw->menu_edit->addAction("Отмена",dhex,SLOT(undo()),QKeySequence::Undo);
+menu_redo=mw->menu_edit->addAction("Повтор",dhex,SLOT(redo()),QKeySequence::Redo);
 
 // подменю выбора ширины hex-редактора
 hwidth = new QMenu("Байт в строке",this);
@@ -63,8 +67,8 @@ switch(bpl) {
     break;
 }    
 dhex->setBytesPerLine(bpl);
-
 mw->menu_edit->addMenu(hwidth);
+
 mw->menu_edit->setEnabled(true);
 
 connect(wsel,SIGNAL(triggered(QAction*)),this,SLOT(WidthSelector(QAction*)));
@@ -75,6 +79,8 @@ connect(wsel,SIGNAL(triggered(QAction*)),this,SLOT(WidthSelector(QAction*)));
 //* Деструктор класса
 //********************************************************************
 hexeditor::~hexeditor() {
+  
+mw->menu_edit->clear();  
 mw->menu_edit->setEnabled(false);
 }
 
@@ -83,8 +89,6 @@ mw->menu_edit->setEnabled(false);
 //********************************************************************
 void hexeditor::WidthSelector(QAction* sel) {
   
-qDebug() <<sel; 
-
 if (sel == w16)  bpl=16;
 else if (sel == w32) bpl=32;
 else if (sel == w48) bpl=48;
