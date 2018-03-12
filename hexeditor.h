@@ -2,7 +2,7 @@
 #define __HEXEDITOR_H
 
 #include <QtWidgets>
-#include "hexeditor/qhexedit.h"
+#include "hexedit2/qhexedit.h"
 
 class hexeditor : public QWidget {
 
@@ -11,6 +11,17 @@ Q_OBJECT
 QByteArray hexcup;
 QVBoxLayout* lm;
 
+QSettings* hconfig;
+
+QMenu* hwidth; // ширина редактора
+QAction* w16;
+QAction* w32;
+QAction* w48;
+QAction* w64;
+QActionGroup* wsel;
+
+int bpl=16; // ширина строки редактора в байтах
+
 public:
 
 QHexEdit* dhex;
@@ -18,7 +29,9 @@ QHexEdit* dhex;
 hexeditor(char* data, uint32_t len, QWidget* parent);
 ~hexeditor();
 
-};
+public slots:
+void WidthSelector(QAction* sel);  
 
+};
 
 #endif // __HEXEDITOR_H

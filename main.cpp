@@ -12,7 +12,6 @@
 #include "parts.h"
 #include "cpio.h"
 
-#include "hexeditor/qhexedit.h"
 
 void flasher();
 
@@ -24,7 +23,7 @@ ptable_list* ptable;
 int npart=0;
 
 QString* fwfilename=0;
-MainWindow* mw;
+MainWindow* mw;  // глобальный указатель на главное окно
 
 //*************************************************
 //  Поиск ttyUSB портов и сбор их имен в таблицу

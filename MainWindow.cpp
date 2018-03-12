@@ -32,6 +32,8 @@ setWindowIcon(icon);
 QRect mainrect=config->value("/config/MainWindowRect").toRect();
 if (mainrect != QRect(0,0,0,0)) setGeometry(mainrect);
 
+// Достаем из конфига ширину строки hex-редактора
+
 // Сплиттер - корневой виджет окна
 centralwidget=new QSplitter(Qt::Horizontal, this);
 setCentralWidget(centralwidget);
