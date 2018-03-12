@@ -13,6 +13,8 @@ dhex->setOverwriteMode(true);
 hexcup.setRawData(data,len);
 dhex->setData(hexcup);
 dhex->setCursorPosition(0);
+dhex->setHexCaps(true);
+dhex->setHighlighting(true);
 dhex->show();
 
 lm=new QVBoxLayout(this);
@@ -71,7 +73,13 @@ mw->menu_edit->addMenu(hwidth);
 
 mw->menu_edit->setEnabled(true);
 
+// Инофрмация для статусбара
+status_adr_info=new QLabel(this);
+mw->statusBar()->addWidget(status_adr_info);  
+
+// Сигналы и слоты
 connect(wsel,SIGNAL(triggered(QAction*)),this,SLOT(WidthSelector(QAction*)));
+connect(dhex,SIGNAL(currentAddressChanged(qint64)),this,SLOT(ShowAddres(qint64)));
 
 }
 
@@ -80,6 +88,7 @@ connect(wsel,SIGNAL(triggered(QAction*)),this,SLOT(WidthSelector(QAction*)));
 //********************************************************************
 hexeditor::~hexeditor() {
   
+mw->statusBar()->removeWidget(status_adr_info);  
 mw->menu_edit->clear();  
 mw->menu_edit->setEnabled(false);
 }
@@ -101,4 +110,17 @@ hconfig->setValue("/config/bpl",bpl);
 
 
 
+//********************************************************************
+//*  Вывод текущего адреса в статусбар 
+//********************************************************************
+void hexeditor::ShowAddres(qint64 adr) {
+
+QString adrstr;
+QByteArray data;
+
+data=dhex->dataAt(adr,1);
+
+adrstr.sprintf("Позиция: %06X   Байт:%02x",adr,(uint8_t)data.at(0));
+status_adr_info->setText(adrstr);   
+}
     

@@ -24,6 +24,8 @@ QAction* menu_redo;
 
 int bpl=16; // ширина строки редактора в байтах
 
+QLabel* status_adr_info; // отображение адреса в статусбаре
+
 public:
 
 QHexEdit* dhex;
@@ -33,6 +35,7 @@ hexeditor(char* data, uint32_t len, QWidget* parent);
 
 public slots:
 void WidthSelector(QAction* sel);  
+void ShowAddres(qint64 adr);
 
 };
 
