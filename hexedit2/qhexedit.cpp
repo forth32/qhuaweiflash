@@ -830,13 +830,23 @@ void QHexEdit::paintEvent(QPaintEvent *event)
         painter.fillRect(event->rect(), viewport()->palette().color(QPalette::Base));
         if (_addressArea)
             painter.fillRect(QRect(-pxOfsX, event->rect().top(), _pxPosHexX - _pxGapAdrHex/2, height()), _addressAreaColor);
+	//Отделитель ascii-области
         if (_asciiArea)
         {
-            int linePos = _pxPosAsciiX - (_pxGapHexAscii / 2);
-            painter.setPen(Qt::gray);
-            painter.drawLine(linePos - pxOfsX, event->rect().top(), linePos - pxOfsX, height());
+             int linePos = _pxPosAsciiX - (_pxGapHexAscii / 2);
+             painter.setPen(Qt::gray);
+             painter.drawLine(linePos - pxOfsX, event->rect().top(), linePos - pxOfsX, height());
         }
 
+        // Отделитель 16-байтовых элементов
+//         for(int i=0;i<_bytesPerLine;i+=16) {
+// 	     int pxPosX = _pxPosHexX  - pxOfsX;
+//              int linePos = pxPosX+i*_pxCharWidth+_pxCharWidth/2;
+//              painter.setPen(Qt::gray);
+//              painter.drawLine(linePos, event->rect().top(), linePos, height());
+//         }
+	  
+        
         painter.setPen(viewport()->palette().color(QPalette::WindowText));
 
         // paint address area

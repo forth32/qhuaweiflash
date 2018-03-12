@@ -143,7 +143,7 @@ QByteArray data;
 
 data=dhex->dataAt(adr,1);
 
-adrstr.sprintf("Позиция: %06llX   Байт:%02x",adr,(uint8_t)data.at(0));
+adrstr.sprintf("Позиция: %06llX   Байт:%02X",adr,(uint8_t)data.at(0));
 status_adr_info->setText(adrstr);   
 }
     
