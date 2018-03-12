@@ -81,13 +81,16 @@ mw->statusBar()->addWidget(status_adr_info);
 connect(wsel,SIGNAL(triggered(QAction*)),this,SLOT(WidthSelector(QAction*)));
 connect(dhex,SIGNAL(currentAddressChanged(qint64)),this,SLOT(ShowAddres(qint64)));
 
+QFont font=dhex->font();
+qDebug() << font;
+
 }
 
 //********************************************************************
 //* Деструктор класса
 //********************************************************************
 hexeditor::~hexeditor() {
-  
+
 mw->statusBar()->removeWidget(status_adr_info);  
 mw->menu_edit->clear();  
 mw->menu_edit->setEnabled(false);
@@ -115,12 +118,12 @@ hconfig->setValue("/config/bpl",bpl);
 //********************************************************************
 void hexeditor::ShowAddres(qint64 adr) {
 
-QString adrstr;
+static QString adrstr;
 QByteArray data;
 
 data=dhex->dataAt(adr,1);
 
-adrstr.sprintf("Позиция: %06X   Байт:%02x",adr,(uint8_t)data.at(0));
+adrstr.sprintf("Позиция: %06llX   Байт:%02x",adr,(uint8_t)data.at(0));
 status_adr_info->setText(adrstr);   
 }
     
