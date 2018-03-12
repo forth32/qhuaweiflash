@@ -24,7 +24,7 @@ ptable_list* ptable;
 int npart=0;
 
 QString* fwfilename=0;
-
+MainWindow* mw;
 
 //*************************************************
 //  Поиск ttyUSB портов и сбор их имен в таблицу
@@ -281,16 +281,10 @@ if (structure_mode->isChecked()) {
 // неформатный тип 
 // создание окна hex-редактора
  partmode=part_bin;
- hexedit=new QHexEdit(centralwidget);
+ hexedit=new hexeditor((char*)ptable->iptr(idx),ptable->psize(idx),centralwidget);
  hexedit->setObjectName(QStringLiteral("HexEditor"));
-//  hexedit->setGeometry(QRect(230, 100, 600, 470));
- hexedit->setAddressWidth(8);
- hexedit->setOverwriteMode(true);
 
  // формирование данных окна hex-редактора
- hexcup.setRawData((char*)ptable->iptr(idx),ptable->psize(idx));
- hexedit->insert(0,hexcup);
- hexedit->setCursorPosition(0);
  EditorLayout->addWidget(hexedit);
 //  EditorLayout->show();
  hexedit->show();
@@ -533,6 +527,7 @@ ptable->calc_hd_crc16(ci);
 void MainWindow::DataChanged() {
 
 char* tdata;  
+QByteArray hexcup;
 QMessageBox::StandardButton reply;
 
 //  Измененный раздел oeminfo  
@@ -550,7 +545,7 @@ if (oemedit != 0) {
 
 if (hexedit != 0) {
   tdata=new char[ptable->psize(hrow)];
-  hexcup=hexedit->data();
+  hexcup=hexedit->dhex->data();
   memcpy(tdata,hexcup.data(),ptable->psize(hrow));
   if (memcmp(tdata,ptable->iptr(hrow),ptable->psize(hrow)) != 0) {
     reply=QMessageBox::warning(this,"Запись раздела","Содержимое раздела изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
@@ -627,7 +622,7 @@ QApplication app(argc, argv);
 QCoreApplication::setApplicationName("Qt linux huawei flasher");
 QCoreApplication::setApplicationVersion("3.0");
 app.setOrganizationName("forth32");
-
+MainWindow* mwin;
 
 QCommandLineParser parser;
 
@@ -641,8 +636,8 @@ QStringList args = parser.positionalArguments();
 if (args.size() > 0) fwfilename=&args[0];
 else fwfilename=0;
 
-MainWindow* mw = new  MainWindow;
-mw->setAttribute(Qt::WA_DeleteOnClose);
-mw->show();
+mwin = new  MainWindow;
+mwin->setAttribute(Qt::WA_DeleteOnClose);
+mwin->show();
 return app.exec();
 }

@@ -12,6 +12,7 @@ extern QString* fwfilename;
 //************************************************
 MainWindow::MainWindow(): QMainWindow() {
 
+mw=this;
 this->resize(1000, 737);
 
 // Класс для загрузки конфигов
@@ -150,6 +151,10 @@ menubar->addAction(menu_part->menuAction());
 menu_oper = new QMenu("Операции",menubar);
 menu_oper->setEnabled(true);
 menubar->addAction(menu_oper->menuAction());
+
+menu_edit = new QMenu("Редактор",menubar);
+menu_edit->setEnabled(false);
+menubar->addAction(menu_edit->menuAction());
 
 setMenuBar(menubar);
 

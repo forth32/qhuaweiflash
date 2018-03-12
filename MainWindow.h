@@ -1,6 +1,6 @@
 #include <QtWidgets>
 #include "ptable.h"
-#include "hexeditor/qhexedit.h"
+#include "hexeditor.h"
 
 //******************************************************************************
 //* Класс главного окна
@@ -9,13 +9,12 @@ class MainWindow: public QMainWindow {
   
 Q_OBJECT
 
-QByteArray hexcup;
-QHexEdit* hexedit=0;   // hex-редактор сырых образов разделов
 QTableWidget* ptedit=0; // редактор таблицы разделов 
 QLineEdit* oemedit=0;   // редактор oeminfo-разделов
 QTableWidget* cpioedit=0; // редактор cpio-разделов
 QLabel* label=0;
 QSpacerItem* spacer=0; // подпорка под короткие формы редакторов
+hexeditor* hexedit=0;
 
 // Специальные обработчики клавиатурных команд
 QShortcut* keyF3;    // обработчик F3
@@ -92,6 +91,7 @@ QMenuBar *menubar;
 QMenu *menu_file;
 QMenu *menu_oper;
 QMenu *menu_part;
+QMenu* menu_edit;
 
 // Статусбар
 QStatusBar *statusbar;
@@ -133,3 +133,4 @@ void F11_processor();
 
 // Независимые от лкасса обработчики
 void head_copy();
+extern MainWindow* mw;
