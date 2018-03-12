@@ -7,15 +7,37 @@
 //********************************************************************
 hexeditor::hexeditor(char* data, uint32_t len, QWidget* parent) : QWidget(parent) {
   
+int fontsize;  
+
+// Открываем доступ к конфигу
+hconfig=new QSettings("forth32","qhuaweiflash",this);
+
+// Создаем редактор
 dhex=new QHexEdit(this);
+
+// Установка размера шрифта
+fontsize=hconfig->value("/config/hexfontsize").toInt();
+qDebug() <<"fontsize = " << fontsize;
+if (fontsize>6) {
+  font=dhex->font();
+  font.setPointSize(fontsize);
+  dhex->setFont(font);
+}  
+
+// Настройка внешнего вида редактора
 dhex->setAddressWidth(6);
 dhex->setOverwriteMode(true);
-hexcup.setRawData(data,len);
-dhex->setData(hexcup);
-dhex->setCursorPosition(0);
 dhex->setHexCaps(true);
 dhex->setHighlighting(true);
+
+// Загрузка данных в редактор
+hexcup.setRawData(data,len);
+dhex->setData(hexcup);
+
+dhex->setCursorPosition(0);
 dhex->show();
+
+// Компоновка окна
 
 lm=new QVBoxLayout(this);
 lm->addWidget(dhex);
@@ -23,6 +45,9 @@ lm->addWidget(dhex);
 // меню undo-redo
 menu_undo=mw->menu_edit->addAction("Отмена",dhex,SLOT(undo()),QKeySequence::Undo);
 menu_redo=mw->menu_edit->addAction("Повтор",dhex,SLOT(redo()),QKeySequence::Redo);
+// Увеличение-Уменьшение шрифта
+menu_enlarge_font=mw->menu_edit->addAction("Увеличить шрифт",this,SLOT(EnlargeFont()),QKeySequence("Ctrl++"));
+menu_reduce_font=mw->menu_edit->addAction("Уменьшить шрифт",this,SLOT(ReduceFont()),QKeySequence("Ctrl+-"));
 
 // подменю выбора ширины hex-редактора
 hwidth = new QMenu("Байт в строке",this);
@@ -45,7 +70,6 @@ w64->setCheckable(true);
 w64->setActionGroup(wsel);
 
 // достаем значение из конфига
-hconfig=new QSettings("forth32","qhuaweiflash",this);
 bpl=hconfig->value("/config/bpl").toInt();
 
 
@@ -80,10 +104,6 @@ mw->statusBar()->addWidget(status_adr_info);
 // Сигналы и слоты
 connect(wsel,SIGNAL(triggered(QAction*)),this,SLOT(WidthSelector(QAction*)));
 connect(dhex,SIGNAL(currentAddressChanged(qint64)),this,SLOT(ShowAddres(qint64)));
-
-QFont font=dhex->font();
-qDebug() << font;
-
 }
 
 //********************************************************************
@@ -126,4 +146,37 @@ data=dhex->dataAt(adr,1);
 adrstr.sprintf("Позиция: %06llX   Байт:%02x",adr,(uint8_t)data.at(0));
 status_adr_info->setText(adrstr);   
 }
+    
+//********************************************************************
+//* Увеличение размера шрифта
+//********************************************************************
+void hexeditor::EnlargeFont() {ChangeFont(1); }
+
+//********************************************************************
+//* Уменьшение размера шрифта
+//********************************************************************
+void hexeditor::ReduceFont() { ChangeFont(-1); }
+   
+//********************************************************************
+//* Изменение размера шрифта
+//********************************************************************
+void hexeditor::ChangeFont(int delta) {
+  
+int fsize;  
+
+font=dhex->font();
+fsize=font.pointSize();
+fsize+=delta;
+if ((fsize<6) || (fsize>25)) return; // пределы изменения размера шрифта
+
+if (fsize == -1) return;
+font.setPointSize(fsize);
+dhex->setFont(font);
+dhex->repaint(0,0,-1,-1);
+
+// сохраняем размер шрифта в конфиг
+hconfig->setValue("/config/hexfontsize",fsize);
+
+}
+   
     

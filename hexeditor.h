@@ -21,8 +21,12 @@ QAction* w64;
 QActionGroup* wsel;
 QAction* menu_undo;
 QAction* menu_redo;
+QAction* menu_enlarge_font;
+QAction* menu_reduce_font;
+
 
 int bpl=16; // ширина строки редактора в байтах
+QFont font;
 
 QLabel* status_adr_info; // отображение адреса в статусбаре
 
@@ -32,10 +36,13 @@ QHexEdit* dhex;
 
 hexeditor(char* data, uint32_t len, QWidget* parent);
 ~hexeditor();
+void ChangeFont(int delta);
 
 public slots:
 void WidthSelector(QAction* sel);  
 void ShowAddres(qint64 adr);
+void EnlargeFont();
+void ReduceFont();
 
 };
 
