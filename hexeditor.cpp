@@ -17,7 +17,6 @@ dhex=new QHexEdit(this);
 
 // Установка размера шрифта
 fontsize=hconfig->value("/config/hexfontsize").toInt();
-qDebug() <<"fontsize = " << fontsize;
 if (fontsize>6) {
   font=dhex->font();
   font.setPointSize(fontsize);

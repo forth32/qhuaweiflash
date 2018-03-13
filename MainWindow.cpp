@@ -278,6 +278,7 @@ MainWindow::~MainWindow() {
 QRect mainrect;  
 
 if (hexedit != 0) delete hexedit;
+if (kedit != 0) delete kedit;
 delete ptable;  
 
 // геометрия главного окна

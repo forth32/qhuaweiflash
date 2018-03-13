@@ -11,7 +11,7 @@
 #include "signver.h"
 #include "parts.h"
 #include "cpio.h"
-
+#include "kerneledit.h"
 
 void flasher();
 
@@ -197,6 +197,12 @@ if (hexedit != 0) {
   hexedit=0;
 }  
 
+if (kedit != 0) {
+  EditorLayout->removeWidget(kedit);
+  delete kedit;
+  kedit=0;
+}  
+
 if (ptedit != 0) {
   EditorLayout->removeWidget(ptedit);
   delete ptedit;
@@ -274,6 +280,12 @@ if (structure_mode->isChecked()) {
    // файловые разделы
    if (is_cpio(ptable->iptr(idx))) {
      cpio_create_list(ptable->rootdir(idx),0);
+     return;
+   }
+   
+   if (memcmp(ptable->iptr(idx)+128,"ANDROID!",8) == 0) {
+     kedit=new kerneledit(ptable->iptr(idx)+128,ptable->psize(idx)-128,centralwidget);
+     EditorLayout->addWidget(kedit);
      return;
    }  
 }   

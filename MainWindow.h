@@ -1,6 +1,7 @@
 #include <QtWidgets>
 #include "ptable.h"
 #include "hexeditor.h"
+#include "kerneledit.h"
 
 //******************************************************************************
 //* Класс главного окна
@@ -15,6 +16,7 @@ QTableWidget* cpioedit=0; // редактор cpio-разделов
 QLabel* label=0;
 QSpacerItem* spacer=0; // подпорка под короткие формы редакторов
 hexeditor* hexedit=0;
+kerneledit* kedit=0;  // редактор разделов kernel
 
 // Специальные обработчики клавиатурных команд
 QShortcut* keyF3;    // обработчик F3
