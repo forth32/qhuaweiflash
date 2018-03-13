@@ -78,11 +78,25 @@ QPushButton* r1repl;
 QPushButton* r2ext;
 QPushButton* r2repl;
 
+void setup_adr(int type, uint32_t* adr, uint32_t* len, QString* filename);
+void extractor(int type);
+void replacer(int type);
 
 public:
 
 kerneledit(uint8_t* data, uint32_t len, QWidget* parent);
 ~kerneledit();
+
+public slots:
+
+void kextract();
+void r1extract();
+void r2extract();
+
+void kreplace();
+void r1replace();
+void r2replace();
+
 };
 
 
