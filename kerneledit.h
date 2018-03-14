@@ -63,10 +63,9 @@ QLabel* dtlabel;
 QLabel* pname;
 QLineEdit* cmdline;
 
-QLabel* complabel;
-QLabel* comhdr1;
-QLabel* comhdr2;
-QLabel* comhdr3;
+QLabel* comphdr1;
+QLabel* comphdr2;
+QLabel* comphdr3;
 
 QLabel* kcomp;
 QLabel* r1comp;
@@ -87,13 +86,16 @@ void setup_adr(int type, uint32_t* adr, uint32_t* len, QString* filename);
 void extractor(int type);
 void replacer(int type);
 
-public:
+// номер данного разела в таблице разделов
+int pnum;
 
 // локальная копия образа раздела
-uint8_t* pdata;
-uint32_t plen;
+uint8_t* localdata;
+uint32_t plen;// длина-128, без хуавеевского заголовка
 
-kerneledit(uint8_t* data, uint32_t len, QWidget* parent);
+public:
+
+kerneledit(int xpnum, QWidget* parent);
 ~kerneledit();
 
 public slots:

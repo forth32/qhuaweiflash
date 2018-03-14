@@ -470,3 +470,17 @@ table[n+1]=table[n];
 table[n]=tmp;
 }
 
+//*******************************************************
+//* Замена образа раздела
+//*******************************************************
+void ptable_list::replace(int n, uint8_t* data, uint32_t len) {
+
+free (table[n].pimage);
+table[n].pimage=(uint8_t*)malloc(len);
+memcpy(table[n].pimage,data,len);
+table[n].hd.psize=len;
+calc_crc16(n);
+}
+
+
+

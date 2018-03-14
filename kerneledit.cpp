@@ -2,25 +2,33 @@
 #include "kerneledit.h"
 #include "MainWindow.h"
 #include <string.h>
+#include "ptable.h"
 
 //********************************************************************
 //* Конструктор класса
 //********************************************************************
-kerneledit::kerneledit(uint8_t* data, uint32_t len, QWidget* parent) : QWidget(parent) {
+kerneledit::kerneledit(int xpnum, QWidget* parent) : QWidget(parent) {
 
 QString str;  
 char cline[513];
 QFont font;
 QFont oldfont;
 QFont labelfont;
+uint8_t* data;
+uint32_t len;
+
+pnum=xpnum;
+
+data=ptable->iptr(pnum);
+len=ptable->psize(pnum);
 
 // Локальная копия данных раздела
-pdata=new uint8_t[len];
-memcpy(pdata,data,len);
-plen=len;
+localdata=new uint8_t[len];
+memcpy(localdata,data,len);
+plen=len-128; // длина данных минус заголовок
 
 // указатель на заголовок раздела
-hdr=(struct boot_img_hdr*)pdata;
+hdr=(struct boot_img_hdr*)(localdata+128);
 
 // Вертикальный компоновщик
 vlm=new QVBoxLayout(this);
@@ -92,78 +100,89 @@ flm->labelForField(cmdline)->setFont(labelfont);
 
 vlm->addStretch(1);
 
-// Заголовок редактора компонентов
-complabel=new QLabel("Компоненты ядра",this);
-complabel->setFont(font);
-complabel->setStyleSheet("QLabel { color : blue; }");
-vlm->addWidget(complabel);
-
-vlm->addStretch(1);
 // Компоновщик списка компонентов
 lcomp=new QGridLayout(0);
-lcomp->setVerticalSpacing(9);
+lcomp->setVerticalSpacing(15);
 vlm->addLayout(lcomp);
 
-// 
+// заголовок таблицы
+font=oldfont;
+font.setPointSize(font.pointSize()+3);
+font.setBold(true);
+
+comphdr1=new QLabel("Имя компонента",this);
+comphdr1->setFont(font);
+comphdr1->setStyleSheet("QLabel { color : red; }");
+lcomp->addWidget(comphdr1,0,0);
+
+comphdr2=new QLabel("Адрес загрузки",this);
+comphdr2->setFont(font);
+comphdr2->setStyleSheet("QLabel { color : orange; }");
+lcomp->addWidget(comphdr2,0,1);
+
+comphdr3=new QLabel("Команды",this);
+comphdr3->setFont(font);
+comphdr3->setStyleSheet("QLabel { color : green; }");
+lcomp->addWidget(comphdr3,0,2,1,2,Qt::AlignHCenter);
 
 // имена компонентов
 kcomp=new QLabel("Kernel image  ",this);
 kcomp->setFont(labelfont);
-lcomp->addWidget(kcomp,0,0);
+lcomp->addWidget(kcomp,1,0);
 
 r1comp=new QLabel("Ramdisk1",this);
 r1comp->setFont(labelfont);
-lcomp->addWidget(r1comp,1,0);
+lcomp->addWidget(r1comp,2,0);
 
 r2comp=new QLabel("Ramdisk2",this);
 r2comp->setFont(labelfont);
-lcomp->addWidget(r2comp,2,0);
+lcomp->addWidget(r2comp,3,0);
 
 // адреса загрузки
 str.sprintf("%08x",hdr->kernel_addr);
 kaddr=new QLabel(str,this);
 kaddr->setFont(labelfont);
-lcomp->addWidget(kaddr,0,1);
+lcomp->addWidget(kaddr,1,1,Qt::AlignHCenter);
 
 str.sprintf("%08x",hdr->ramdisk_addr);
 r1addr=new QLabel(str,this);
 r1addr->setFont(labelfont);
-lcomp->addWidget(r1addr,1,1);
+lcomp->addWidget(r1addr,2,1,Qt::AlignHCenter);
 
 str.sprintf("%08x",hdr->second_addr);
 r2addr=new QLabel(str,this);
 r2addr->setFont(labelfont);
-lcomp->addWidget(r2addr,2,1);
+lcomp->addWidget(r2addr,3,1,Qt::AlignHCenter);
 
 // кнопки извлечения
 kext=new QPushButton("Извлечь",this);
 connect(kext,SIGNAL(clicked()),this,SLOT(kextract()));
-lcomp->addWidget(kext,0,2);
+lcomp->addWidget(kext,1,2);
 
 r1ext=new QPushButton("Извлечь",this);
 connect(r1ext,SIGNAL(clicked()),this,SLOT(r1extract()));
-lcomp->addWidget(r1ext,1,2);
+lcomp->addWidget(r1ext,2,2);
 
 r2ext=new QPushButton("Извлечь",this);
 connect(r2ext,SIGNAL(clicked()),this,SLOT(r2extract()));
-lcomp->addWidget(r2ext,2,2);
+lcomp->addWidget(r2ext,3,2);
 
 // кнопки замены
 krepl=new QPushButton("Заменить",this);
 connect(krepl,SIGNAL(clicked()),this,SLOT(kreplace()));
-lcomp->addWidget(krepl,0,3);
+lcomp->addWidget(krepl,1,3);
 
 r1repl=new QPushButton("Заменить",this);
 connect(r1repl,SIGNAL(clicked()),this,SLOT(r1replace()));
-lcomp->addWidget(r1repl,1,3);
+lcomp->addWidget(r1repl,2,3);
 
 r2repl=new QPushButton("Заменить",this);
 connect(r2repl,SIGNAL(clicked()),this,SLOT(r2replace()));
-lcomp->addWidget(r2repl,2,3);
+lcomp->addWidget(r2repl,3,3);
 
 // правая распорка
 rspacer=new QSpacerItem(100,10,QSizePolicy::Expanding);
-lcomp->addItem(rspacer,0,4);
+lcomp->addItem(rspacer,1,4);
 
 vlm->addStretch(7);
 }
@@ -173,7 +192,23 @@ vlm->addStretch(7);
 //********************************************************************
 kerneledit::~kerneledit() {
 
-delete pdata;  
+QMessageBox::StandardButton reply;
+QString cmd;
+
+// проверяем редактор командной строки 
+if (cmdline->isModified()) {
+  cmd=cmdline->text();
+  strncpy((char*)hdr->cmdline,cmd.toLocal8Bit().data(),BOOT_ARGS_SIZE);
+}  
+
+// проверяем, изменились ли данные
+if ((ptable->psize(pnum) != (plen+128)) || (memcmp(localdata,ptable->iptr(pnum),plen+128) != 0)) {
+  reply=QMessageBox::warning(this,"Запись раздела","Содержимое раздела изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
+  if (reply == QMessageBox::Ok) {
+    ptable->replace(pnum,localdata,plen+128);
+  }
+}  
+delete localdata;  
 }
 
 //********************************************************************
@@ -236,7 +271,7 @@ if (!out.open(QIODevice::WriteOnly)) {
     QMessageBox::critical(0,"Ошибка","Ошибка создания файла");
     return;
 }
-out.write((char*)(pdata+start),size);
+out.write((char*)(localdata+128+start),size);
 out.close();
 }
 
@@ -261,7 +296,7 @@ uint32_t kernelsize,r1size,r2size;
 uint32_t bound_filesize, fsize;
 uint32_t totalsize;
 uint32_t pagesize=hdr->page_size;
-uint8_t* newpdata;
+uint8_t* newlocaldata;
 uint8_t* srcptr;
 uint8_t* dstptr;
 
@@ -295,15 +330,16 @@ if (type == 1) totalsize+=bound_filesize;  else totalsize+=r1size;
 if (type == 2) totalsize+=bound_filesize;  else totalsize+=r2size;
 
 // Выделяем память под новый образ раздела
-newpdata=new uint8_t[totalsize];
+newlocaldata=new uint8_t[totalsize+128];
 
-// копируем заголовок и переустанавливаем указатель на него
-memcpy(newpdata,pdata,pagesize);
-hdr=(struct boot_img_hdr*)newpdata;
+// копируем хуавеевский и андроиндый заголовок
+memcpy(newlocaldata,localdata,128+pagesize);
+// перенастраиваем указатель на андроидный заголовок
+hdr=(struct boot_img_hdr*)(newlocaldata+128);
 
 // настраиваем указатели источника-приемника
-srcptr=pdata+pagesize;
-dstptr=newpdata+pagesize;
+srcptr=localdata+pagesize+128;
+dstptr=newlocaldata+pagesize+128;
 
 // копируем разделы
 //------------------------
@@ -346,10 +382,12 @@ else {
   dstptr+=r2size;
 }
 
-// Удаляем старый буфер и кладем на его место новый
+// удаляем файловый буфер
 delete fbuf;
-delete pdata;
-pdata=newpdata;
+// Удаляем старый буфер и кладем на его место новый
+
+delete localdata;
+localdata=newlocaldata;
 plen=totalsize;
 
 }

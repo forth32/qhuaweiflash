@@ -82,6 +82,9 @@ public:
   uint8_t* date(int n) { return table[n].hd.date; }
   uint8_t* time(int n) { return table[n].hd.time; }
   uint8_t* version(int n) { return table[n].hd.version; }
+
+  // замена образа раздела
+  void replace(int n, uint8_t* data, uint32_t len);
   
   void findparts(FILE* in);
   void loadimage(int np, FILE* in);

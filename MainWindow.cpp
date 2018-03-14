@@ -180,10 +180,11 @@ file_exit = new QAction("Выход",this);
 file_exit->setShortcut(QKeySequence::Quit);
 menu_file->addAction(file_exit);
 //----------------
-part_store = new QAction("Извлечь без заголовка",this);
+part_store = new QAction("Извлечь с заголовком",this);
 menu_part->addAction(part_store);
 
-part_extract = new QAction("Извлечь с заголовком",this);
+part_extract = new QAction("Извлечь без заголовка",this);
+part_extract->setShortcut(QKeySequence("Ctrl+T"));
 menu_part->addAction(part_extract);
 
 part_replace = new QAction("Заменить образ раздела",this);

@@ -284,7 +284,7 @@ if (structure_mode->isChecked()) {
    }
    
    if (memcmp(ptable->iptr(idx)+128,"ANDROID!",8) == 0) {
-     kedit=new kerneledit(ptable->iptr(idx)+128,ptable->psize(idx)-128,centralwidget);
+     kedit=new kerneledit(idx,centralwidget);
      EditorLayout->addWidget(kedit);
      return;
    }  
@@ -553,7 +553,7 @@ if (oemedit != 0) {
   delete tdata;
   return;
 }
-
+// Измененный раздел,обрабатываемый hex-редактором
 if (hexedit != 0) {
   tdata=new char[ptable->psize(hrow)];
   hexcup=hexedit->dhex->data();
