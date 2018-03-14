@@ -34,6 +34,7 @@ font.setPointSize(font.pointSize()+7);
 font.setBold(true);
 hdrlabel=new QLabel("Редактор раздела KERNEL",this);
 hdrlabel->setFont(font);
+hdrlabel->setStyleSheet("QLabel { color : green; }");
 vlm->addWidget(hdrlabel,0,Qt::AlignHCenter);
 
 // Заголовок списка параметров
@@ -42,6 +43,7 @@ font.setPointSize(font.pointSize()+5);
 font.setBold(true);
 parmlabel=new QLabel("Параметры ядра",this);
 parmlabel->setFont(font);
+parmlabel->setStyleSheet("QLabel { color : blue; }");
 vlm->addWidget(parmlabel);
 vlm->addStretch(1);
 
@@ -93,6 +95,7 @@ vlm->addStretch(1);
 // Заголовок редактора компонентов
 complabel=new QLabel("Компоненты ядра",this);
 complabel->setFont(font);
+complabel->setStyleSheet("QLabel { color : blue; }");
 vlm->addWidget(complabel);
 
 vlm->addStretch(1);
@@ -101,6 +104,9 @@ lcomp=new QGridLayout(0);
 lcomp->setVerticalSpacing(9);
 vlm->addLayout(lcomp);
 
+// 
+
+// имена компонентов
 kcomp=new QLabel("Kernel image  ",this);
 kcomp->setFont(labelfont);
 lcomp->addWidget(kcomp,0,0);
@@ -113,35 +119,53 @@ r2comp=new QLabel("Ramdisk2",this);
 r2comp->setFont(labelfont);
 lcomp->addWidget(r2comp,2,0);
 
+// адреса загрузки
+str.sprintf("%08x",hdr->kernel_addr);
+kaddr=new QLabel(str,this);
+kaddr->setFont(labelfont);
+lcomp->addWidget(kaddr,0,1);
+
+str.sprintf("%08x",hdr->ramdisk_addr);
+r1addr=new QLabel(str,this);
+r1addr->setFont(labelfont);
+lcomp->addWidget(r1addr,1,1);
+
+str.sprintf("%08x",hdr->second_addr);
+r2addr=new QLabel(str,this);
+r2addr->setFont(labelfont);
+lcomp->addWidget(r2addr,2,1);
+
+// кнопки извлечения
 kext=new QPushButton("Извлечь",this);
 connect(kext,SIGNAL(clicked()),this,SLOT(kextract()));
-lcomp->addWidget(kext,0,1);
+lcomp->addWidget(kext,0,2);
 
 r1ext=new QPushButton("Извлечь",this);
 connect(r1ext,SIGNAL(clicked()),this,SLOT(r1extract()));
-lcomp->addWidget(r1ext,1,1);
+lcomp->addWidget(r1ext,1,2);
 
 r2ext=new QPushButton("Извлечь",this);
 connect(r2ext,SIGNAL(clicked()),this,SLOT(r2extract()));
-lcomp->addWidget(r2ext,2,1);
+lcomp->addWidget(r2ext,2,2);
 
+// кнопки замены
 krepl=new QPushButton("Заменить",this);
 connect(krepl,SIGNAL(clicked()),this,SLOT(kreplace()));
-lcomp->addWidget(krepl,0,2);
+lcomp->addWidget(krepl,0,3);
 
 r1repl=new QPushButton("Заменить",this);
 connect(r1repl,SIGNAL(clicked()),this,SLOT(r1replace()));
-lcomp->addWidget(r1repl,1,2);
+lcomp->addWidget(r1repl,1,3);
 
 r2repl=new QPushButton("Заменить",this);
 connect(r2repl,SIGNAL(clicked()),this,SLOT(r2replace()));
-lcomp->addWidget(r2repl,2,2);
+lcomp->addWidget(r2repl,2,3);
 
 // правая распорка
 rspacer=new QSpacerItem(100,10,QSizePolicy::Expanding);
-lcomp->addItem(rspacer,0,3);
+lcomp->addItem(rspacer,0,4);
 
-vlm->addStretch(5);
+vlm->addStretch(7);
 }
 
 //********************************************************************
@@ -233,19 +257,20 @@ void kerneledit::r2extract() { extractor(2); }
 void kerneledit::replacer(int type) {
 
 QString filename="";
-uint32_t kernelstart,r1start,r2start;
 uint32_t kernelsize,r1size,r2size;
-uint32_t filesize;
+uint32_t bound_filesize, fsize;
 uint32_t totalsize;
 uint32_t pagesize=hdr->page_size;
 uint8_t* newpdata;
 uint8_t* srcptr;
 uint8_t* dstptr;
 
-setup_adr(0,&kernelstart,&kernelsize);
-setup_adr(1,&r1start,&r1size);
-setup_adr(2,&r2start,&r2size);
+// размеры компонентов, выравненные на границу страниц флешки
+kernelsize=(hdr->kernel_size+pagesize-1)/pagesize*pagesize;
+r1size=(hdr->ramdisk_size+pagesize-1)/pagesize*pagesize;
+r2size=(hdr->second_size+pagesize-1)/pagesize*pagesize;
 
+// выбор файла
 filename=QFileDialog::getOpenFileName(this,"Имя файла",filename,"All files (*.*)");
 if (filename.isEmpty()) return;
 
@@ -255,31 +280,39 @@ if (!out.open(QIODevice::ReadOnly)) {
     return;
 }
 
-char* fbuf=new char[out.size()];
-out.read(fbuf,out.size());
-filesize=(out.size()+pagesize-1)/pagesize;
+// Читаем образ компонента из файла
+fsize=out.size();
+bound_filesize=(fsize+pagesize-1)/pagesize*pagesize; // округленный до страницы вверх
+char* fbuf=new char[bound_filesize]; // файловый буфер
+bzero(fbuf,bound_filesize);
+out.read(fbuf,fsize);
 out.close();
 
-// Вычисляем новый размер раздела ядра
+// Вычисляем новый размер раздела
 totalsize=pagesize;
-if (type == 0) totalsize+=filesize;  else totalsize+=kernelsize;
-if (type == 1) totalsize+=filesize;  else totalsize+=r1size;
-if (type == 2) totalsize+=filesize;  else totalsize+=r2size;
+if (type == 0) totalsize+=bound_filesize;  else totalsize+=kernelsize;
+if (type == 1) totalsize+=bound_filesize;  else totalsize+=r1size;
+if (type == 2) totalsize+=bound_filesize;  else totalsize+=r2size;
+
 // Выделяем память под новый образ раздела
 newpdata=new uint8_t[totalsize];
-// копируем заголовок
+
+// копируем заголовок и переустанавливаем указатель на него
 memcpy(newpdata,pdata,pagesize);
+hdr=(struct boot_img_hdr*)newpdata;
 
 // настраиваем указатели источника-приемника
 srcptr=pdata+pagesize;
 dstptr=newpdata+pagesize;
-// копируем разделы
 
+// копируем разделы
+//------------------------
 // ядро
 if (type == 0) {
-  memcpy(dstptr,fbuf,filesize);
+  memcpy(dstptr,fbuf,bound_filesize);
   srcptr+=kernelsize;
-  dstptr+=filesize;
+  dstptr+=bound_filesize;
+  hdr->kernel_size=fsize;
 }  
 else {
   memcpy(dstptr,srcptr,kernelsize);
@@ -289,9 +322,10 @@ else {
 
 // рамдиск 1
 if (type == 1) {
-  memcpy(dstptr,fbuf,filesize);
+  memcpy(dstptr,fbuf,bound_filesize);
   srcptr+=r1size;
-  dstptr+=filesize;
+  dstptr+=bound_filesize;
+  hdr->ramdisk_size=fsize;
 }  
 else {
   memcpy(dstptr,srcptr,r1size);
@@ -301,9 +335,10 @@ else {
 
 // рамдиск 2
 if (type == 1) {
-  memcpy(dstptr,fbuf,filesize);
+  memcpy(dstptr,fbuf,bound_filesize);
   srcptr+=r2size;
-  dstptr+=filesize;
+  dstptr+=bound_filesize;
+  hdr->second_size=fsize;
 }  
 else {
   memcpy(dstptr,srcptr,r2size);
@@ -312,6 +347,7 @@ else {
 }
 
 // Удаляем старый буфер и кладем на его место новый
+delete fbuf;
 delete pdata;
 pdata=newpdata;
 plen=totalsize;

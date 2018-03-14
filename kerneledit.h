@@ -49,9 +49,6 @@ Q_OBJECT
 
 // указатель на структуру заголовка
 struct boot_img_hdr* hdr;
-// локальная копия образа раздела
-uint8_t* pdata;
-uint32_t plen;
 
 QVBoxLayout* vlm;
 QFormLayout* flm;
@@ -67,9 +64,17 @@ QLabel* pname;
 QLineEdit* cmdline;
 
 QLabel* complabel;
+QLabel* comhdr1;
+QLabel* comhdr2;
+QLabel* comhdr3;
+
 QLabel* kcomp;
 QLabel* r1comp;
 QLabel* r2comp;
+
+QLabel* kaddr;
+QLabel* r1addr;
+QLabel* r2addr;
 
 QPushButton* kext;
 QPushButton* krepl;
@@ -83,6 +88,10 @@ void extractor(int type);
 void replacer(int type);
 
 public:
+
+// локальная копия образа раздела
+uint8_t* pdata;
+uint32_t plen;
 
 kerneledit(uint8_t* data, uint32_t len, QWidget* parent);
 ~kerneledit();
