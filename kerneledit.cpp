@@ -362,6 +362,7 @@ if (type == 1) {
   srcptr+=r1size;
   dstptr+=bound_filesize;
   hdr->ramdisk_size=fsize;
+  
 }  
 else {
   memcpy(dstptr,srcptr,r1size);
@@ -370,7 +371,7 @@ else {
 }
 
 // рамдиск 2
-if (type == 1) {
+if (type == 2) {
   memcpy(dstptr,fbuf,bound_filesize);
   srcptr+=r2size;
   dstptr+=bound_filesize;
