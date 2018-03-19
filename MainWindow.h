@@ -2,6 +2,7 @@
 #include "ptable.h"
 #include "hexeditor.h"
 #include "kerneledit.h"
+#include "nvdedit.h"
 
 //******************************************************************************
 //* Класс главного окна
@@ -17,6 +18,7 @@ QLabel* label=0;
 QSpacerItem* spacer=0; // подпорка под короткие формы редакторов
 hexeditor* hexedit=0;
 kerneledit* kedit=0;  // редактор разделов kernel
+nvdedit* nvedit=0;  // редактор разделов kernel
 
 // Специальные обработчики клавиатурных команд
 QShortcut* keyF3;    // обработчик F3

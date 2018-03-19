@@ -1,5 +1,5 @@
-#ifndef __HEXEDITOR1_H
-#define __HEXEDITOR1_H
+#ifndef __KERNELEDIT_H
+#define __KERNELEDIT_H
 #include <stdint.h>
 #include <QtWidgets>
 
@@ -142,4 +142,4 @@ void r2replace();
 */
 
 
-#endif // #define __HEXEDITOR_H
+#endif 

@@ -12,6 +12,7 @@
 #include "parts.h"
 #include "cpio.h"
 #include "kerneledit.h"
+#include "nvdedit.h"
 
 void flasher();
 
@@ -203,6 +204,12 @@ if (kedit != 0) {
   kedit=0;
 }  
 
+if (nvedit != 0) {
+  EditorLayout->removeWidget(nvedit);
+  delete nvedit;
+  nvedit=0;
+}  
+
 if (ptedit != 0) {
   EditorLayout->removeWidget(ptedit);
   delete ptedit;
@@ -236,6 +243,7 @@ if (cpioedit != 0) {
 if (structure_mode->isChecked()) {
   
    // Разделы ptable (таблица разделов флешки)
+   //###########################################
    if ((ptable->ptype(idx) == part_ptable) && (is_ptable(ptable->iptr(idx)))) {
     partmode=part_ptable; 
     // формирование редактора таблицы разделов
@@ -250,6 +258,7 @@ if (structure_mode->isChecked()) {
    }
    
    // Разделы oeminfo
+   //###########################################
 
    if (ptable->ptype(idx) == part_oem) {
     label=new QLabel("Версия WEBUI или DASHBOARD");
@@ -264,7 +273,6 @@ if (structure_mode->isChecked()) {
     label->setFont(font);
     label->show();
     
-//     oemedit=new QLineEdit(centralwidget);
     oemedit=new QLineEdit;
     oemedit->setAlignment(Qt::AlignLeft|Qt::AlignTop);
     EditorLayout->addWidget(oemedit);
@@ -278,16 +286,28 @@ if (structure_mode->isChecked()) {
    } 
  
    // файловые разделы
+   //###########################################
    if (is_cpio(ptable->iptr(idx))) {
      cpio_create_list(ptable->rootdir(idx),0);
      return;
    }
-   
+
+   // редактор ядра
+   //###########################################
    if (memcmp(ptable->iptr(idx)+128,"ANDROID!",8) == 0) {
      kedit=new kerneledit(idx,centralwidget);
      EditorLayout->addWidget(kedit);
      return;
    }  
+
+   // редактор раздела nvdload
+   //###########################################
+   if ((ptable->ptype(idx) == part_nvram) && (*((uint32_t*)(ptable->iptr(idx))) == NV_FILE_MAGIC)) {
+     nvedit=new nvdedit(idx,centralwidget);
+     EditorLayout->addWidget(nvedit);
+     return;
+   }  
+
 }   
 // неформатный тип 
 // создание окна hex-редактора
