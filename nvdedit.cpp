@@ -207,7 +207,7 @@ QString cmd;
 if ((ptable->psize(pnum) != plen) || (memcmp(data,ptable->iptr(pnum),plen) != 0)) {
   reply=QMessageBox::warning(this,"Запись раздела","Содержимое раздела изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
   if (reply == QMessageBox::Ok) {
-    ptable->replace(pnum,data,plen+128);
+    ptable->replace(pnum,data,plen);
   }
 }  
 delete data;
@@ -217,8 +217,6 @@ delete custxmlpart;
 delete xmlmap;
 
 }
-
-
 
 //********************************************************************
 //* Извлечение компонентов
@@ -283,28 +281,18 @@ void nvdedit::extract2() { extractor(1); }
 void nvdedit::extract3() { extractor(2); }
 void nvdedit::extract4() { extractor(3); }
 
-/*
+
 //********************************************************************
 //* Замена компонентов
-//*   0 - ядро
-//*   1 - рамдиск 1
-//*   2 - рамдиск 2
+//*   0 - NVIMG
+//*   1 - Base XML
+//*   2 - Custom XML
+//*   3 - XNV MAP
 //********************************************************************
 void nvdedit::replacer(int type) {
 
 QString filename="";
-uint32_t kernelsize,r1size,r2size;
-uint32_t bound_filesize, fsize;
-uint32_t totalsize;
-uint32_t pagesize=hdr->page_size;
-uint8_t* newlocaldata;
-uint8_t* srcptr;
-uint8_t* dstptr;
-
-// размеры компонентов, выравненные на границу страниц флешки
-kernelsize=(hdr->kernel_size+pagesize-1)/pagesize*pagesize;
-r1size=(hdr->ramdisk_size+pagesize-1)/pagesize*pagesize;
-r2size=(hdr->second_size+pagesize-1)/pagesize*pagesize;
+uint32_t fsize;
 
 // выбор файла
 filename=QFileDialog::getOpenFileName(this,"Имя файла",filename,"All files (*.*)");
@@ -318,86 +306,105 @@ if (!out.open(QIODevice::ReadOnly)) {
 
 // Читаем образ компонента из файла
 fsize=out.size();
-bound_filesize=(fsize+pagesize-1)/pagesize*pagesize; // округленный до страницы вверх
-char* fbuf=new char[bound_filesize]; // файловый буфер
-bzero(fbuf,bound_filesize);
-out.read(fbuf,fsize);
+uint8_t* fbuf=new uint8_t[fsize]; // файловый буфер
+bzero(fbuf,fsize);
+out.read((char*)fbuf,fsize);
 out.close();
 
-// Вычисляем новый размер раздела
-totalsize=pagesize;
-if (type == 0) totalsize+=bound_filesize;  else totalsize+=kernelsize;
-if (type == 1) totalsize+=bound_filesize;  else totalsize+=r1size;
-if (type == 2) totalsize+=bound_filesize;  else totalsize+=r2size;
-
-// Выделяем память под новый образ раздела
-newlocaldata=new uint8_t[totalsize+128];
-
-// копируем хуавеевский и андроиндый заголовок
-memcpy(newlocaldata,localdata,128+pagesize);
-// перенастраиваем указатель на андроидный заголовок
-hdr=(struct boot_img_hdr*)(newlocaldata+128);
-
-// настраиваем указатели источника-приемника
-srcptr=localdata+pagesize+128;
-dstptr=newlocaldata+pagesize+128;
-
-// копируем разделы
-//------------------------
-// ядро
-if (type == 0) {
-  memcpy(dstptr,fbuf,bound_filesize);
-  srcptr+=kernelsize;
-  dstptr+=bound_filesize;
-  hdr->kernel_size=fsize;
-}  
-else {
-  memcpy(dstptr,srcptr,kernelsize);
-  srcptr+=kernelsize;
-  dstptr+=kernelsize;
-}
-
-// рамдиск 1
-if (type == 1) {
-  memcpy(dstptr,fbuf,bound_filesize);
-  srcptr+=r1size;
-  dstptr+=bound_filesize;
-  hdr->ramdisk_size=fsize;
-  
-}  
-else {
-  memcpy(dstptr,srcptr,r1size);
-  srcptr+=r1size;
-  dstptr+=r1size;
-}
-
-// рамдиск 2
-if (type == 2) {
-  memcpy(dstptr,fbuf,bound_filesize);
-  srcptr+=r2size;
-  dstptr+=bound_filesize;
-  hdr->second_size=fsize;
-}  
-else {
-  memcpy(dstptr,srcptr,r2size);
-  srcptr+=r2size;
-  dstptr+=r2size;
-}
-
-// удаляем файловый буфер
-delete fbuf;
-// Удаляем старый буфер и кладем на его место новый
-
-delete localdata;
-localdata=newlocaldata;
-plen=totalsize;
+// устанавливаем указатель на фвйловый буфер, старые данные херим
+switch(type) {
+  case 0:
+    delete nvpart;
+    nvpart=fbuf;
+    hdr.nv_bin.len=fsize;
+    break;
+    
+  case 1:
+    delete xmlpart;
+    xmlpart=fbuf;
+    hdr.xnv_xml.len=fsize;
+    break;
+    
+  case 2:
+    delete custxmlpart;
+    custxmlpart=fbuf;
+    hdr.cust_xml.len=fsize;
+    break;
+    
+  case 3:
+    delete xmlmap;
+    xmlmap=fbuf;
+    hdr.xnv_map.len=fsize;
+    break;
+}   
+// Пересоздаем область данных
+rebuild_data();
 
 }
 
 //********************************************************************
 //* Слоты для замены образов компонентов
 //********************************************************************
-void nvdedit::kreplace() { replacer(0); }
-void nvdedit::r1replace() { replacer(1); }
-void nvdedit::r2replace() { replacer(2); }
-*/
+void nvdedit::replace1() { replacer(0); }
+void nvdedit::replace2() { replacer(1); }
+void nvdedit::replace3() { replacer(2); }
+void nvdedit::replace4() { replacer(3); }
+
+
+//********************************************************************
+//* Пересборка области данных
+//********************************************************************
+void nvdedit::rebuild_data() {
+
+uint32_t off;
+uint32_t hdsize;
+uint32_t totalsize;
+uint8_t* newdata;
+
+// размер заголовка
+if (filetype == 1) hdsize=7*sizeof(struct nv_file_info);
+else hdsize=sizeof(nv_dload_packet_head);
+  
+// Вычисляем новый размер раздела
+totalsize=hdr.nv_bin.len+hdr.xnv_xml.len+hdr.cust_xml.len+hdr.xnv_map.len;
+
+// Выделяем память под новый образ раздела
+newdata=new uint8_t[hdsize+totalsize];
+
+// настраиваем указатели источника-приемника
+off=hdsize;
+
+// копируем разделы
+
+if (hdr.nv_bin.len != 0) {
+ hdr.nv_bin.off=off;
+ memcpy(newdata+off,nvpart,hdr.nv_bin.len);
+ off+=hdr.nv_bin.len;
+}
+
+if (hdr.xnv_xml.len != 0) {
+  hdr.xnv_xml.off=off;
+  memcpy(newdata+off,xmlpart,hdr.xnv_xml.len);
+  off+=hdr.xnv_xml.len;
+}  
+
+if (hdr.cust_xml.len != 0) {
+  hdr.cust_xml.off=off;
+  memcpy(newdata+off,custxmlpart,hdr.cust_xml.len);
+  off+=hdr.cust_xml.len;
+}  
+
+if (hdr.xnv_map.len != 0) {
+  hdr.xnv_map.off=off;
+  memcpy(newdata+off,xmlmap,hdr.xnv_map.len);
+//   off+=hdr.xnv_map.len;
+}  
+// копируем заголовок
+memcpy(newdata,&hdr,hdsize);
+
+// подставляем новый размер вместо старого
+delete data;
+data=newdata;
+plen=totalsize;
+}
+

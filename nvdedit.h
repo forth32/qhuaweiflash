@@ -90,11 +90,15 @@ uint8_t* xmlpart=0;
 uint8_t* custxmlpart=0;
 uint8_t* xmlmap=0;
 
+void rebuild_data();
+void extractor(int type);
+void replacer(int type);
+
+
 public:
 
 nvdedit(int xpnum, QWidget* parent);
 ~nvdedit();
-void extractor(int type);
 
 public slots:
 
@@ -103,7 +107,10 @@ void extract2();
 void extract3();
 void extract4();
   
-// void kreplace();
+void replace1();
+void replace2();
+void replace3();
+void replace4();
 
 };
 
