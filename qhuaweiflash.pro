@@ -8,6 +8,7 @@ INCLUDEPATH += .
 QT             += widgets
 
 QMAKE_CXXFLAGS  += -Wno-unused-result -std=c++11 -g
+#QMAKE_LFLAGS += -static
 # Input
 HEADERS += MainWindow.h sio.h ptable.h usbloader.h fwsave.h signver.h parts.h cpio.h ulpatcher.h hexeditor.h kerneledit.h nvdedit.h hexedit2/qhexedit.h hexedit2/chunks.h hexedit2/commands.h 
 

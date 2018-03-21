@@ -368,8 +368,8 @@ else hdsize=sizeof(nv_dload_packet_head);
 // Вычисляем новый размер раздела
 totalsize=hdr.nv_bin.len+hdr.xnv_xml.len+hdr.cust_xml.len+hdr.xnv_map.len;
 
-// Выделяем память под новый образ раздела
-newdata=new uint8_t[hdsize+totalsize];
+// Выделяем память под новый образ раздела (образы частей + заголовок + 4 байта чексуммы)
+newdata=new uint8_t[hdsize+totalsize+4];
 
 // настраиваем указатели источника-приемника
 off=hdsize;
@@ -403,8 +403,13 @@ if (hdr.xnv_map.len != 0) {
 memcpy(newdata,&hdr,hdsize);
 
 // подставляем новый размер вместо старого
+plen=totalsize+hdsize+4;
+
+// Копируем старую КС. Пока вычислять ее я не умею, да она и не нужна
+memcpy(newdata+plen-4,data+plen-4,4);
+
+// Подставляем новый буфер данных вместо старого 
 delete data;
 data=newdata;
-plen=totalsize;
 }
 
