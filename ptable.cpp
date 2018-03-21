@@ -8,7 +8,6 @@
 #include "ptable.h"
 #include "sio.h"
 #include "signver.h"
-#include "cpio.h"
 
 int dload_id=-1;
 void fdirlist(int np);
@@ -197,9 +196,6 @@ if ((*(uint16_t*)table[npart].pimage) == 0xda78) {
 //   table[npart].hd.crc=crc16((uint8_t*)&table[npart].hd,sizeof(struct pheader));
 }
 
-// Загружаем список файлов для файловых разделов
- if (is_cpio(table[npart].pimage)) table[npart].rootdir=load_cpio(table[npart].pimage,table[npart].hd.psize);
-//  if (is_cpio(table[npart].pimage)) fdirlist(npart);
 // продвигаем счетчик разделов
 npart++;
 // отъезжаем, если надо, вперед на границу слова
@@ -216,7 +212,6 @@ int i;
 for (i=0;i<npart;i++) {
   free(table[i].csumblock);
   free(table[i].pimage);
-  if (table[i].rootdir != 0) delete table[i].rootdir;
 }
 npart=0;
 }

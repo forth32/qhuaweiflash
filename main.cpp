@@ -210,6 +210,12 @@ if (nvedit != 0) {
   nvedit=0;
 }  
 
+if (cpio != 0) {
+  EditorLayout->removeWidget(cpio);
+  delete cpio;
+  cpio=0;
+}  
+
 if (ptedit != 0) {
   EditorLayout->removeWidget(ptedit);
   delete ptedit;
@@ -234,10 +240,6 @@ if (spacer != 0) {
   spacer=0;
 }  
 
-if (cpioedit != 0) {
-  
-  cpio_delete_list();
-}  
 
 // Режимы структурного просмотра
 if (structure_mode->isChecked()) {
@@ -288,7 +290,8 @@ if (structure_mode->isChecked()) {
    // файловые разделы
    //###########################################
    if (is_cpio(ptable->iptr(idx))) {
-     cpio_create_list(ptable->rootdir(idx),0);
+     cpio=new cpioedit(idx,centralwidget);
+     EditorLayout->addWidget(cpio);
      return;
    }
 

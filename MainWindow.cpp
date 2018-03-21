@@ -232,8 +232,7 @@ connect(part_extract, SIGNAL(triggered()), this, SLOT(Menu_Part_Extract()));
 connect(part_store, SIGNAL(triggered()), this, SLOT(Menu_Part_Store()));
 connect(partlist, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(SelectPart()));
 connect(part_replace, SIGNAL(triggered()), this, SLOT(Menu_Part_Replace()));
-// connect(file_exit, SIGNAL(triggered()), qApp, SLOT(quit()));
-     connect(file_exit, SIGNAL(triggered()), this, SLOT(close()));
+connect(file_exit, SIGNAL(triggered()), this, SLOT(close()));
 connect(filesave, SIGNAL(triggered()), this, SLOT(SaveFwFile()));
 connect(Delete, SIGNAL(triggered()), this, SLOT(Menu_Part_Delete()));
 connect(MoveUp, SIGNAL(triggered()), this, SLOT(Menu_Part_MoveUp()));
@@ -263,7 +262,7 @@ find_ports();
 // обнуление указателей на редакторы разделов
 hexedit=0;
 ptedit=0;
-cpioedit=0;
+cpio=0;
 
 // открываем файл из командной строки
 if (fwfilename != 0) {
@@ -280,6 +279,7 @@ QRect mainrect;
 
 if (hexedit != 0) delete hexedit;
 if (kedit != 0) delete kedit;
+if (nvedit != 0) delete nvedit;
 delete ptable;  
 
 // геометрия главного окна

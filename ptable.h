@@ -1,8 +1,6 @@
 #ifndef __PTABLE_H
 #define __PTABLE_H
 
-#include "cpio.h"
-
 // структура описания заголовка раздела
 struct __attribute__ ((__packed__)) pheader {
  uint32_t magic;    //   0xa55aaa55
@@ -37,7 +35,6 @@ struct ptb_t{
   uint8_t* pimage;   // образ раздела
   uint32_t zflag;     // признак сжатого раздела  
   enum parttypes ptype;     // тип раздела, согласно enum parttypes
-  QList<cpfiledir*>* rootdir=0;   // для файловых разделов - указатель на вектор корневого раздела
 };
 
 //**********************************************************
@@ -74,8 +71,6 @@ public:
   uint8_t* iptr(int n) { return table[n].pimage; }
   // получение типа раздела
   enum parttypes ptype(int n) { return table[n].ptype; }
-  // ссылка на каталог файлов для cpio-разделов
-  QList<cpfiledir*>* rootdir(int n) {return table[n].rootdir;}
   
   // получение ссылок на описательные поля заголовка
   uint8_t* platform(int n) { return table[n].hd.unlock; }

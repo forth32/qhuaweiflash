@@ -3,6 +3,7 @@
 #include "hexeditor.h"
 #include "kerneledit.h"
 #include "nvdedit.h"
+#include "cpio.h"
 
 //******************************************************************************
 //* Класс главного окна
@@ -13,16 +14,12 @@ Q_OBJECT
 
 QTableWidget* ptedit=0; // редактор таблицы разделов 
 QLineEdit* oemedit=0;   // редактор oeminfo-разделов
-QTableWidget* cpioedit=0; // редактор cpio-разделов
 QLabel* label=0;
 QSpacerItem* spacer=0; // подпорка под короткие формы редакторов
 hexeditor* hexedit=0;
 kerneledit* kedit=0;  // редактор разделов kernel
 nvdedit* nvedit=0;  // редактор разделов kernel
-
-// Специальные обработчики клавиатурных команд
-QShortcut* keyF3;    // обработчик F3
-QShortcut* keyF11;    // обработчик F11
+cpioedit* cpio=0;   // редактор файловых разделов
 
 // Хранилище настроек
 QSettings* config;
@@ -36,9 +33,6 @@ public:
 
 MainWindow();
 virtual ~MainWindow(); 
-
-void cpio_create_list(QList<cpfiledir*>*, int);
-void cpio_delete_list();
 
 // Базовый виджет - вертикальный сплиттер
 QSplitter *centralwidget;
@@ -131,8 +125,6 @@ void EnableMenu();
 void set_date();
 void ShowSignInfo();
 void HeadCopy();
-void cpio_process_file(int row, int col);
-void F11_processor();
 };
 
 // Независимые от лкасса обработчики

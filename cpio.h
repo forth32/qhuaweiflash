@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#include "ptable.h"
 
 // #include "MainWindow.h"
 
@@ -89,8 +90,48 @@ public:
   uint32_t fgid();
 };
 
+
 int is_cpio(uint8_t* ptr);
+void extract_filename(uint8_t* iptr, char* filename);
+QList<cpfiledir*>* find_dir(char* name, QList<cpfiledir*>* updir);
+int find_file(QString name, QList<cpfiledir*>* dir);
+uint32_t cpio_load_file(uint8_t* iptr, QList<cpfiledir*>* dir, int plen, char* fname);
 QList<cpfiledir*>* load_cpio(uint8_t* pimage, int len);
-void cpio_create_list(QTableWidget* list, int np, QWidget* parent);
+
+
+//*****************************************************
+//* Класс редактора cpio-разделов
+//*****************************************************
+class cpioedit: public QWidget {
+  
+Q_OBJECT
+
+int pnum;
+// указатели на образ раздела
+uint8_t* pdata;
+uint32_t plen;
+
+QToolBar* toolbar;
+QTableWidget* cpiotable=0;
+QVBoxLayout* vlm;
+QShortcut* keyF11;
+
+QList<cpfiledir*>* rootdir=0;   // указатель на вектор корневого раздела
+QList<cpfiledir*>* currentdir;  // вектор текущего каталога
+void cpio_delete_list();
+
+
+public:
+cpioedit(int xpnum,QWidget* parent); 
+~cpioedit();
+
+void cpio_show_dir(QList<cpfiledir*>* dir, int focusmode);
+
+public slots:
+void F11_processor();
+void cpio_process_file(int row, int col);
+  
+};
+
 
 #endif
