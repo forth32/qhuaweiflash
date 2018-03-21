@@ -170,6 +170,8 @@ if ((hrow != -1)&&(hrow != idx)) {
 
 if ((hrow == idx) && (structure_mode_save == structure_mode->isChecked()))  return; // ложный сигнал, выбран все тот же элемент списка
 
+modebuttons->hide();
+
 structure_mode_save=structure_mode->isChecked();
 hrow=idx; // сохранияем для будущей записи заголовка
 
@@ -240,6 +242,7 @@ if (spacer != 0) {
   spacer=0;
 }  
 
+modebuttons->show();
 
 // Режимы структурного просмотра
 if (structure_mode->isChecked()) {

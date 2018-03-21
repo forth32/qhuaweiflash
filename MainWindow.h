@@ -84,6 +84,9 @@ QGroupBox *modebuttons;
 QRadioButton *dump_mode;
 QRadioButton *structure_mode;
 
+// линия-разделитель
+QFrame* hframe;
+
 // Главное меню
 QMenuBar *menubar;
 QMenu *menu_file;

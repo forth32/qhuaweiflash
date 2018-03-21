@@ -108,7 +108,7 @@ EditorLayout=new QVBoxLayout(edpanel);
 
 // Кнопки сырой-форматный
 laymode=new QHBoxLayout(0);
-modebuttons = new QGroupBox("Вид");
+modebuttons = new QGroupBox("Режим просмотра");
 // modebuttons->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 modebuttons->setFlat(false);
 
@@ -122,6 +122,12 @@ laymode->addWidget(structure_mode);
 modebuttons->setLayout(laymode);
 modebuttons->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 EditorLayout->addWidget(modebuttons,0);
+
+// горизонтальный разделитель
+hframe=new QFrame(edpanel);
+hframe->setFrameStyle(QFrame::HLine);
+hframe->setLineWidth(2);
+EditorLayout->addWidget(hframe,0);
 
 // Статусбар
 statusbar = new QStatusBar(this);
