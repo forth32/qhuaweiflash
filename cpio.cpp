@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <time.h>
 
+#include "MainWindow.h"
 #include "cpio.h"
 
 //*********************************************************************
@@ -33,6 +34,13 @@ vlm->addWidget(toolbar);
 rootdir=load_cpio(pdata,plen);
 // выводим корневой каталог
 cpio_show_dir(rootdir,0);
+
+// Пункты меню редактора
+menu_extract=mw->menu_edit->addAction("Извлечь файл",this,SLOT(extract_file()),QKeySequence("F11"));
+
+// открываем доступ к меню
+mw->menu_edit->setEnabled(true);
+
 }
 
 //*********************************************************************
@@ -41,6 +49,10 @@ cpio_show_dir(rootdir,0);
 cpioedit::~cpioedit () {
   
 delete rootdir;
+// уничтожаем меню
+mw->menu_edit->clear();
+mw->menu_edit->setEnabled(false);
+
 }
 
 
@@ -157,10 +169,6 @@ for (i=0;i<dir->count();i++) {
   if (focusmode) cpiotable->setFocus();
   cpiotable->setCurrentCell(0,0);
   
-  // Обработчики горячих кнопок
-  keyF11 = new QShortcut(this);
-  keyF11->setKey(Qt::Key_F11);    // Устанавливаем код клавиши F3
-  connect(keyF11, SIGNAL(activated()), this, SLOT(F11_processor()));
 }
 
 //*********************************************************************
@@ -172,17 +180,15 @@ vlm->removeWidget(cpiotable);
   
 disconnect(cpiotable,SIGNAL(cellActivated(int,int)),this,SLOT(cpio_process_file(int,int)));  
 disconnect(cpiotable,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(cpio_process_file(int,int)));  
-disconnect(keyF11, SIGNAL(activated()), this, SLOT(F11_processor()));
 delete cpiotable;
-delete keyF11;
 cpiotable=0;
 }
 
 
 //*********************************************************************
-//* Обработчик кнопки F11 - извлечение файла
+//* извлечение файла
 //*********************************************************************
-void cpioedit::F11_processor() {
+void cpioedit::extract_file() {
 
 FILE* out;  
 cpfiledir* fd;

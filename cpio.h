@@ -114,12 +114,12 @@ uint32_t plen;
 QToolBar* toolbar;
 QTableWidget* cpiotable=0;
 QVBoxLayout* vlm;
-QShortcut* keyF11;
 
 QList<cpfiledir*>* rootdir=0;   // указатель на вектор корневого раздела
 QList<cpfiledir*>* currentdir;  // вектор текущего каталога
 void cpio_delete_list();
 
+QAction* menu_extract;
 
 public:
 cpioedit(int xpnum,QWidget* parent); 
@@ -128,8 +128,8 @@ cpioedit(int xpnum,QWidget* parent);
 void cpio_show_dir(QList<cpfiledir*>* dir, int focusmode);
 
 public slots:
-void F11_processor();
-void cpio_process_file(int row, int col);
+void cpio_process_file(int row, int col); // обработка выбора файла
+void extract_file();  // извлекалка файлов
   
 };
 
