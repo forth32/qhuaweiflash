@@ -37,6 +37,7 @@ cpio_show_dir(rootdir,0);
 
 // Пункты меню редактора
 menu_extract=mw->menu_edit->addAction("Извлечь файл",this,SLOT(extract_file()),QKeySequence("F11"));
+menu_replace=mw->menu_edit->addAction("Заменить файл",this,SLOT(replace_file()),0);
 
 // открываем доступ к меню
 mw->menu_edit->setEnabled(true);
@@ -184,7 +185,28 @@ delete cpiotable;
 cpiotable=0;
 }
 
+//*********************************************************************
+//* Получение ссылки на описатель текущего файла
+//*********************************************************************
+cpfiledir* cpioedit::selected_file() {
 
+cpfiledir* fd;
+QTableWidgetItem* item;
+QString qfn;
+int idx;
+int row=cpiotable->currentRow();
+item=cpiotable->item(row,0);
+qfn=item->text();
+idx=find_file(qfn,currentdir);
+if (idx == -1) {
+  // такой ошибки быть не должно - файл всегда должен быть найден
+  exit(1);
+}  
+fd=currentdir->at(idx);
+return fd;
+}
+
+  
 //*********************************************************************
 //* извлечение файла
 //*********************************************************************
@@ -192,20 +214,8 @@ void cpioedit::extract_file() {
 
 FILE* out;  
 cpfiledir* fd;
-QTableWidgetItem* item;
-QString qfn;
-int idx;
 
-int row=cpiotable->currentRow();
-item=cpiotable->item(row,0);
-qfn=item->text();
-idx=find_file(qfn,currentdir);
-if (idx == -1) {
-  // такой ошибки быть не должно - файл всегда должен быть найден
-  return;
-}  
-
-fd=currentdir->at(idx);
+fd=selected_file();
 
 if (((fd->fmode()) & C_ISREG) == 0) {
   // нерегулярный файл - его извлекать нельзя
@@ -220,6 +230,42 @@ if (fn.isEmpty()) return;
 out=fopen(fn.toLocal8Bit().data(),"w");
 fwrite(fd->fdata(),1,fd->fsize(),out);
 fclose(out);
+}
+
+//*********************************************************************
+//* замена файла
+//*********************************************************************
+void cpioedit::replace_file() {
+
+cpfiledir* fd;
+QString fn;
+uint32_t fsize;
+
+fd=selected_file();
+
+if (((fd->fmode()) & C_ISREG) == 0) {
+  // нерегулярный файл - его извлекать нельзя
+  QMessageBox::critical(0,"Ошибка","Нерегулярные файлы заменять нельзя");  
+  return;
+}
+
+fn=QFileDialog::getOpenFileName(this,"Замена файла",fn,"All files (*.*)");
+if (fn.isEmpty()) return;
+
+QFile in(fn,this);
+if (!in.open(QIODevice::ReadOnly)) {
+    QMessageBox::critical(0,"Ошибка","Ошибка чтения файла");
+    return;
+}
+
+fsize=in.size();
+uint8_t* fbuf=new uint8_t[fsize]; // файловый буфер
+in.read((char*)fbuf,fsize);
+in.close();
+
+delete fd->fdata();
+fd->setfdata((char*)fbuf);
+fd->setfsize(fsize);
 }
 
 

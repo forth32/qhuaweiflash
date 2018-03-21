@@ -78,10 +78,12 @@ public:
    char* fname() {return filename;} // ссылка на имя файла
 //    char* fdata() {return fname()+nsize();}  // ссылка на тело файла
    char* fdata() {return fimage;}  // ссылка на тело файла
+   void setfdata(char* data) { fimage=data; }
    char* cfname(); // имя файла без пути к нему
    void setfname(char* name);
    
   uint32_t fsize(); // размер файла
+  void setfsize(int size); // установка нового размера файла
   uint32_t nsize(); // размер имени файла
   uint32_t totalsize() { return sizeof(cpio_header_t)+nsize()+fsize();} // полный размер архивной записи о файле
   uint32_t fmode(); // флаги атрибутов файла
@@ -118,8 +120,10 @@ QVBoxLayout* vlm;
 QList<cpfiledir*>* rootdir=0;   // указатель на вектор корневого раздела
 QList<cpfiledir*>* currentdir;  // вектор текущего каталога
 void cpio_delete_list();
+cpfiledir* selected_file();
 
 QAction* menu_extract;
+QAction* menu_replace;
 
 public:
 cpioedit(int xpnum,QWidget* parent); 
@@ -127,9 +131,13 @@ cpioedit(int xpnum,QWidget* parent);
 
 void cpio_show_dir(QList<cpfiledir*>* dir, int focusmode);
 
+// флаг изменения раздела
+bool is_modified=false;
+
 public slots:
 void cpio_process_file(int row, int col); // обработка выбора файла
 void extract_file();  // извлекалка файлов
+void replace_file();  // замена файлов
   
 };
 
