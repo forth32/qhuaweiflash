@@ -36,8 +36,14 @@ rootdir=load_cpio(pdata,plen);
 cpio_show_dir(rootdir,0);
 
 // Пункты меню редактора
-menu_extract=mw->menu_edit->addAction("Извлечь файл",this,SLOT(extract_file()),QKeySequence("F11"));
-menu_replace=mw->menu_edit->addAction("Заменить файл",this,SLOT(replace_file()),0);
+mw->menu_edit->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()),QKeySequence("F11"));
+mw->menu_edit->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()),0);
+mw->menu_edit->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()),QKeySequence("Del"));
+
+// Пункты тулбара
+toolbar->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()));
+toolbar->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()));
+toolbar->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()));
 
 // открываем доступ к меню
 mw->menu_edit->setEnabled(true);
@@ -175,7 +181,7 @@ for (i=0;i<dir->count();i++) {
 //*********************************************************************
 //* Уничтожение таблицы файлов
 //*********************************************************************
-void cpioedit::cpio_delete_list() {
+void cpioedit::cpio_hide_dir() {
 
 vlm->removeWidget(cpiotable);
   
@@ -186,11 +192,10 @@ cpiotable=0;
 }
 
 //*********************************************************************
-//* Получение ссылки на описатель текущего файла
+//* Получение индекса текущего файла в векторе каталога
 //*********************************************************************
-cpfiledir* cpioedit::selected_file() {
+int cpioedit::current_file_index() {
 
-cpfiledir* fd;
 QTableWidgetItem* item;
 QString qfn;
 int idx;
@@ -202,11 +207,33 @@ if (idx == -1) {
   // такой ошибки быть не должно - файл всегда должен быть найден
   exit(1);
 }  
-fd=currentdir->at(idx);
-return fd;
+return idx;
 }
 
+//*********************************************************************
+//* Получение ссылки на описатель текущего файла
+//*********************************************************************
+cpfiledir* cpioedit::selected_file() {
+
+return currentdir->at(current_file_index());
+}
+
+//*********************************************************************
+//* Удаление файла
+//*********************************************************************
+void cpioedit::delete_file() {
   
+int idx;
+idx=current_file_index(); // позиция файла в векторе
+delete selected_file();   // удаляем описатель файла
+currentdir->removeAt(idx); // сносим файл из списка
+// перерисовываем таблицу
+cpio_hide_dir();
+cpio_show_dir(currentdir,true);
+cpiotable->setCurrentCell(idx,0);
+}
+
+
 //*********************************************************************
 //* извлечение файла
 //*********************************************************************
@@ -283,7 +310,7 @@ if (row != 0) subdir=find_dir((char*)sname.toLocal8Bit().data(), currentdir);
 else subdir=currentdir->at(0)->subdir;
 if (subdir == 0) return;
 if (cpiotable != 0) {
-  cpio_delete_list();
+  cpio_hide_dir();
   cpio_show_dir(subdir,1);
 }  
 }

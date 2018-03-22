@@ -119,26 +119,25 @@ QVBoxLayout* vlm;
 
 QList<cpfiledir*>* rootdir=0;   // указатель на вектор корневого раздела
 QList<cpfiledir*>* currentdir;  // вектор текущего каталога
-void cpio_delete_list();
+void cpio_hide_dir();
+int current_file_index();
 cpfiledir* selected_file();
-
-QAction* menu_extract;
-QAction* menu_replace;
-
-public:
-cpioedit(int xpnum,QWidget* parent); 
-~cpioedit();
-
 void cpio_show_dir(QList<cpfiledir*>* dir, int focusmode);
 
 // флаг изменения раздела
 bool is_modified=false;
 
+public:
+cpioedit(int xpnum,QWidget* parent); 
+~cpioedit();
+
+
 public slots:
 void cpio_process_file(int row, int col); // обработка выбора файла
 void extract_file();  // извлекалка файлов
 void replace_file();  // замена файлов
-  
+void delete_file();  // удаление файлов
+
 };
 
 
