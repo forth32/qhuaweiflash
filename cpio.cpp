@@ -73,6 +73,7 @@ void cpioedit::cpio_show_dir(QList<cpfiledir*>* dir, int focusmode) {
 QTableWidgetItem* item;
 QString str;
 QStringList(plst);
+QStringList(hlist);
 
 int i,j;
 time_t ctime;
@@ -83,14 +84,14 @@ int showsize;
 
 cpiotable=new QTableWidget(0,7,this);
 
-plst <<"idx" << "Name" << "size" << "Date" << "Mode" << "GID" << "UID"; //
+plst <<"idx" << "Name" << "size" << "Date" << "Mode" << "GID" << "UID"; 
 cpiotable->setHorizontalHeaderLabels(plst);
 
 currentdir=dir;
 
+cpiotable->setRowCount(dir->count()); //cpiotable->rowCount()+1);
 for (i=0;i<dir->count();i++) {
-  cpiotable->setRowCount(cpiotable->rowCount()+1);
-
+  hlist <<""; 
   // индекс файла в векторе
   str.sprintf("%i",i);
   item=new QTableWidgetItem(str);
@@ -170,12 +171,17 @@ for (i=0;i<dir->count();i++) {
   cpiotable->setItem(i,6,item);
 
 } 
+  //------------------------------------
   // прячем индексы файлов
   cpiotable->setColumnHidden(0,true);
   
+  // прячем вертикальные заголовки
+  cpiotable->setVerticalHeaderLabels(hlist);
+
+  
   cpiotable->resizeColumnsToContents();
   cpiotable->setShowGrid(false);
-  cpiotable->setColumnWidth(1, 210);
+  cpiotable->setColumnWidth(1, 250);
   cpiotable->setColumnWidth(2, 100);
 
   cpiotable->sortByColumn(1,Qt::AscendingOrder);
@@ -311,14 +317,15 @@ fd->setfsize(fsize);
 void cpioedit::cpio_process_file(int row, int col) {
 
 QList<cpfiledir*>* subdir;
-//  printf("\n col=%i row=%i current=%i",col,row,cpiotable->currentRow()); fflush(stdout);
 if (row<0) return;
+
 QString sname=cpiotable->item(row,1)->text();
-// printf("\n subname = %s",sname.toLocal8Bit().data()); fflush(stdout);
-if (row != 0) subdir=find_dir((char*)sname.toLocal8Bit().data(), currentdir);
+ 
+if (row != 0) subdir=selected_file()->subdir;
 else subdir=currentdir->at(0)->subdir;
-if (subdir == 0) return;
-if (cpiotable != 0) {
+
+if (subdir == 0) return; // не каталог
+if (cpiotable != 0) { // не корневой каталог
   cpio_hide_dir();
   cpio_show_dir(subdir,1);
 }  
