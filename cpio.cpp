@@ -81,15 +81,22 @@ uint32_t fm;
 char modestr[10];
 int showsize;
 
-cpiotable=new QTableWidget(0,6,this);
+cpiotable=new QTableWidget(0,7,this);
 
-plst << "Name" << "size" << "Date" << "Mode" << "GID" << "UID"; //
+plst <<"idx" << "Name" << "size" << "Date" << "Mode" << "GID" << "UID"; //
 cpiotable->setHorizontalHeaderLabels(plst);
 
 currentdir=dir;
 
 for (i=0;i<dir->count();i++) {
   cpiotable->setRowCount(cpiotable->rowCount()+1);
+
+  // индекс файла в векторе
+  str.sprintf("%i",i);
+  item=new QTableWidgetItem(str);
+  item->setFlags(Qt::ItemIsEditable);
+  item->setForeground(QBrush(Qt::black));
+  cpiotable->setItem(i,0,item);
   
   // имя файла
   str=dir->at(i)->cfname();
@@ -115,7 +122,7 @@ for (i=0;i<dir->count();i++) {
     showsize=1;
   }  
 
-  cpiotable->setItem(i,0,item);
+  cpiotable->setItem(i,1,item);
   if (i == 0) continue;
 
   // размер файла
@@ -124,7 +131,7 @@ for (i=0;i<dir->count();i++) {
    item=new QTableWidgetItem(str);
    item->setFlags(Qt::ItemIsEditable);
    item->setForeground(QBrush(Qt::blue));
-   cpiotable->setItem(i,1,item);
+   cpiotable->setItem(i,2,item);
   } 
   
   // дата-время
@@ -134,7 +141,7 @@ for (i=0;i<dir->count();i++) {
   item=new QTableWidgetItem(str);
   item->setFlags(Qt::ItemIsEditable);
   item->setForeground(QBrush(Qt::black));
-  cpiotable->setItem(i,2,item);
+  cpiotable->setItem(i,3,item);
   
   // атрибуты доступа
   fm=dir->at(i)->fmode();
@@ -146,28 +153,32 @@ for (i=0;i<dir->count();i++) {
   item=new QTableWidgetItem(str);
   item->setFlags(Qt::ItemIsEditable);
   item->setForeground(QBrush(Qt::red));
-  cpiotable->setItem(i,3,item);
+  cpiotable->setItem(i,4,item);
   
   // gid
   str.sprintf("%i",dir->at(i)->fgid());
   item=new QTableWidgetItem(str);
   item->setFlags(Qt::ItemIsEditable);
   item->setForeground(QBrush(Qt::black));
-  cpiotable->setItem(i,4,item);
+  cpiotable->setItem(i,5,item);
   
   // uid
   str.sprintf("%i",dir->at(i)->fuid());
   item=new QTableWidgetItem(str);
   item->setFlags(Qt::ItemIsEditable);
   item->setForeground(QBrush(Qt::black));
-  cpiotable->setItem(i,5,item);
+  cpiotable->setItem(i,6,item);
+
 } 
+  // прячем индексы файлов
+  cpiotable->setColumnHidden(0,true);
+  
   cpiotable->resizeColumnsToContents();
   cpiotable->setShowGrid(false);
-  cpiotable->setColumnWidth(0, 210);
-  cpiotable->setColumnWidth(1, 100);
+  cpiotable->setColumnWidth(1, 210);
+  cpiotable->setColumnWidth(2, 100);
 
-  cpiotable->sortByColumn(0,Qt::AscendingOrder);
+  cpiotable->sortByColumn(1,Qt::AscendingOrder);
   
   connect(cpiotable,SIGNAL(cellActivated(int,int)),SLOT(cpio_process_file(int,int)));
   connect(cpiotable,SIGNAL(cellDoubleClicked(int,int)),SLOT(cpio_process_file(int,int)));
@@ -202,11 +213,7 @@ int idx;
 int row=cpiotable->currentRow();
 item=cpiotable->item(row,0);
 qfn=item->text();
-idx=find_file(qfn,currentdir);
-if (idx == -1) {
-  // такой ошибки быть не должно - файл всегда должен быть найден
-  exit(1);
-}  
+idx=qfn.toUInt();
 return idx;
 }
 
@@ -224,13 +231,15 @@ return currentdir->at(current_file_index());
 void cpioedit::delete_file() {
   
 int idx;
+int row=cpiotable->currentRow();
+
 idx=current_file_index(); // позиция файла в векторе
 delete selected_file();   // удаляем описатель файла
 currentdir->removeAt(idx); // сносим файл из списка
 // перерисовываем таблицу
 cpio_hide_dir();
 cpio_show_dir(currentdir,true);
-cpiotable->setCurrentCell(idx,0);
+cpiotable->setCurrentCell(row,0);
 }
 
 
@@ -302,9 +311,9 @@ fd->setfsize(fsize);
 void cpioedit::cpio_process_file(int row, int col) {
 
 QList<cpfiledir*>* subdir;
-// printf("\n col=%i row=%i current=%i",col,row,cpiotable->currentRow()); fflush(stdout);
+//  printf("\n col=%i row=%i current=%i",col,row,cpiotable->currentRow()); fflush(stdout);
 if (row<0) return;
-QString sname=cpiotable->item(row,0)->text();
+QString sname=cpiotable->item(row,1)->text();
 // printf("\n subname = %s",sname.toLocal8Bit().data()); fflush(stdout);
 if (row != 0) subdir=find_dir((char*)sname.toLocal8Bit().data(), currentdir);
 else subdir=currentdir->at(0)->subdir;
