@@ -12,6 +12,7 @@
 
 #include "MainWindow.h"
 #include "cpio.h"
+#include "viewer.h"
 
 //*********************************************************************
 //* Конструктор класса редактора cpio
@@ -39,11 +40,13 @@ cpio_show_dir(rootdir,0);
 mw->menu_edit->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()),QKeySequence("F11"));
 mw->menu_edit->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()),0);
 mw->menu_edit->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()),QKeySequence("Del"));
+mw->menu_edit->addAction(QIcon::fromTheme("list-add"),"Просмотр",this,SLOT(view_file()),QKeySequence("F3"));
 
 // Пункты тулбара
 toolbar->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()));
 toolbar->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()));
 toolbar->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()));
+toolbar->addAction(QIcon::fromTheme("list-add"),"Просмотр",this,SLOT(view_file()));
 
 // открываем доступ к меню
 mw->menu_edit->setEnabled(true);
@@ -310,6 +313,15 @@ fd->setfdata((char*)fbuf);
 fd->setfsize(fsize);
 }
 
+//*********************************************************************
+//* Просмотр файла
+//*********************************************************************
+void cpioedit::view_file() {
+
+view=new viewer(selected_file(),true);
+view->show();
+  
+}
 
 //*********************************************************************
 //* Приемник сигнала выбора файла/каталога
