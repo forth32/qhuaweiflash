@@ -254,8 +254,6 @@ connect(partlist, SIGNAL(currentRowChanged(int)), this, SLOT(SelectPart()));
 connect(part_copy_header, SIGNAL(triggered()), this, SLOT(HeadCopy()));
 connect(RefreshPorts, SIGNAL(clicked()), this, SLOT(find_ports()));
 
-// QMetaObject::connectSlotsByName(this);
-  
 // внешняя ссылка на выбиралку порта
 pselector=PortSelector;
 

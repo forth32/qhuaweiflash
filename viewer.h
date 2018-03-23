@@ -9,17 +9,27 @@
 //***********************************************************
 //* Класс главного окна 
 //***********************************************************
-class viewer  : public QWidget {
+class viewer  : public QMainWindow {
 
 Q_OBJECT
 
 cpfiledir* fileptr;
 bool readonly;
+uint8_t* pdata;
+uint32_t plen;
 
+QWidget* central;
+QSettings* config;
 QVBoxLayout* vlm;
 QTextEdit* ted;
 
 QString textdata;
+
+// Главное меню
+QMenuBar *menubar;
+QMenu *menu_file;
+QMenu* menu_edit;
+
 
 public:
   

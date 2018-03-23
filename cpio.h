@@ -38,6 +38,7 @@ void cpio_hide_dir();
 int current_file_index();
 cpfiledir* selected_file();
 void cpio_show_dir(QList<cpfiledir*>* dir, int focusmode);
+void fileeditor(bool readonly);
 
 // флаг изменения раздела
 bool is_modified=false;
