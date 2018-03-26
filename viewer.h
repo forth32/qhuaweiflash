@@ -29,6 +29,7 @@ QString textdata;
 QMenuBar *menubar;
 QMenu *menu_file;
 QMenu* menu_edit;
+QMenu* menu_view;
 
 
 public:

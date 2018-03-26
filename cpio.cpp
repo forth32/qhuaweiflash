@@ -57,6 +57,14 @@ mw->menu_edit->setEnabled(true);
 //* Деструктор класса cpio
 //*********************************************************************
 cpioedit::~cpioedit () {
+
+QMessageBox::StandardButton reply;
+  
+// Проверяем, не изменлось ли что-нибудь внутри  
+if (is_modified) {
+  reply=QMessageBox::warning(this,"Запись раздела","Содержимое раздела изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
+  if (reply == QMessageBox::Ok) repack_cpio();
+}  
   
 delete rootdir;
 // уничтожаем меню
@@ -357,3 +365,21 @@ if (cpiotable != 0) { // не корневой каталог
 }  
 }
 
+//*********************************************************************
+//* Перепаковка cpio-раздела обратно
+//*********************************************************************
+void cpioedit::repack_cpio() {
+  
+uint8_t* ndata=new uint8_t[fullsize(rootdir)+4096];
+uint32_t nlen=0;
+int i;
+
+for(i=0;i<rootdir->count(); i++) {
+  nlen+=rootdir->at(i)->store_cpio(ndata+nlen);
+}
+ptable->replace(pnum,ndata,nlen);
+pdata=ndata;
+plen=nlen;
+}
+
+  

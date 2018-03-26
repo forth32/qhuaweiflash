@@ -91,6 +91,8 @@ public:
   uint32_t ftime();
   uint32_t fuid();
   uint32_t fgid();
+  uint32_t treesize();
+  uint32_t store_cpio(uint8_t* pdata);
 };
 
 
@@ -100,5 +102,6 @@ QList<cpfiledir*>* find_dir(char* name, QList<cpfiledir*>* updir);
 int find_file(QString name, QList<cpfiledir*>* dir);
 uint32_t cpio_load_file(uint8_t* iptr, QList<cpfiledir*>* dir, int plen, char* fname);
 QList<cpfiledir*>* load_cpio(uint8_t* pimage, int len);
+uint32_t fullsize(QList<cpfiledir*>* root);
 
 #endif

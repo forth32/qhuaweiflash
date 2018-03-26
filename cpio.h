@@ -1,5 +1,5 @@
 // 
-//  Сохранение файла прошивки на диск
+//  Редактор cpio-файлов
 // 
 #ifndef _CPIO_H
 #define _CPIO_H
@@ -39,6 +39,7 @@ int current_file_index();
 cpfiledir* selected_file();
 void cpio_show_dir(QList<cpfiledir*>* dir, int focusmode);
 void fileeditor(bool readonly);
+void repack_cpio();
 
 // флаг изменения раздела
 bool is_modified=false;

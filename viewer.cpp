@@ -31,6 +31,7 @@ pdata[plen]=0; // ограничитель строки
 
 // Главное меню
 menubar = new QMenuBar(this);
+setMenuBar(menubar);
 
 menu_file = new QMenu("Файл",menubar);
 menubar->addAction(menu_file->menuAction());
@@ -38,11 +39,13 @@ menubar->addAction(menu_file->menuAction());
 menu_edit = new QMenu("Правка",menubar);
 menubar->addAction(menu_edit->menuAction());
 
-setMenuBar(menubar);
+menu_view = new QMenu("Вид",menubar);
+menubar->addAction(menu_view->menuAction());
 
 // пункты меню
 menu_file->addAction("Выход",this,SLOT(close()),QKeySequence("Esc"));
 
+// menu_view
 
 // Центральный виджет
 central=new QWidget(this);
@@ -71,6 +74,8 @@ config->setValue("/config/EditorRect",rect);
 delete config;
 
 delete pdata;  
-
-
 }
+
+//***********************************************************
+//* Создание окна тектового редактора
+//***********************************************************
