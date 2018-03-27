@@ -72,7 +72,7 @@ textdata=(char*)pdata;
 ted->append(textdata);
 
 // слот модификации
-connect(ted,SIGNAL(textChanged()),this,SLOT(sendChanged()));
+connect(ted,SIGNAL(textChanged()),this,SLOT(setChanged()));
 
 }
 
@@ -81,8 +81,21 @@ connect(ted,SIGNAL(textChanged()),this,SLOT(sendChanged()));
 //***********************************************************
 viewer::~viewer() {
 
+QMessageBox::StandardButton reply;
+QByteArray xdata;
+
 // признак изменения данных
-  
+if (datachanged) {
+  reply=QMessageBox::warning(this,"Запись файла","Содержимое файла изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
+  if (reply == QMessageBox::Ok) {
+    // сохранение данных
+    textdata=ted->toPlainText();
+    xdata=textdata.toLocal8Bit();
+    fileptr->replace_data((uint8_t*)xdata.data(),xdata.size());
+    // вызываем сигнал- признак модификации
+    emit changed();
+  }
+}  
   
 // геометрия главного окна
 QRect rect=geometry();
@@ -96,14 +109,13 @@ delete pdata;
 //***********************************************************
 //* Вызов внешнего слота модификации
 //***********************************************************
-void viewer::sendChanged() { 
+void viewer::setChanged() { 
 
 QString str;
-  
-// вызываем сигнал- признак модификации
-emit changed();
+
+datachanged=true;
 // рассоединяем сигнал - он нужен ровно один раз
-disconnect(ted,SIGNAL(textChanged()),this,SLOT(sendChanged()));
+disconnect(ted,SIGNAL(textChanged()),this,SLOT(setChanged()));
 // добавляем звездочку в заголовок
 str=windowTitle();
 str.append(" *");

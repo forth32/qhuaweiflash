@@ -93,6 +93,8 @@ public:
   uint32_t fgid();
   uint32_t treesize();
   uint32_t store_cpio(uint8_t* pdata);
+  void replace_data(uint8_t* pdata, uint32_t len);
+  
 };
 
 

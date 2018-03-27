@@ -31,6 +31,7 @@ QMenu *menu_file;
 QMenu* menu_edit;
 QMenu* menu_view;
 
+bool datachanged=false;
 
 public:
   
@@ -38,7 +39,7 @@ viewer(cpfiledir* dfile, uint8_t rmode);
 ~viewer();
 
 public slots:
-void sendChanged();
+void setChanged();
 
 signals:
 void changed();  

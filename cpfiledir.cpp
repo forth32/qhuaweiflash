@@ -41,6 +41,7 @@ cpfiledir::~cpfiledir() {
 if (subdir != 0) delete subdir;
 delete filename;
 delete fimage;
+delete phdr;
 }
 
 //*******************************************************
@@ -69,8 +70,13 @@ return val;
 //*******************************************************
 void cpfiledir::setfsize(int size) {
   
-sprintf(phdr->c_filesize,"%08x",size);
+char str[10];  
+
+sprintf(str,"%08x",size);  
+memcpy(phdr->c_filesize,str,8);
+
 }
+
 
 
 //*******************************************************
@@ -83,7 +89,6 @@ sscanf(phdr->c_namesize,"%8x",&val);
 val+=sizeof(cpio_header_t); // добавляем размер заголовка
 if ((val&3) != 0) val=(val&0xfffffffc)+4; // округляем до 4 байт вверх
 return val-sizeof(cpio_header_t);
-// return val;
 }
 
 //**********************************************************
@@ -193,7 +198,17 @@ if (subdir != 0) {
 return len;
 }
 
-  
+//*******************************************************
+//* Замена тела файла
+//*******************************************************
+void cpfiledir::replace_data(uint8_t* pdata, uint32_t len) {
+
+delete fimage;
+fimage=new char[len];
+memcpy(fimage,pdata,len);
+
+setfsize(len);
+}
   
   
 //##############################################################################################################################################
