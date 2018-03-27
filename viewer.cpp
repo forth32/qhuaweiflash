@@ -6,7 +6,9 @@
 //* Конструктор просмотрщика
 //***********************************************************
 viewer::viewer(cpfiledir* dfile, uint8_t rmode) : QMainWindow() {
-    
+  
+QString title;
+  
 // настройки геометрии окна
 show();  
 setAttribute(Qt::WA_DeleteOnClose);
@@ -28,6 +30,12 @@ plen=fileptr->fsize();
 pdata=new uint8_t[plen+1];
 memcpy(pdata,fileptr->fdata(),plen);
 pdata[plen]=0; // ограничитель строки
+
+// заголовок окна
+if (readonly) title="Просмотр - ";
+else title="Редактирование - ";
+title.append(fileptr->fname());
+setWindowTitle(title);
 
 // Главное меню
 menubar = new QMenuBar(this);
@@ -56,11 +64,16 @@ vlm=new QVBoxLayout(central);
 
 // текстовый редактор
 ted=new QTextEdit(central);
+ted->setReadOnly(readonly);
 vlm->addWidget(ted,2);
 
 // наполнение текстового редактора
 textdata=(char*)pdata;
 ted->append(textdata);
+
+// слот модификации
+connect(ted,SIGNAL(textChanged()),this,SLOT(sendChanged()));
+
 }
 
 //***********************************************************
@@ -68,6 +81,9 @@ ted->append(textdata);
 //***********************************************************
 viewer::~viewer() {
 
+// признак изменения данных
+  
+  
 // геометрия главного окна
 QRect rect=geometry();
 config->setValue("/config/EditorRect",rect);
@@ -76,6 +92,20 @@ delete config;
 delete pdata;  
 }
 
+
 //***********************************************************
-//* Создание окна тектового редактора
+//* Вызов внешнего слота модификации
 //***********************************************************
+void viewer::sendChanged() { 
+
+QString str;
+  
+// вызываем сигнал- признак модификации
+emit changed();
+// рассоединяем сигнал - он нужен ровно один раз
+disconnect(ted,SIGNAL(textChanged()),this,SLOT(sendChanged()));
+// добавляем звездочку в заголовок
+str=windowTitle();
+str.append(" *");
+setWindowTitle(str);
+}

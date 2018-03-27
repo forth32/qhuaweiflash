@@ -184,11 +184,12 @@ if ((len&3) != 0) {
 
 // обрабатываем подкаталоги
 
-if (subdir == 0) {
+if (subdir != 0) {
   for(i=1;i<subdir->count();i++) {
     len += subdir->at(i)->store_cpio(ptr+len);
   }
 }
+
 return len;
 }
 
@@ -340,7 +341,6 @@ while(iptr < (pimage+len)) {
  if (res == 0) break;
  iptr+=res;
 }
-qDebug() << "treesize = " << fullsize(root);
 return root;
 }
 

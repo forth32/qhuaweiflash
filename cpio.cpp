@@ -40,13 +40,15 @@ cpio_show_dir(rootdir,0);
 mw->menu_edit->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()),QKeySequence("F11"));
 mw->menu_edit->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()),0);
 mw->menu_edit->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()),QKeySequence("Del"));
-mw->menu_edit->addAction(QIcon::fromTheme("list-add"),"Просмотр",this,SLOT(view_file()),QKeySequence("F3"));
+mw->menu_edit->addAction(QIcon::fromTheme("list-add"),"Текстовый просмотр",this,SLOT(view_file()),QKeySequence("F3"));
+mw->menu_edit->addAction(QIcon::fromTheme("list-add"),"Текстовый редактор",this,SLOT(edit_file()),QKeySequence("F4"));
 
 // Пункты тулбара
 toolbar->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()));
 toolbar->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()));
 toolbar->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()));
-toolbar->addAction(QIcon::fromTheme("list-add"),"Просмотр",this,SLOT(view_file()));
+toolbar->addAction(QIcon::fromTheme("list-add"),"Текстовый просмотр",this,SLOT(view_file()));
+toolbar->addAction(QIcon::fromTheme("list-add"),"Текстовый редактор",this,SLOT(edit_file()));
 
 // открываем доступ к меню
 mw->menu_edit->setEnabled(true);
@@ -337,12 +339,17 @@ if (((fd->fmode()) & C_ISREG) == 0) {
 }
 
 view=new viewer(fd,readonly);  
+// сигнал модификации
+connect(view,SIGNAL(changed()),this,SLOT(setModified()));
+
 }  
 
 //*********************************************************************
-//* Просмотр файла
+//* текстовый редактор
 //*********************************************************************
 void cpioedit::view_file() { fileeditor(true); }
+void cpioedit::edit_file() { fileeditor(false); }
+
 
 
 //*********************************************************************
@@ -377,6 +384,12 @@ int i;
 for(i=0;i<rootdir->count(); i++) {
   nlen+=rootdir->at(i)->store_cpio(ndata+nlen);
 }
+
+// хвост cpio-файла
+bzero(ndata+nlen,128);
+strcpy((char*)(ndata+nlen),"07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000B00000000TRAILER!!!");
+nlen+=128;
+
 ptable->replace(pnum,ndata,nlen);
 pdata=ndata;
 plen=nlen;

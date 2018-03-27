@@ -37,7 +37,11 @@ public:
 viewer(cpfiledir* dfile, uint8_t rmode);  
 ~viewer();
 
-  
+public slots:
+void sendChanged();
+
+signals:
+void changed();  
 };
 
 #endif
