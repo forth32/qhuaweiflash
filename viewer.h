@@ -18,6 +18,8 @@ bool readonly;
 uint8_t* pdata;
 uint32_t plen;
 
+QString findtext=""; // текст для поискового запроса
+
 QWidget* central;
 QSettings* config;
 QVBoxLayout* vlm;
@@ -44,6 +46,8 @@ viewer(cpfiledir* dfile, uint8_t rmode);
 public slots:
 void setChanged();
 void save_all();
+void find();
+void findnext();
 
 signals:
 void changed(); 

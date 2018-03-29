@@ -106,6 +106,11 @@ if (!readonly) {
   toolbar->addAction(QIcon::fromTheme("edit-paste"),"Вставить",ted,SLOT(paste()));
   toolbar->addSeparator();
 }
+menu_edit->addAction(QIcon::fromTheme("edit-find"),"Найти...",this,SLOT(find()),QKeySequence::Find);
+toolbar->addAction(QIcon::fromTheme("edit-find"),"Найти...",this,SLOT(find()));
+menu_edit->addAction(QIcon::fromTheme("edit-find"),"Найти далее",this,SLOT(findnext()),QKeySequence::FindNext);
+
+
 menu_view->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт",ted,SLOT(zoomIn()),QKeySequence("Ctrl++"));
 toolbar->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт",ted,SLOT(zoomIn()));
 menu_view->addAction(QIcon::fromTheme("zoom-out"),"Уменьшить шрифт",ted,SLOT(zoomOut()),QKeySequence("Ctrl+-"));
@@ -176,7 +181,37 @@ connect(ted,SIGNAL(textChanged()),this,SLOT(setChanged()));
 
 }
 
+//***********************************************************
+//* Поиск текста
+//***********************************************************
+void viewer::find() {
 
+int res;  
+  
+QInputDialog* pd=new QInputDialog(this);  
+res=pd->exec();
+if (res == QDialog::Accepted) {
+ findtext=pd->textValue();
+ findnext();
+}
+delete pd;
+}
+
+//***********************************************************
+//* Продолжение поиска текста
+//***********************************************************
+void viewer::findnext() {
+
+int res;
+
+if (findtext.size() == 0) return;
+  res=ted->find(findtext);
+  if (!res) {
+    QMessageBox::information(0,"Информация","Текст не найден");
+  } 
+}  
+
+  
 //***********************************************************
 //* Вызов внешнего слота модификации
 //***********************************************************
