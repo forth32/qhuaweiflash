@@ -28,7 +28,7 @@ QString textdata;
 // Главное меню
 QMenuBar *menubar;
 QMenu *menu_file;
-QMenu* menu_edit;
+QMenu* menu_edit=0;
 QMenu* menu_view;
 
 bool datachanged=false;
@@ -40,9 +40,10 @@ viewer(cpfiledir* dfile, uint8_t rmode);
 
 public slots:
 void setChanged();
+void save_all();
 
 signals:
-void changed();  
+void changed(); 
 };
 
 #endif

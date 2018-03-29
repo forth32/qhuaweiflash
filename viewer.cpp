@@ -46,8 +46,10 @@ setMenuBar(menubar);
 menu_file = new QMenu("Файл",menubar);
 menubar->addAction(menu_file->menuAction());
 
-menu_edit = new QMenu("Правка",menubar);
-menubar->addAction(menu_edit->menuAction());
+if (!readonly) {
+  menu_edit = new QMenu("Правка",menubar);
+  menubar->addAction(menu_edit->menuAction());
+}
 
 menu_view = new QMenu("Вид",menubar);
 menubar->addAction(menu_view->menuAction());
@@ -71,7 +73,6 @@ vlm->addWidget(ted,2);
 font=ted->font();
 fontsize=config->value("/config/EditorFontSize").toInt();
 if (fontsize != 0) {
-   qDebug() << "cr font = " << font;
    font.setPointSize(fontsize);
    ted->setFont(font);
 // ted->setFontPointSize(fontsize);
@@ -81,10 +82,13 @@ textdata=(char*)pdata;
 ted->append(textdata);
 
 // пункты меню
+menu_file->addAction("Сохранить",this,SLOT(save_all()),QKeySequence::Save);
 menu_file->addAction("Выход",this,SLOT(close()),QKeySequence("Esc"));
 
-menu_edit->addAction("Отменить",ted,SLOT(undo()),QKeySequence::Undo);
-menu_edit->addAction("Повторить",ted,SLOT(redo()),QKeySequence::Redo);
+if (menu_edit != 0) {
+  menu_edit->addAction("Отменить",ted,SLOT(undo()),QKeySequence::Undo);
+  menu_edit->addAction("Повторить",ted,SLOT(redo()),QKeySequence::Redo);
+}
 
 menu_view->addAction("Увеличить шрифт",ted,SLOT(zoomIn()),QKeySequence("Ctrl++"));
 menu_view->addAction("Уменьшить шрифт",ted,SLOT(zoomOut()),QKeySequence("Ctrl+-"));
@@ -92,6 +96,7 @@ menu_view->addAction("Уменьшить шрифт",ted,SLOT(zoomOut()),QKeySeq
 // слот модификации
 connect(ted,SIGNAL(textChanged()),this,SLOT(setChanged()));
 
+ted->setFocus();
 }
 
 //***********************************************************
@@ -100,14 +105,12 @@ connect(ted,SIGNAL(textChanged()),this,SLOT(setChanged()));
 viewer::~viewer() {
 
 QMessageBox::StandardButton reply;
-QByteArray xdata;
 QFont font;
 int fontsize;
 
 // сохраняем размер шрифта
 font=ted->font();
 fontsize=font.pointSize();
-qDebug() << "des font =" << font;
 config->setValue("/config/EditorFontSize",fontsize);
 
 // геометрия главного окна
@@ -119,17 +122,40 @@ if (datachanged) {
   reply=QMessageBox::warning(this,"Запись файла","Содержимое файла изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
   if (reply == QMessageBox::Ok) {
     // сохранение данных
-    textdata=ted->toPlainText();
-    xdata=textdata.toLocal8Bit();
-    fileptr->replace_data((uint8_t*)xdata.data(),xdata.size());
-    // вызываем сигнал- признак модификации
-    emit changed();
+    save_all();
   }
 }  
   
 delete config;
-
 delete pdata;  
+}
+
+//***********************************************************
+//* Сохранение данных в вектор файла
+//***********************************************************
+void viewer::save_all() {
+
+QByteArray xdata;
+QString str;
+int pos;
+
+textdata=ted->toPlainText();
+xdata=textdata.toLocal8Bit();
+fileptr->replace_data((uint8_t*)xdata.data(),xdata.size());
+// вызываем сигнал- признак модификации
+emit changed();
+
+// удаляем звездочку из заголовка
+str=windowTitle();
+pos=str.indexOf('*');
+if (pos != -1) {
+  str.truncate(pos-1);
+  setWindowTitle(str);
+}  
+// восстанавливаем обработчик модификации
+datachanged=false;
+connect(ted,SIGNAL(textChanged()),this,SLOT(setChanged()));
+
 }
 
 
