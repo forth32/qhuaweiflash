@@ -48,6 +48,7 @@ void setChanged();
 void save_all();
 void find();
 void findnext();
+void fontselector();
 
 signals:
 void changed(); 

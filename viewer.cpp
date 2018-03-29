@@ -9,7 +9,6 @@ viewer::viewer(cpfiledir* dfile, uint8_t rmode) : QMainWindow() {
   
 QString title;
 QFont font;
-int fontsize;
 
 // настройки геометрии окна
 show();  
@@ -70,13 +69,9 @@ ted->setReadOnly(readonly);
 vlm->addWidget(ted,2);
 
 // шрифт редактора
-font=ted->font();
-fontsize=config->value("/config/EditorFontSize").toInt();
-if (fontsize != 0) {
-   font.setPointSize(fontsize);
-   ted->setFont(font);
-// ted->setFontPointSize(fontsize);
-}  
+font=qvariant_cast<QFont>(config->value("/config/EditorFont"));
+ted->setFont(font);
+
 // наполнение текстового редактора
 textdata=(char*)pdata;
 ted->append(textdata);
@@ -115,11 +110,13 @@ menu_view->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт"
 toolbar->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт",ted,SLOT(zoomIn()));
 menu_view->addAction(QIcon::fromTheme("zoom-out"),"Уменьшить шрифт",ted,SLOT(zoomOut()),QKeySequence("Ctrl+-"));
 toolbar->addAction(QIcon::fromTheme("zoom-out"),"Уменьшить шрифт",ted,SLOT(zoomOut()));
+menu_view->addAction(QIcon::fromTheme("preferences-desktop-font"),"Шрифт...",this,SLOT(fontselector()));
 
 // слот модификации
 connect(ted,SIGNAL(textChanged()),this,SLOT(setChanged()));
 
 ted->setFocus();
+ted->moveCursor(QTextCursor::Start,QTextCursor::MoveAnchor);
 }
 
 //***********************************************************
@@ -129,12 +126,10 @@ viewer::~viewer() {
 
 QMessageBox::StandardButton reply;
 QFont font;
-int fontsize;
 
 // сохраняем размер шрифта
 font=ted->font();
-fontsize=font.pointSize();
-config->setValue("/config/EditorFontSize",fontsize);
+config->setValue("/config/EditorFont",font);
 
 // геометрия главного окна
 QRect rect=geometry();
@@ -211,7 +206,25 @@ if (findtext.size() == 0) return;
   } 
 }  
 
-  
+//***********************************************************
+//* Выбор шрифта
+//***********************************************************
+void viewer::fontselector() {
+
+int res;
+
+QFont font=ted->font();
+QFontDialog* fss=new QFontDialog(this);
+fss->setCurrentFont(font);
+res=fss->exec();
+if (res == QDialog::Accepted) {
+  font=fss->selectedFont();
+  ted->setFont(font);
+}
+delete fss;
+}
+
+
 //***********************************************************
 //* Вызов внешнего слота модификации
 //***********************************************************
