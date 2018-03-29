@@ -46,16 +46,16 @@ setMenuBar(menubar);
 menu_file = new QMenu("Файл",menubar);
 menubar->addAction(menu_file->menuAction());
 
-if (!readonly) {
-  menu_edit = new QMenu("Правка",menubar);
-  menubar->addAction(menu_edit->menuAction());
-}
+menu_edit = new QMenu("Правка",menubar);
+menubar->addAction(menu_edit->menuAction());
 
 menu_view = new QMenu("Вид",menubar);
 menubar->addAction(menu_view->menuAction());
 
 
-// menu_view
+// тулбар
+toolbar=new QToolBar(this);
+addToolBar(toolbar);
 
 // Центральный виджет
 central=new QWidget(this);
@@ -82,16 +82,34 @@ textdata=(char*)pdata;
 ted->append(textdata);
 
 // пункты меню
-menu_file->addAction("Сохранить",this,SLOT(save_all()),QKeySequence::Save);
+menu_file->addAction(QIcon::fromTheme("document-save"),"Сохранить",this,SLOT(save_all()),QKeySequence::Save);
+toolbar->addAction(QIcon::fromTheme("document-save"),"Сохранить",this,SLOT(save_all()));
+menu_file->addSeparator();
 menu_file->addAction("Выход",this,SLOT(close()),QKeySequence("Esc"));
 
-if (menu_edit != 0) {
-  menu_edit->addAction("Отменить",ted,SLOT(undo()),QKeySequence::Undo);
-  menu_edit->addAction("Повторить",ted,SLOT(redo()),QKeySequence::Redo);
-}
+toolbar->addSeparator();
 
-menu_view->addAction("Увеличить шрифт",ted,SLOT(zoomIn()),QKeySequence("Ctrl++"));
-menu_view->addAction("Уменьшить шрифт",ted,SLOT(zoomOut()),QKeySequence("Ctrl+-"));
+if (!readonly) {
+  menu_edit->addAction(QIcon::fromTheme("edit-undo"),"Отменить",ted,SLOT(undo()),QKeySequence::Undo);
+  toolbar->addAction(QIcon::fromTheme("edit-undo"),"Отменить",ted,SLOT(undo()));
+  menu_edit->addAction(QIcon::fromTheme("edit-redo"),"Повторить",ted,SLOT(redo()),QKeySequence::Redo);
+  toolbar->addAction(QIcon::fromTheme("edit-redo"),"Повторить",ted,SLOT(redo()));
+  menu_edit->addSeparator();
+  menu_edit->addAction(QIcon::fromTheme("edit-cut"),"Вырезать",ted,SLOT(cut()),QKeySequence::Cut);
+  toolbar->addAction(QIcon::fromTheme("edit-cut"),"Вырезать",ted,SLOT(cut()));
+}
+menu_edit->addAction(QIcon::fromTheme("edit-copy"),"Копировать",ted,SLOT(copy()),QKeySequence::Copy);
+toolbar->addAction(QIcon::fromTheme("edit-copy"),"Копировать",ted,SLOT(copy()));
+
+if (!readonly) {
+  menu_edit->addAction(QIcon::fromTheme("edit-paste"),"Вставить",ted,SLOT(paste()),QKeySequence::Paste);
+  toolbar->addAction(QIcon::fromTheme("edit-paste"),"Вставить",ted,SLOT(paste()));
+  toolbar->addSeparator();
+}
+menu_view->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт",ted,SLOT(zoomIn()),QKeySequence("Ctrl++"));
+toolbar->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт",ted,SLOT(zoomIn()));
+menu_view->addAction(QIcon::fromTheme("zoom-out"),"Уменьшить шрифт",ted,SLOT(zoomOut()),QKeySequence("Ctrl+-"));
+toolbar->addAction(QIcon::fromTheme("zoom-out"),"Уменьшить шрифт",ted,SLOT(zoomOut()));
 
 // слот модификации
 connect(ted,SIGNAL(textChanged()),this,SLOT(setChanged()));

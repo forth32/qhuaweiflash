@@ -26,10 +26,13 @@ QTextEdit* ted;
 QString textdata;
 
 // Главное меню
-QMenuBar *menubar;
-QMenu *menu_file;
-QMenu* menu_edit=0;
+QMenuBar* menubar;
+QMenu* menu_file;
+QMenu* menu_edit;
 QMenu* menu_view;
+
+// тулбар
+QToolBar* toolbar;
 
 bool datachanged=false;
 
