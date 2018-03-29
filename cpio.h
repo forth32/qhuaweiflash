@@ -57,7 +57,7 @@ void delete_file();  // удаление файлов
 void view_file();   // просмотр
 void edit_file();   // просмотр
 void setModified() {is_modified=true;}  // установка признака модификации содержимого архива
-
+void saveall();
 };
 
 

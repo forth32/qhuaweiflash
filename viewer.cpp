@@ -8,7 +8,9 @@
 viewer::viewer(cpfiledir* dfile, uint8_t rmode) : QMainWindow() {
   
 QString title;
-  
+QFont font;
+int fontsize;
+
 // настройки геометрии окна
 show();  
 setAttribute(Qt::WA_DeleteOnClose);
@@ -50,8 +52,6 @@ menubar->addAction(menu_edit->menuAction());
 menu_view = new QMenu("Вид",menubar);
 menubar->addAction(menu_view->menuAction());
 
-// пункты меню
-menu_file->addAction("Выход",this,SLOT(close()),QKeySequence("Esc"));
 
 // menu_view
 
@@ -67,9 +67,27 @@ ted=new QTextEdit(central);
 ted->setReadOnly(readonly);
 vlm->addWidget(ted,2);
 
+// шрифт редактора
+font=ted->font();
+fontsize=config->value("/config/EditorFontSize").toInt();
+if (fontsize != 0) {
+   qDebug() << "cr font = " << font;
+   font.setPointSize(fontsize);
+   ted->setFont(font);
+// ted->setFontPointSize(fontsize);
+}  
 // наполнение текстового редактора
 textdata=(char*)pdata;
 ted->append(textdata);
+
+// пункты меню
+menu_file->addAction("Выход",this,SLOT(close()),QKeySequence("Esc"));
+
+menu_edit->addAction("Отменить",ted,SLOT(undo()),QKeySequence::Undo);
+menu_edit->addAction("Повторить",ted,SLOT(redo()),QKeySequence::Redo);
+
+menu_view->addAction("Увеличить шрифт",ted,SLOT(zoomIn()),QKeySequence("Ctrl++"));
+menu_view->addAction("Уменьшить шрифт",ted,SLOT(zoomOut()),QKeySequence("Ctrl+-"));
 
 // слот модификации
 connect(ted,SIGNAL(textChanged()),this,SLOT(setChanged()));
@@ -83,6 +101,18 @@ viewer::~viewer() {
 
 QMessageBox::StandardButton reply;
 QByteArray xdata;
+QFont font;
+int fontsize;
+
+// сохраняем размер шрифта
+font=ted->font();
+fontsize=font.pointSize();
+qDebug() << "des font =" << font;
+config->setValue("/config/EditorFontSize",fontsize);
+
+// геометрия главного окна
+QRect rect=geometry();
+config->setValue("/config/EditorRect",rect);
 
 // признак изменения данных
 if (datachanged) {
@@ -97,9 +127,6 @@ if (datachanged) {
   }
 }  
   
-// геометрия главного окна
-QRect rect=geometry();
-config->setValue("/config/EditorRect",rect);
 delete config;
 
 delete pdata;  

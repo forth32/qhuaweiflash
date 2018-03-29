@@ -43,6 +43,8 @@ mw->menu_edit->addAction(QIcon::fromTheme("edit-delete"),"Удалить фай�
 mw->menu_edit->addAction(QIcon::fromTheme("list-add"),"Текстовый просмотр",this,SLOT(view_file()),QKeySequence("F3"));
 mw->menu_edit->addAction(QIcon::fromTheme("list-add"),"Текстовый редактор",this,SLOT(edit_file()),QKeySequence("F4"));
 
+mw->menu_edit->addAction(QIcon::fromTheme("file-save"),"Сохранить изменения",this,SLOT(saveall()),QKeySequence("Ctrl+S"));
+
 // Пункты тулбара
 toolbar->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()));
 toolbar->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()));
@@ -75,6 +77,14 @@ mw->menu_edit->setEnabled(false);
 
 }
 
+//*********************************************************************
+//* Сохранение изменений
+//*********************************************************************
+void cpioedit::saveall() {
+  
+repack_cpio();
+is_modified=false;
+}
 
 //*************************************************************
 //*  Формирование списка файлов
