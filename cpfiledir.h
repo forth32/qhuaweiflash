@@ -11,7 +11,6 @@
 #include <stdint.h>
 #include <unistd.h>
 #include "ptable.h"
-#include "viewer.h"
 
 // #include "MainWindow.h"
 

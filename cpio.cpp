@@ -13,6 +13,7 @@
 #include "MainWindow.h"
 #include "cpio.h"
 #include "viewer.h"
+#include "hexfileviewer.h"
 
 //*********************************************************************
 //* Конструктор класса редактора cpio
@@ -45,6 +46,7 @@ menubar->addAction(menu_edit->menuAction());
 menu_edit->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()),QKeySequence("F11"));
 menu_edit->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()),0);
 menu_edit->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()),QKeySequence("Del"));
+menu_edit->addAction(QIcon::fromTheme("list-add"),"HEX-просмотр/редактор",this,SLOT(hexedit_file()),QKeySequence("F2"));
 menu_edit->addAction(QIcon::fromTheme("list-add"),"Текстовый просмотр",this,SLOT(view_file()),QKeySequence("F3"));
 menu_edit->addAction(QIcon::fromTheme("list-add"),"Текстовый редактор",this,SLOT(edit_file()),QKeySequence("F4"));
 
@@ -363,6 +365,27 @@ connect(view,SIGNAL(changed()),this,SLOT(setModified()));
 //*********************************************************************
 void cpioedit::view_file() { fileeditor(true); }
 void cpioedit::edit_file() { fileeditor(false); }
+
+//*********************************************************************
+//* Вызов hex-редактора
+//*********************************************************************
+void cpioedit::hexedit_file() {
+
+cpfiledir* fd;
+
+fd=selected_file();
+
+if (((fd->fmode()) & C_ISREG) == 0) {
+  // нерегулярный файл - его извлекать нельзя
+  QMessageBox::critical(0,"Ошибка","Нерегулярные файлы просматривать/редактировать нельзя");  
+  return;
+}
+
+hview=new hexfileviewer(fd);  
+
+// сигнал модификации
+connect(hview,SIGNAL(changed()),this,SLOT(setModified()));
+}  
 
 
 

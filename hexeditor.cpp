@@ -1,6 +1,5 @@
 // HEX-редактор образов разделов
 #include "hexeditor.h"
-#include "MainWindow.h"
 
 //********************************************************************
 //* Конструктор класса
@@ -39,7 +38,7 @@ dhex->setData(hexcup);
 
 dhex->setCursorPosition(0);
 dhex->show();
-
+dhex->setReadOnly(true);
 // Компоновка окна
 
 lm=new QVBoxLayout(this);
@@ -102,15 +101,21 @@ switch(bpl) {
 dhex->setBytesPerLine(bpl);
 menu_edit->addMenu(hwidth);
 
-menu_edit->setEnabled(true);
+menu_ro=menu_edit->addAction("Только чтение",this,SLOT(ROswitch()),QKeySequence("Ctrl+e"));
+menu_ro->setCheckable(true);
+menu_ro->setChecked(true);
 
 // Инофрмация для статусбара
+roindicator=new QLabel("R/O",this);
+statusbar->addWidget(roindicator);  
+
 status_adr_info=new QLabel(this);
 statusbar->addWidget(status_adr_info);  
 
 // Сигналы и слоты
 connect(wsel,SIGNAL(triggered(QAction*)),this,SLOT(WidthSelector(QAction*)));
 connect(dhex,SIGNAL(currentAddressChanged(qint64)),this,SLOT(ShowAddres(qint64)));
+connect(dhex,SIGNAL(dataChanged()),this,SLOT(dchook()));
 }
 
 //********************************************************************
@@ -119,6 +124,8 @@ connect(dhex,SIGNAL(currentAddressChanged(qint64)),this,SLOT(ShowAddres(qint64))
 hexeditor::~hexeditor() {
 
 statusbar->removeWidget(status_adr_info);  
+statusbar->removeWidget(roindicator);  
+
 delete menu_edit;  
 }
 
@@ -185,4 +192,14 @@ hconfig->setValue("/config/hexfontsize",fsize);
 
 }
    
-    
+//********************************************************************
+//*  Переключатель чтения-записи
+//********************************************************************
+void hexeditor::ROswitch() {
+  
+readonly=menu_ro->isChecked(); 
+if (readonly) roindicator->setText("R/O");
+else roindicator->setText("R/W");
+dhex->setReadOnly(readonly);  
+dhex->ensureVisible();
+}
