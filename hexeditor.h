@@ -13,6 +13,10 @@ QVBoxLayout* lm;
 
 QSettings* hconfig;
 
+QMenuBar* menubar;
+QStatusBar* statusbar;
+QMenu* menu_edit;
+
 QMenu* hwidth; // ширина редактора
 QAction* w16;
 QAction* w32;
@@ -34,7 +38,7 @@ public:
 
 QHexEdit* dhex;
 
-hexeditor(char* data, uint32_t len, QWidget* parent);
+hexeditor(char* data, uint32_t len, QMenuBar* mbar, QStatusBar* sbar, QWidget* parent);
 ~hexeditor();
 void ChangeFont(int delta);
 

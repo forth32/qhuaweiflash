@@ -5,9 +5,13 @@
 //********************************************************************
 //* Конструктор класса
 //********************************************************************
-hexeditor::hexeditor(char* data, uint32_t len, QWidget* parent) : QWidget(parent) {
+hexeditor::hexeditor(char* data, uint32_t len, QMenuBar* mbar, QStatusBar* sbar, QWidget* parent) : QWidget(parent) {
   
 int fontsize;  
+
+// локальные копии указателей на элементы главного окна
+menubar=mbar;
+statusbar=sbar;
 
 // Открываем доступ к конфигу
 hconfig=new QSettings("forth32","qhuaweiflash",this);
@@ -41,12 +45,16 @@ dhex->show();
 lm=new QVBoxLayout(this);
 lm->addWidget(dhex);
 
+// меню редактора
+menu_edit = new QMenu("HEX-Редактор",menubar);
+menubar->addMenu(menu_edit);
+
 // меню undo-redo
-menu_undo=mw->menu_edit->addAction("Отмена",dhex,SLOT(undo()),QKeySequence::Undo);
-menu_redo=mw->menu_edit->addAction("Повтор",dhex,SLOT(redo()),QKeySequence::Redo);
+menu_undo=menu_edit->addAction("Отмена",dhex,SLOT(undo()),QKeySequence::Undo);
+menu_redo=menu_edit->addAction("Повтор",dhex,SLOT(redo()),QKeySequence::Redo);
 // Увеличение-Уменьшение шрифта
-menu_enlarge_font=mw->menu_edit->addAction("Увеличить шрифт",this,SLOT(EnlargeFont()),QKeySequence("Ctrl++"));
-menu_reduce_font=mw->menu_edit->addAction("Уменьшить шрифт",this,SLOT(ReduceFont()),QKeySequence("Ctrl+-"));
+menu_enlarge_font=menu_edit->addAction("Увеличить шрифт",this,SLOT(EnlargeFont()),QKeySequence("Ctrl++"));
+menu_reduce_font=menu_edit->addAction("Уменьшить шрифт",this,SLOT(ReduceFont()),QKeySequence("Ctrl+-"));
 
 // подменю выбора ширины hex-редактора
 hwidth = new QMenu("Байт в строке",this);
@@ -92,13 +100,13 @@ switch(bpl) {
     break;
 }    
 dhex->setBytesPerLine(bpl);
-mw->menu_edit->addMenu(hwidth);
+menu_edit->addMenu(hwidth);
 
-mw->menu_edit->setEnabled(true);
+menu_edit->setEnabled(true);
 
 // Инофрмация для статусбара
 status_adr_info=new QLabel(this);
-mw->statusBar()->addWidget(status_adr_info);  
+statusbar->addWidget(status_adr_info);  
 
 // Сигналы и слоты
 connect(wsel,SIGNAL(triggered(QAction*)),this,SLOT(WidthSelector(QAction*)));
@@ -110,9 +118,8 @@ connect(dhex,SIGNAL(currentAddressChanged(qint64)),this,SLOT(ShowAddres(qint64))
 //********************************************************************
 hexeditor::~hexeditor() {
 
-mw->statusBar()->removeWidget(status_adr_info);  
-mw->menu_edit->clear();  
-mw->menu_edit->setEnabled(false);
+statusbar->removeWidget(status_adr_info);  
+delete menu_edit;  
 }
 
 //********************************************************************

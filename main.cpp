@@ -293,7 +293,7 @@ if (structure_mode->isChecked()) {
    // файловые разделы
    //###########################################
    if (is_cpio(ptable->iptr(idx))) {
-     cpio=new cpioedit(idx,centralwidget);
+     cpio=new cpioedit(idx,menubar,centralwidget);
      EditorLayout->addWidget(cpio);
      return;
    }
@@ -318,7 +318,7 @@ if (structure_mode->isChecked()) {
 // неформатный тип 
 // создание окна hex-редактора
  partmode=part_bin;
- hexedit=new hexeditor((char*)ptable->iptr(idx),ptable->psize(idx),centralwidget);
+ hexedit=new hexeditor((char*)ptable->iptr(idx),ptable->psize(idx),menubar,statusbar,centralwidget);
  hexedit->setObjectName(QStringLiteral("HexEditor"));
 
  // формирование данных окна hex-редактора

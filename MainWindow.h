@@ -92,10 +92,9 @@ QMenuBar *menubar;
 QMenu *menu_file;
 QMenu *menu_oper;
 QMenu *menu_part;
-QMenu* menu_edit;
 
 // Статусбар
-QStatusBar *statusbar;
+QStatusBar* statusbar;
 // Выбор порта
 QLabel* plbl;
 QComboBox *PortSelector;
@@ -132,4 +131,3 @@ void HeadCopy();
 
 // Независимые от лкасса обработчики
 void head_copy();
-extern MainWindow* mw;

@@ -44,8 +44,11 @@ void repack_cpio();
 // флаг изменения раздела
 bool is_modified=false;
 
+QMenuBar* menubar;
+QMenu* menu_edit;
+
 public:
-cpioedit(int xpnum,QWidget* parent); 
+cpioedit(int xpnum,QMenuBar* mbar, QWidget* parent); 
 ~cpioedit();
 
 

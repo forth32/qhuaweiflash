@@ -17,8 +17,9 @@
 //*********************************************************************
 //* Конструктор класса редактора cpio
 //*********************************************************************
-cpioedit::cpioedit (int xpnum, QWidget* parent) : QWidget(parent) {
+cpioedit::cpioedit (int xpnum,QMenuBar* mbar, QWidget* parent) : QWidget(parent) {
   
+menubar=mbar;  
 pnum=xpnum;
 // образ раздела
 pdata=ptable->iptr(pnum);
@@ -36,14 +37,18 @@ rootdir=load_cpio(pdata,plen);
 // выводим корневой каталог
 cpio_show_dir(rootdir,0);
 
-// Пункты меню редактора
-mw->menu_edit->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()),QKeySequence("F11"));
-mw->menu_edit->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()),0);
-mw->menu_edit->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()),QKeySequence("Del"));
-mw->menu_edit->addAction(QIcon::fromTheme("list-add"),"Текстовый просмотр",this,SLOT(view_file()),QKeySequence("F3"));
-mw->menu_edit->addAction(QIcon::fromTheme("list-add"),"Текстовый редактор",this,SLOT(edit_file()),QKeySequence("F4"));
+// меню редактора
+menu_edit = new QMenu("CPIO-Редактор",menubar);
+menubar->addAction(menu_edit->menuAction());
 
-mw->menu_edit->addAction(QIcon::fromTheme("file-save"),"Сохранить изменения",this,SLOT(saveall()),QKeySequence("Ctrl+S"));
+// Пункты меню редактора
+menu_edit->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()),QKeySequence("F11"));
+menu_edit->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()),0);
+menu_edit->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()),QKeySequence("Del"));
+menu_edit->addAction(QIcon::fromTheme("list-add"),"Текстовый просмотр",this,SLOT(view_file()),QKeySequence("F3"));
+menu_edit->addAction(QIcon::fromTheme("list-add"),"Текстовый редактор",this,SLOT(edit_file()),QKeySequence("F4"));
+
+menu_edit->addAction(QIcon::fromTheme("file-save"),"Сохранить изменения",this,SLOT(saveall()),QKeySequence("Ctrl+S"));
 
 // Пункты тулбара
 toolbar->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()));
@@ -53,7 +58,7 @@ toolbar->addAction(QIcon::fromTheme("list-add"),"Текстовый просмо
 toolbar->addAction(QIcon::fromTheme("list-add"),"Текстовый редактор",this,SLOT(edit_file()));
 
 // открываем доступ к меню
-mw->menu_edit->setEnabled(true);
+menu_edit->setEnabled(true);
 
 }
 
@@ -72,8 +77,7 @@ if (is_modified) {
   
 delete rootdir;
 // уничтожаем меню
-mw->menu_edit->clear();
-mw->menu_edit->setEnabled(false);
+delete menu_edit;
 
 }
 
