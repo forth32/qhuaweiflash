@@ -145,7 +145,7 @@ if (datachanged) {
 }  
   
 delete config;
-delete pdata;  
+delete [] pdata;  
 }
 
 //***********************************************************

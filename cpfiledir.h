@@ -42,7 +42,7 @@
 //************************************************************
 //* Заголовок элемента архива
 //************************************************************
-struct cpio_header {
+struct __attribute__ ((__packed__)) cpio_header {
    char    c_magic[6];
    char    c_ino[8];
    char    c_mode[8];
@@ -67,7 +67,7 @@ class cpfiledir {
 
   cpio_header_t* phdr; // ссылка на заголовок
   char* filename; // указатель на имя файла
-  char* fimage; // указатель на тело файла
+  char* fimage=0; // указатель на тело файла
     
 public:
   cpfiledir(uint8_t* hdr);
@@ -93,7 +93,7 @@ public:
   uint32_t treesize();
   uint32_t store_cpio(uint8_t* pdata);
   void replace_data(uint8_t* pdata, uint32_t len);
-  
+  bool updirflag=false; // признак того, что это ссылка на родительский каталог 
 };
 
 
@@ -102,7 +102,6 @@ void extract_filename(uint8_t* iptr, char* filename);
 QList<cpfiledir*>* find_dir(char* name, QList<cpfiledir*>* updir);
 int find_file(QString name, QList<cpfiledir*>* dir);
 uint32_t cpio_load_file(uint8_t* iptr, QList<cpfiledir*>* dir, int plen, char* fname);
-QList<cpfiledir*>* load_cpio(uint8_t* pimage, int len);
 uint32_t fullsize(QList<cpfiledir*>* root);
 
 #endif

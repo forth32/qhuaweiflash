@@ -19,7 +19,10 @@
 //* Конструктор класса редактора cpio
 //*********************************************************************
 cpioedit::cpioedit (int xpnum,QMenuBar* mbar, QWidget* parent) : QWidget(parent) {
-  
+
+int res;
+char filename[512];
+
 menubar=mbar;  
 pnum=xpnum;
 // образ раздела
@@ -32,11 +35,6 @@ vlm=new QVBoxLayout(this);
 // тулбар
 toolbar=new QToolBar("Файловые операции",this);
 vlm->addWidget(toolbar);
-
-// загружаем весь cpio в списки
-rootdir=load_cpio(pdata,plen);
-// выводим корневой каталог
-cpio_show_dir(rootdir,0);
 
 // меню редактора
 menu_edit = new QMenu("CPIO-Редактор",menubar);
@@ -62,6 +60,30 @@ toolbar->addAction(QIcon::fromTheme("list-add"),"Текстовый редакт
 // открываем доступ к меню
 menu_edit->setEnabled(true);
 
+// загружаем весь cpio в списки
+uint8_t* iptr=pdata;  // указатель на текущую позицию в образе раздела
+rootdir=new QList<cpfiledir*>;
+// Цикл разбора cpio-потока
+while(iptr < (pdata+plen)) {
+  // Ищем сигнатуру заголовка очередного файла
+  while(1) {
+   if (iptr >= (pdata+plen)) {
+     qDebug() <<  "вышли за границу архива, trailer!!! не нашли - архив битый";
+     exit(0);
+   }  
+   if (is_cpio(iptr)) break; // нашли сигнатуру
+   iptr++; // ищем ее дальше
+  }  
+ extract_filename(iptr,filename);
+ if (strncmp(filename,"TRAILER!!!",10) == 0) break;
+ res=cpio_load_file(iptr,rootdir,plen,filename);
+ if (res == 0) break;
+ iptr+=res;
+}
+
+// выводим корневой каталог
+cpio_show_dir(rootdir,0);
+
 }
 
 //*********************************************************************
@@ -70,18 +92,26 @@ menu_edit->setEnabled(true);
 cpioedit::~cpioedit () {
 
 QMessageBox::StandardButton reply;
-  
+cpfiledir* fd; 
+
 // Проверяем, не изменлось ли что-нибудь внутри  
 if (is_modified) {
   reply=QMessageBox::warning(this,"Запись раздела","Содержимое раздела изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
   if (reply == QMessageBox::Ok) repack_cpio();
 }  
-  
+// удаляем элементы корневого каталога
+qDeleteAll(*rootdir);
+// очищаем корневой каталог
+rootdir->clear();  
+// удаляем корневой каталог
 delete rootdir;
+
 // уничтожаем меню
 delete menu_edit;
 
 }
+
+
 
 //*********************************************************************
 //* Сохранение изменений
@@ -328,15 +358,12 @@ if (!in.open(QIODevice::ReadOnly)) {
     QMessageBox::critical(0,"Ошибка","Ошибка чтения файла");
     return;
 }
-
 fsize=in.size();
 uint8_t* fbuf=new uint8_t[fsize]; // файловый буфер
 in.read((char*)fbuf,fsize);
 in.close();
-
-delete fd->fdata();
-fd->setfdata((char*)fbuf);
-fd->setfsize(fsize);
+fd->replace_data(fbuf,fsize);
+delete [] fbuf;
 }
 
 //*********************************************************************
@@ -395,10 +422,9 @@ connect(hview,SIGNAL(changed()),this,SLOT(setModified()));
 void cpioedit::cpio_process_file(int row, int col) {
 
 QList<cpfiledir*>* subdir;
+
 if (row<0) return;
 
-QString sname=cpiotable->item(row,1)->text();
- 
 if (row != 0) subdir=selected_file()->subdir;
 else subdir=currentdir->at(0)->subdir;
 

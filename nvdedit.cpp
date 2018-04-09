@@ -210,11 +210,11 @@ if ((ptable->psize(pnum) != plen) || (memcmp(data,ptable->iptr(pnum),plen) != 0)
     ptable->replace(pnum,data,plen);
   }
 }  
-delete data;
+delete [] data;
 delete nvpart;
-delete xmlpart;
-delete custxmlpart;
-delete xmlmap;
+if (xmlpart != 0) delete [] xmlpart;
+if (custxmlpart != 0) delete [] custxmlpart;
+if (xmlmap != 0) delete [] xmlmap;
 
 }
 

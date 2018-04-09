@@ -20,17 +20,16 @@ phdr=new cpio_header_t;
 
 memcpy(phdr,iptr,sizeof(cpio_header_t)); // копируем себе заголовок
 int nsz=nsize();
+volatile int fsz=fsize();
 
 // имя файла
 filename=new char[nsz];
 memcpy(filename,iptr+sizeof(cpio_header_t),nsz);
 
 // тело файла
-fimage=new char[fsize()];
-memcpy(fimage,iptr+sizeof(cpio_header_t)+nsz,fsize());
+if (fsz != 0) fimage=new char[fsz];
+memcpy(fimage,iptr+sizeof(cpio_header_t)+nsz,fsz);
 
-// printf("\n ---file %s ---\n",fname());
-// dump(iptr,sizeof(cpio_header_t)+nsz+20,0);
 }
 
 //******************************************************
@@ -38,10 +37,19 @@ memcpy(fimage,iptr+sizeof(cpio_header_t)+nsz,fsize());
 //******************************************************
 cpfiledir::~cpfiledir() {
 
-if (subdir != 0) delete subdir;
-delete filename;
-delete fimage;
+int i;  
+
+if ((subdir != 0) && !updirflag) {  // если это не ссылка на родительский каталог
+    // удаляем вектор подкаталога со всем содержимым
+    qDeleteAll(*subdir);
+    subdir->clear();
+    delete subdir;
+}  
+
+delete [] filename;
+if (fimage != 0) delete [] fimage;
 delete phdr;
+
 }
 
 //*******************************************************
@@ -49,10 +57,14 @@ delete phdr;
 //*******************************************************
 void cpfiledir::setfname (char* name) {
   
-char* fn=fname();
-delete fn;
-fn=new char[strlen(name)];
-strcpy(fn,name);
+int len;
+
+delete [] filename;
+len=strlen(name)+1;
+filename=new char[len];
+strcpy(filename,name);
+setfsize(len);
+  
 }
 
 //*******************************************************
@@ -61,7 +73,10 @@ strcpy(fn,name);
  uint32_t cpfiledir:: fsize() {
   
 uint32_t val;
-sscanf(phdr->c_filesize,"%8x",&val);
+char vstr[9];
+bzero(vstr,9);
+strncpy(vstr,phdr->c_filesize,8);
+val=strtoul(vstr,0,16);
 return val;
 }
 
@@ -85,7 +100,11 @@ memcpy(phdr->c_filesize,str,8);
 uint32_t cpfiledir:: nsize() {
   
 uint32_t val;
-sscanf(phdr->c_namesize,"%8x",&val);
+char vstr[9];
+
+bzero(vstr,9);
+strncpy(vstr,phdr->c_namesize,8);
+val=strtoul(vstr,0,16);
 val+=sizeof(cpio_header_t); // добавляем размер заголовка
 if ((val&3) != 0) val=(val&0xfffffffc)+4; // округляем до 4 байт вверх
 return val-sizeof(cpio_header_t);
@@ -98,8 +117,8 @@ char* cpfiledir::cfname() {
   
 char* ptr;
 
-ptr=strrchr(fname(),'/');
-if (ptr == 0) return fname();
+ptr=strrchr(filename,'/');
+if (ptr == 0) return filename;
 else return ptr+1;
 }
 
@@ -109,7 +128,11 @@ else return ptr+1;
 uint32_t cpfiledir::ftime() {
   
 uint32_t val;
-sscanf(phdr->c_mtime,"%8x",&val);
+char vstr[9];
+
+bzero(vstr,9);
+strncpy(vstr,phdr->c_mtime,8);
+val=strtoul(vstr,0,16);
 return val;
 }
 
@@ -120,7 +143,11 @@ return val;
 uint32_t cpfiledir::fmode() {
   
 uint32_t val;
-sscanf(phdr->c_mode,"%8x",&val);
+char vstr[9];
+
+bzero(vstr,9);
+strncpy(vstr,phdr->c_mode,8);
+val=strtoul(vstr,0,16);
 return val;
 }
 
@@ -130,7 +157,11 @@ return val;
 uint32_t cpfiledir::fgid() {
   
 uint32_t val;
-sscanf(phdr->c_gid,"%8x",&val);
+char vstr[9];
+
+bzero(vstr,9);
+strncpy(vstr,phdr->c_gid,8);
+val=strtoul(vstr,0,16);
 return val;
 }
 
@@ -140,7 +171,11 @@ return val;
 uint32_t cpfiledir::fuid() {
   
 uint32_t val;
-sscanf(phdr->c_uid,"%8x",&val);
+char vstr[9];
+
+bzero(vstr,9);
+strncpy(vstr,phdr->c_uid,8);
+val=strtoul(vstr,0,16);
 return val;
 }
 
@@ -203,7 +238,7 @@ return len;
 //*******************************************************
 void cpfiledir::replace_data(uint8_t* pdata, uint32_t len) {
 
-delete fimage;
+delete [] fimage;
 fimage=new char[len];
 memcpy(fimage,pdata,len);
 
@@ -218,8 +253,7 @@ setfsize(len);
 //*******************************************************
 void extract_filename(uint8_t* iptr, char* filename) {
 
-cpfiledir fd(iptr);
-strcpy(filename,fd.fname());
+strcpy(filename,(char*)(iptr+sizeof(cpio_header_t)));
 }
 
 //*******************************************************
@@ -274,6 +308,7 @@ else {
 //*******************************************************
 uint32_t cpio_load_file(uint8_t* iptr, QList<cpfiledir*>* dir, int plen, char* fname) {
 
+char* dfname=(char*)"..";  
 // класс, куда загружаются описатели данного файла
 cpfiledir* fd=new cpfiledir(iptr);
 char filename[256]; // буфер для копии имени файла
@@ -284,7 +319,7 @@ strncpy(filename,fname,256);
 // Корневой каталог
 if ((strlen(filename) == 1) && (filename[1] != '.')) {
 //   fd->subdir=dir; // указываем на себя  
-   fd->subdir=0; // указываем на себя  
+  fd->subdir=0; // нет подкаталога  
   dir->append(fd);
   return fd->totalsize();
 }
@@ -306,10 +341,15 @@ if (slptr != 0) {
 // Это - настоящее конечное имя файла
 // для каталога создаем вектор-подкаталог
 if ((fd->fmode()&C_ISDIR) != 0) {
+   // вектор подкаталога
    fd->subdir=new QList<cpfiledir*>;
+   // указатель на каталог верзнего уровня (то есть вот этот)
    cpfiledir* upfd=new cpfiledir(iptr);
    upfd->subdir=dir;
-   upfd->setfname("..");
+   // имя файла для него - ".."
+   upfd->setfname(dfname);
+   upfd->updirflag=true;  // признак ссылки на каталог верхнего уровня
+   // добавляем эту запись первой в вектор подкаталога
    fd->subdir->append(upfd);
 }  
 dir->append(fd);
@@ -328,34 +368,5 @@ for(i=0;i<root->count();i++) {
   sum+=root->at(i)->treesize();
 }  
 return sum;
-}
-
-//*******************************************************
-//* Загрузка в память файловой структуры cpio-архива
-//*******************************************************
-QList<cpfiledir*>* load_cpio(uint8_t* pimage, int len) {
-
-int res;
-char filename[512];
-// вектор корневого каталога 
-QList<cpfiledir*>* root=new QList<cpfiledir*>;
-
-uint8_t* iptr=pimage;  // указатель на текущую позицию в образе раздела
-
-// Цикл разбора cpio-потока
-while(iptr < (pimage+len)) {
-  // Ищем сигнатуру заголовка очередного файла
-  while(1) {
-   if (iptr >= (iptr+len)) return 0; // вышли за границу архива, trailer!!! не нашли - архиы битый
-   if (is_cpio(iptr)) break; // нашли сигнатуру
-   iptr++; // ищем ее дальше
-  }  
- extract_filename(iptr,filename);  
- if (strncmp(filename,"TRAILER!!!",10) == 0) break;
- res=cpio_load_file(iptr,root,len,filename);
- if (res == 0) break;
- iptr+=res;
-}
-return root;
 }
 

@@ -576,7 +576,7 @@ if (oemedit != 0) {
     reply=QMessageBox::warning(this,"Запись раздела","Содержимое раздела изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
     if (reply == QMessageBox::Ok) memcpy(ptable->iptr(hrow),tdata,ptable->psize(hrow));
   }
-  delete tdata;
+  delete [] tdata;
   return;
 }
 // Измененный раздел,обрабатываемый hex-редактором
@@ -588,7 +588,7 @@ if (hexedit != 0) {
     reply=QMessageBox::warning(this,"Запись раздела","Содержимое раздела изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
     if (reply == QMessageBox::Ok) memcpy(ptable->iptr(hrow),tdata,ptable->psize(hrow));
   }
-  delete tdata;
+  delete [] tdata;
   return;
 }  
   
