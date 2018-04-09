@@ -37,8 +37,6 @@ memcpy(fimage,iptr+sizeof(cpio_header_t)+nsz,fsz);
 //******************************************************
 cpfiledir::~cpfiledir() {
 
-int i;  
-
 if ((subdir != 0) && !updirflag) {  // если это не ссылка на родительский каталог
     // удаляем вектор подкаталога со всем содержимым
     qDeleteAll(*subdir);
@@ -309,8 +307,9 @@ else {
 uint32_t cpio_load_file(uint8_t* iptr, QList<cpfiledir*>* dir, int plen, char* fname) {
 
 char* dfname=(char*)"..";  
+QString str;
 // класс, куда загружаются описатели данного файла
-cpfiledir* fd=new cpfiledir(iptr);
+cpfiledir* fd;
 char filename[256]; // буфер для копии имени файла
 char* slptr;
 QList<cpfiledir*>* fdir; // подкаталог для поиска остатка имени файла
@@ -318,7 +317,7 @@ strncpy(filename,fname,256);
 
 // Корневой каталог
 if ((strlen(filename) == 1) && (filename[1] != '.')) {
-//   fd->subdir=dir; // указываем на себя  
+  fd=new cpfiledir(iptr);
   fd->subdir=0; // нет подкаталога  
   dir->append(fd);
   return fd->totalsize();
@@ -332,14 +331,16 @@ if (slptr != 0) {
   slptr++;  // теперь slptr показывает на остаток имени файла
   fdir=find_dir(filename, dir); // ищем подкаталог в текущем каталоге
   if (fdir == 0) {
-    printf("\n file without dir - %s - %s",filename,fname);
+    str.sprintf("В потоке обнаружен файл без каталога - %s",fname);
+    QMessageBox::critical(0,"Ошибка CPIO",str);
     return 0; // не нашли - ошибка структуры, файл без каталога
   }
-// загружаем файл в вектор подкаталога    
+// загружаем файл в вектор подкаталога   
   return cpio_load_file(iptr,fdir,plen,slptr);
 }  
 // Это - настоящее конечное имя файла
 // для каталога создаем вектор-подкаталог
+fd=new cpfiledir(iptr);
 if ((fd->fmode()&C_ISDIR) != 0) {
    // вектор подкаталога
    fd->subdir=new QList<cpfiledir*>;

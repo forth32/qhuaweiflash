@@ -68,8 +68,8 @@ while(iptr < (pdata+plen)) {
   // Ищем сигнатуру заголовка очередного файла
   while(1) {
    if (iptr >= (pdata+plen)) {
-     qDebug() <<  "вышли за границу архива, trailer!!! не нашли - архив битый";
-     exit(0);
+     QMessageBox::critical(0,"Ошибка CPIO","Не обнаружен ограничитель потока TRAILER!!!");
+     goto ldone;
    }  
    if (is_cpio(iptr)) break; // нашли сигнатуру
    iptr++; // ищем ее дальше
@@ -80,7 +80,7 @@ while(iptr < (pdata+plen)) {
  if (res == 0) break;
  iptr+=res;
 }
-
+ldone:
 // выводим корневой каталог
 cpio_show_dir(rootdir,0);
 
