@@ -44,9 +44,9 @@ menubar->addAction(menu_edit->menuAction());
 menu_edit->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()),QKeySequence("F11"));
 menu_edit->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()),0);
 menu_edit->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()),QKeySequence("Del"));
-menu_edit->addAction(QIcon::fromTheme("list-add"),"HEX-просмотр/редактор",this,SLOT(hexedit_file()),QKeySequence("F2"));
-menu_edit->addAction(QIcon::fromTheme("list-add"),"Текстовый просмотр",this,SLOT(view_file()),QKeySequence("F3"));
-menu_edit->addAction(QIcon::fromTheme("list-add"),"Текстовый редактор",this,SLOT(edit_file()),QKeySequence("F4"));
+menu_edit->addAction(QIcon(":/icon_hex.png"),"HEX-просмотр/редактор",this,SLOT(hexedit_file()),QKeySequence("F2"));
+menu_edit->addAction(QIcon(":/icon_view.png"),"Текстовый просмотр",this,SLOT(view_file()),QKeySequence("F3"));
+menu_edit->addAction(QIcon(":/icon_edit.png"),"Текстовый редактор",this,SLOT(edit_file()),QKeySequence("F4"));
 
 menu_edit->addAction(QIcon::fromTheme("file-save"),"Сохранить изменения",this,SLOT(saveall()),QKeySequence("Ctrl+S"));
 
@@ -54,8 +54,9 @@ menu_edit->addAction(QIcon::fromTheme("file-save"),"Сохранить изме�
 toolbar->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()));
 toolbar->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()));
 toolbar->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()));
-toolbar->addAction(QIcon::fromTheme("list-add"),"Текстовый просмотр",this,SLOT(view_file()));
-toolbar->addAction(QIcon::fromTheme("list-add"),"Текстовый редактор",this,SLOT(edit_file()));
+toolbar->addAction(QIcon(":/icon_hex.png"),"HEX-просмотр/редактор",this,SLOT(hexedit_file()));
+toolbar->addAction(QIcon(":/icon_view.png"),"Текстовый просмотр",this,SLOT(view_file()));
+toolbar->addAction(QIcon(":/icon_edit.png"),"Текстовый редактор",this,SLOT(edit_file()));
 
 // открываем доступ к меню
 menu_edit->setEnabled(true);
@@ -92,7 +93,6 @@ cpio_show_dir(rootdir,0);
 cpioedit::~cpioedit () {
 
 QMessageBox::StandardButton reply;
-cpfiledir* fd; 
 
 // Проверяем, не изменлось ли что-нибудь внутри  
 if (is_modified) {
