@@ -5,10 +5,11 @@
 //***********************************************************
 //* Конструктор просмотрщика
 //***********************************************************
-viewer::viewer(cpfiledir* dfile, uint8_t rmode) : QMainWindow() {
+viewer::viewer(uint8_t* srcdata, uint32_t* srclen, uint8_t rmode, char* fname, cpfiledir* dfile) : QMainWindow() {
   
 QString title;
 QFont font;
+uint32_t plen;
 
 // настройки геометрии окна
 show();  
@@ -25,17 +26,25 @@ activateWindow();
 // сохраняем на будущее входные параметры  
 fileptr=dfile;
 readonly=rmode;
+sdata=srcdata;
+slen=srclen;
+
+// определяем размер буфера и создаем его
+if (fileptr != 0)  plen=fileptr->fsize();
+else plen=*slen;
+pdata=new uint8_t[plen+1];
 
 // копируем данные в локальный буфер
-plen=fileptr->fsize();
-pdata=new uint8_t[plen+1];
-memcpy(pdata,fileptr->fdata(),plen);
-pdata[plen]=0; // ограничитель строки
+if (fileptr != 0) memcpy(pdata,fileptr->fdata(),plen);
+else memcpy(pdata,srcdata,plen);
+
+// ограничитель строки
+pdata[plen]=0; 
 
 // заголовок окна
 if (readonly) title="Просмотр - ";
 else title="Редактирование - ";
-title.append(fileptr->fname());
+title.append(fname);
 setWindowTitle(title);
 
 // Главное меню
@@ -159,7 +168,13 @@ int pos;
 
 textdata=ted->toPlainText();
 xdata=textdata.toLocal8Bit();
-fileptr->replace_data((uint8_t*)xdata.data(),xdata.size());
+if (fileptr != 0) fileptr->replace_data((uint8_t*)xdata.data(),xdata.size());
+else {
+  delete [] sdata;
+  sdata=new uint8_t[xdata.size()];
+  memcpy(sdata,(uint8_t*)xdata.data(),xdata.size());
+  *slen=xdata.size();
+}  
 // вызываем сигнал- признак модификации
 emit changed();
 

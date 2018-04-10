@@ -3,6 +3,7 @@
 #include "MainWindow.h"
 #include <string.h>
 #include "ptable.h"
+#include "viewer.h"
 
 //********************************************************************
 //* Конструктор класса
@@ -187,9 +188,22 @@ if (hdr.xnv_map.len != 0) {
  lcomp->addWidget(repl4,4,3);
 }
 
+// кнопки редактирования
+if (hdr.xnv_xml.len != 0) {
+ edit2=new QPushButton("Редактировать",this);
+ connect(edit2,SIGNAL(clicked()),this,SLOT(xedit2()));
+ lcomp->addWidget(edit2,2,4);
+}
+
+if (hdr.cust_xml.len != 0) {
+ edit3=new QPushButton("Редактировать",this);
+ connect(edit3,SIGNAL(clicked()),this,SLOT(xedit3()));
+ lcomp->addWidget(edit3,3,4);
+}
+
 // правая распорка
 rspacer=new QSpacerItem(100,10,QSizePolicy::Expanding);
-lcomp->addItem(rspacer,1,4);
+lcomp->addItem(rspacer,1,5);
 
 vlm->addStretch(7);
 }
@@ -201,7 +215,9 @@ nvdedit::~nvdedit() {
 
 QMessageBox::StandardButton reply;
 QString cmd;
-
+ 
+// пересобираем данные
+if (changed) rebuild_data();
 
 // проверяем, изменились ли данные
 if ((ptable->psize(pnum) != plen) || (memcmp(data,ptable->iptr(pnum),plen) != 0)) {
@@ -349,6 +365,34 @@ void nvdedit::replace1() { replacer(0); }
 void nvdedit::replace2() { replacer(1); }
 void nvdedit::replace3() { replacer(2); }
 void nvdedit::replace4() { replacer(3); }
+
+//********************************************************************
+//* Редактор XML-компонентов
+//********************************************************************
+void nvdedit::xeditor(int pn) {
+ 
+viewer* viewpanel; 
+  
+switch(pn) {
+  case 1:
+    viewpanel=new viewer(xmlpart,&hdr.xnv_xml.len,0,"Base XML component");
+    break;
+
+  case 2:  
+    viewpanel=new viewer(custxmlpart,&hdr.cust_xml.len,0,"Base XML component");
+    break;
+}
+
+connect(viewpanel,SIGNAL(changed()),this,SLOT(setchanged()));
+}  
+
+
+//********************************************************************
+//* Слоты для редактирования XML-компонентов
+//********************************************************************
+void nvdedit::xedit2() { xeditor(1); }
+void nvdedit::xedit3() { xeditor(2); }
+
 
 
 //********************************************************************

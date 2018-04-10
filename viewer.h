@@ -14,9 +14,11 @@ class viewer  : public QMainWindow {
 Q_OBJECT
 
 cpfiledir* fileptr;
+uint8_t* sdata;
+uint32_t* slen;
+
 bool readonly;
 uint8_t* pdata;
-uint32_t plen;
 
 QString findtext=""; // текст для поискового запроса
 
@@ -40,7 +42,7 @@ bool datachanged=false;
 
 public:
   
-viewer(cpfiledir* dfile, uint8_t rmode);  
+viewer(uint8_t* data, uint32_t* len, uint8_t rmode, char* name, cpfiledir* dfile=0);  
 ~viewer();
 
 public slots:

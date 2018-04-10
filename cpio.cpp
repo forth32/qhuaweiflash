@@ -57,9 +57,9 @@ toolbar->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",thi
 toolbar->addAction(QIcon(":/icon_hex.png"),"HEX-просмотр/редактор",this,SLOT(hexedit_file()));
 toolbar->addAction(QIcon(":/icon_view.png"),"Текстовый просмотр",this,SLOT(view_file()));
 toolbar->addAction(QIcon(":/icon_edit.png"),"Текстовый редактор",this,SLOT(edit_file()));
-
+toolbar->setEnabled(false);
 // открываем доступ к меню
-menu_edit->setEnabled(true);
+menu_edit->setEnabled(false);
 
 // загружаем весь cpio в списки
 uint8_t* iptr=pdata;  // указатель на текущую позицию в образе раздела
@@ -381,7 +381,7 @@ if (((fd->fmode()) & C_ISREG) == 0) {
   return;
 }
 
-view=new viewer(fd,readonly);  
+view=new viewer(0,0,readonly,fd->fname(),fd);  
 // сигнал модификации
 connect(view,SIGNAL(changed()),this,SLOT(setModified()));
 

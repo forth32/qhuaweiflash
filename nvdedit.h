@@ -43,6 +43,8 @@ Q_OBJECT
 // Заголовок
 struct nv_dload_packet_head hdr;
 
+bool changed=false;
+
 QVBoxLayout* vlm;
 QGridLayout* lcomp;
 QSpacerItem* rspacer;
@@ -74,6 +76,10 @@ QPushButton* repl2;
 QPushButton* repl3;
 QPushButton* repl4;
 
+QPushButton* edit2;
+QPushButton* edit3;
+
+
 // номер данного разела в таблице разделов
 int pnum;
 
@@ -93,7 +99,7 @@ uint8_t* xmlmap=0;
 void rebuild_data();
 void extractor(int type);
 void replacer(int type);
-
+void xeditor(int type);
 
 public:
 
@@ -112,8 +118,12 @@ void replace2();
 void replace3();
 void replace4();
 
-};
+void xedit2();
+void xedit3();
 
+//* Слот для утсановки флага-признака изменений
+void setchanged() {changed=true;}
+};
 
 
 #endif 
