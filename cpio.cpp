@@ -41,16 +41,17 @@ menu_edit = new QMenu("CPIO-Редактор",menubar);
 menubar->addAction(menu_edit->menuAction());
 
 // Пункты меню редактора
+menu_edit->addAction(QIcon::fromTheme("go-up"),"Перейти на уровень выше",this,SLOT(go_up()),QKeySequence("Backspace"));
 menu_edit->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()),QKeySequence("F11"));
 menu_edit->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()),0);
 menu_edit->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()),QKeySequence("Del"));
 menu_edit->addAction(QIcon(":/icon_hex.png"),"HEX-просмотр/редактор",this,SLOT(hexedit_file()),QKeySequence("F2"));
 menu_edit->addAction(QIcon(":/icon_view.png"),"Текстовый просмотр",this,SLOT(view_file()),QKeySequence("F3"));
 menu_edit->addAction(QIcon(":/icon_edit.png"),"Текстовый редактор",this,SLOT(edit_file()),QKeySequence("F4"));
-
 menu_edit->addAction(QIcon::fromTheme("file-save"),"Сохранить изменения",this,SLOT(saveall()),QKeySequence("Ctrl+S"));
 
 // Пункты тулбара
+toolbar->addAction(QIcon::fromTheme("go-up"),"Перейти на уровень выше",this,SLOT(go_up()));
 toolbar->addAction(QIcon::fromTheme("document-save"),"Извлечь файл",this,SLOT(extract_file()));
 toolbar->addAction(QIcon::fromTheme("object-flip-vertical"),"Заменить файл",this,SLOT(replace_file()));
 toolbar->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",this,SLOT(delete_file()));
@@ -58,7 +59,7 @@ toolbar->addAction(QIcon(":/icon_hex.png"),"HEX-просмотр/редакто�
 toolbar->addAction(QIcon(":/icon_view.png"),"Текстовый просмотр",this,SLOT(view_file()));
 toolbar->addAction(QIcon(":/icon_edit.png"),"Текстовый редактор",this,SLOT(edit_file()));
 toolbar->setEnabled(false);
-// открываем доступ к меню
+// закрываем доступ к меню
 menu_edit->setEnabled(false);
 
 // загружаем весь cpio в списки
@@ -112,6 +113,16 @@ delete menu_edit;
 }
 
 
+//*********************************************************************
+//* Открытие тулбара и меню
+//*********************************************************************
+void cpioedit::menuenabler() {
+  
+toolbar->setEnabled(true);
+menu_edit->setEnabled(true);
+// разъединяем этот слот - он уже отработал и далее не нужен
+disconnect(cpiotable,0,this,SLOT(menuenabler()));
+}
 
 //*********************************************************************
 //* Сохранение изменений
@@ -181,7 +192,6 @@ for (i=0;i<dir->count();i++) {
     // разрешить показ размера
     showsize=1;
   }  
-
   cpiotable->setItem(i,1,item);
   if (i == 0) continue;
 
@@ -231,6 +241,9 @@ for (i=0;i<dir->count();i++) {
 
 } 
   //------------------------------------
+  cpiotable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+  
   // прячем индексы файлов
   cpiotable->setColumnHidden(0,true);
   
@@ -245,13 +258,26 @@ for (i=0;i<dir->count();i++) {
 
   cpiotable->sortByColumn(1,Qt::AscendingOrder);
   
+  // Сигнал выбора файла (enter или двойной клик)
   connect(cpiotable,SIGNAL(cellActivated(int,int)),SLOT(cpio_process_file(int,int)));
-  connect(cpiotable,SIGNAL(cellDoubleClicked(int,int)),SLOT(cpio_process_file(int,int)));
+//   connect(cpiotable,SIGNAL(cellDoubleClicked(int,int)),SLOT(cpio_process_file(int,int)));
+//   connect(cpiotable,SIGNAL(cellPressed(int,int)),SLOT(cpio_process_file(int,int)));
+  
+  // Вводим таблицу в экранную форму
   vlm->addWidget(cpiotable);
   cpiotable->show();
-  if (focusmode) cpiotable->setFocus();
   cpiotable->setCurrentCell(0,0);
-  
+  if (focusmode) {
+    // Таблица получает фокус - меню можно открывать
+    cpiotable->setFocus();
+    menuenabler();
+  }
+  // Таблица не получает фокус - устанавливаем ловушку
+  else {
+    connect(cpiotable,SIGNAL(cellActivated(int,int)),this,SLOT(menuenabler()));
+    connect(cpiotable,SIGNAL(cellClicked(int,int)),this,SLOT(menuenabler()));
+  }  
+    
 }
 
 //*********************************************************************
@@ -259,10 +285,10 @@ for (i=0;i<dir->count();i++) {
 //*********************************************************************
 void cpioedit::cpio_hide_dir() {
 
+disconnect(cpiotable,0,this,0);  
+
 vlm->removeWidget(cpiotable);
   
-disconnect(cpiotable,SIGNAL(cellActivated(int,int)),this,SLOT(cpio_process_file(int,int)));  
-disconnect(cpiotable,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(cpio_process_file(int,int)));  
 delete cpiotable;
 cpiotable=0;
 }
@@ -414,6 +440,13 @@ hview=new hexfileviewer(fd);
 connect(hview,SIGNAL(changed()),this,SLOT(setModified()));
 }  
 
+//*********************************************************************
+//* Переход на уровень вверх
+//*********************************************************************
+void cpioedit::go_up() {
+  
+emit cpio_process_file(0,0);
+}
 
 
 //*********************************************************************
@@ -422,14 +455,15 @@ connect(hview,SIGNAL(changed()),this,SLOT(setModified()));
 void cpioedit::cpio_process_file(int row, int col) {
 
 QList<cpfiledir*>* subdir;
-
+qDebug() << "cpio_process_file" << row << col;
 if (row<0) return;
 
-if (row != 0) subdir=selected_file()->subdir;
-else subdir=currentdir->at(0)->subdir;
+if (row != 0) subdir=selected_file()->subdir; // какой-то из подкаталогов
+else subdir=currentdir->at(0)->subdir; // каталог верхнего уровня
 
-if (subdir == 0) return; // не каталог
+if (subdir == 0) return; // выбранный файл - не каталог
 if (cpiotable != 0) { // не корневой каталог
+  disconnect(cpiotable,0,this,0); // разъединяем все слоты
   cpio_hide_dir();
   cpio_show_dir(subdir,1);
 }  

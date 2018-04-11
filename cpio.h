@@ -55,7 +55,7 @@ cpioedit(int xpnum,QMenuBar* mbar, QWidget* parent);
 
 
 public slots:
-void cpio_process_file(int row, int col); // обработка выбора файла
+void cpio_process_file(int, int); // обработка выбора файла
 void extract_file();  // извлекалка файлов
 void replace_file();  // замена файлов
 void delete_file();  // удаление файлов
@@ -64,6 +64,8 @@ void edit_file();   // просмотр
 void hexedit_file();   // hex-просмотр/редактор
 void setModified() {is_modified=true;}  // установка признака модификации содержимого архива
 void saveall();
+void menuenabler();
+void go_up();
 };
 
 
