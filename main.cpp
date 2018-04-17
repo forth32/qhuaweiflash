@@ -372,7 +372,6 @@ FILE* out;
 filename.sprintf("%02i-%08x-%s.bin",np,ptable->code(np),ptable->name(np));
 filename=QFileDialog::getSaveFileName(this,"Имя извлекаемого файла",filename,"image (*.bin);;All files (*.*)");
 if (filename.isEmpty()) return;
-// qDebug()  << filename;
 out=fopen(filename.toLocal8Bit().data(),"w");
 if (out == 0) {
   QMessageBox::critical(0,"Ошибка","Ошибка открытия файла");

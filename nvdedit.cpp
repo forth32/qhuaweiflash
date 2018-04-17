@@ -4,6 +4,7 @@
 #include <string.h>
 #include "ptable.h"
 #include "viewer.h"
+#include "nvexplorer.h"
 
 //********************************************************************
 //* Конструктор класса
@@ -189,6 +190,12 @@ if (hdr.xnv_map.len != 0) {
 }
 
 // кнопки редактирования
+
+edit1=new QPushButton("Редактировать",this);
+connect(edit1,SIGNAL(clicked()),this,SLOT(nvexpl()));
+lcomp->addWidget(edit1,1,4);
+
+
 if (hdr.xnv_xml.len != 0) {
  edit2=new QPushButton("Редактировать",this);
  connect(edit2,SIGNAL(clicked()),this,SLOT(xedit2()));
@@ -365,6 +372,17 @@ void nvdedit::replace1() { replacer(0); }
 void nvdedit::replace2() { replacer(1); }
 void nvdedit::replace3() { replacer(2); }
 void nvdedit::replace4() { replacer(3); }
+
+
+//********************************************************************
+//* Слот для редактирования двоичной NV-базы данных
+//********************************************************************
+void nvdedit::nvexpl() {
+
+nvexplorer* exp=new nvexplorer(data+hdr.nv_bin.off,hdr.nv_bin.len);
+exp->show();
+}
+  
 
 //********************************************************************
 //* Редактор XML-компонентов

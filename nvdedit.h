@@ -76,6 +76,7 @@ QPushButton* repl2;
 QPushButton* repl3;
 QPushButton* repl4;
 
+QPushButton* edit1;
 QPushButton* edit2;
 QPushButton* edit3;
 
@@ -118,6 +119,7 @@ void replace2();
 void replace3();
 void replace4();
 
+void nvexpl();
 void xedit2();
 void xedit3();
 

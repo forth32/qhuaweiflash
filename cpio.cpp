@@ -455,7 +455,6 @@ emit cpio_process_file(0,0);
 void cpioedit::cpio_process_file(int row, int col) {
 
 QList<cpfiledir*>* subdir;
-qDebug() << "cpio_process_file" << row << col;
 if (row<0) return;
 
 if (row != 0) subdir=selected_file()->subdir; // какой-то из подкаталогов
