@@ -201,10 +201,17 @@ menu_file->addAction("Выход",this,SLOT(close()),QKeySequence("Esc"));
 
 toolbar->addSeparator();
 
+menu_edit->addAction(QIcon(":/icon_hex.png"),"Редактировать ячейку",this,SLOT(edititem()),QKeySequence("F2"));
+toolbar->addAction(QIcon(":/icon_hex.png"),"Редактировать ячейку",this,SLOT(edititem()));
+
+toolbar->addSeparator();
+
 menu_view->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт",this,SLOT(zoomin()),QKeySequence("Ctrl++"));
 toolbar->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт",this,SLOT(zoomin()));
 menu_view->addAction(QIcon::fromTheme("zoom-out"),"Уменьшить шрифт",this,SLOT(zoomout()),QKeySequence("Ctrl+-"));
 toolbar->addAction(QIcon::fromTheme("zoom-out"),"Уменьшить шрифт",this,SLOT(zoomout()));
+
+connect(nvtable,SIGNAL(cellActivated(int,int)),SLOT(edititem()));
 
 }
 
@@ -261,17 +268,23 @@ void nvexplorer::zoomout() { zoom(-1); }
 //* Редактор ячеек
 //**********************************************************************
 void nvexplorer::edititem() {
-/*  
+ 
+QString title;  
+  
 int row=nvtable->currentRow();
-uint32_t len=itembuf[row].len;
+uint32_t len=itemlist[row].len;
 int res;
 
 // загружаем данные в буфер для редактирования
-QByteArray hexcup(pdata+itemoff_idx(row),len);
+QByteArray hexcup((char*)(pdata+itemoff_idx(row)),len);
 
 // панель диалога
 QDialog* qd=new QDialog;
-QVboxLayout* vlm=new QVBoxLayout(qd);
+QVBoxLayout* vlm=new QVBoxLayout(qd);
+
+// заголовок
+title.sprintf("Редактирование ячейки %i",itemlist[row].id);
+qd->setWindowTitle(title);
 
 // HEX-редактор
 QHexEdit* dhex=new QHexEdit(qd);
@@ -294,9 +307,16 @@ vlm->addWidget(dhex);
 QDialogButtonBox* butt=new QDialogButtonBox(QDialogButtonBox::Save|QDialogButtonBox::Cancel,Qt::Horizontal,qd);
 vlm->addWidget(butt);
 
+qd->resize(625,625);
+
 res=qd->exec();
-// if (res == QDialogButtonBox::AcceptRole) {
+if (res == QDialogButtonBox::AcceptRole) {
   // изменения приняты
-  
-*/
+  hexcup=dhex->data();
+  memcpy(pdata+itemoff_idx(row),hexcup.data(),len);
+}
+
+QRect rect=qd->geometry();
+qDebug ()<< rect;
+delete qd;
 }
