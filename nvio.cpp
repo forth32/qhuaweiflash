@@ -17,8 +17,8 @@
 uint32_t nvexplorer::fileoff(int fid) {
 
 int i;
-for (i=0;i<nvhd.file_num;i++) {
-  if (flist[i].id == fid) return flist[i].offset;
+for (i=0;i<(int)nvhd.file_num;i++) {
+  if (flist[i].id == (uint32_t)fid) return flist[i].offset;
 }
 printf("\n - Ошибка структуры файла - компоненты #%i не существует\n",fid);
 exit(1);
@@ -31,8 +31,8 @@ int32_t nvexplorer::fileidx(int fid) {
 
 int i;
 
-for (i=0;i<nvhd.file_num;i++) {
-  if (flist[i].id == fid) return i;
+for (i=0;i<(int)nvhd.file_num;i++) {
+  if (flist[i].id == (uint32_t)fid) return i;
 }
 return -1;
 }
@@ -55,7 +55,7 @@ int32_t nvexplorer::itemidx(int item) {
   
 int i;
 
-for(i=0;i<nvhd.item_count;i++) {
+for(i=0;i<(int)nvhd.item_count;i++) {
   if (itemlist[i].id == item) return i;
 }
 return -1;
@@ -79,6 +79,16 @@ int32_t nvexplorer::itemlen (int item) {
 int idx=itemidx(item);
 if (idx == -1) return -1;
 return itemlist[idx].len;
+
+}
+
+//**********************************************
+//*  Поиск минимального из 2 чисед
+//**********************************************
+int min(int a, int b) {
+  
+if (a<b) return a;
+else return b;
 }
 
 //**********************************************
@@ -86,11 +96,11 @@ return itemlist[idx].len;
 //**********************************************
 int nvexplorer::load_item(int item, char* buf) {
   
-int idx;
+int idx=itemidx(item);
+int len=itemlist[idx].len;
 
-idx=itemidx(item);
 if (idx == -1) return -1; // не найдена
-memcpy(buf,pdata+itemoff_idx(idx),itemlist[idx].len);
-return itemlist[idx].len;
+memcpy(buf,pdata+itemoff_idx(idx),len);
+return len;
 }
 

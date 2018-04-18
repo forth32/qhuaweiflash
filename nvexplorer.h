@@ -113,13 +113,17 @@ QMenu* menu_view;
 // тулбар
 QToolBar* toolbar;
 
+void zoom(int);
+
 public:
 nvexplorer(uint8_t* data, uint32_t len);
 ~nvexplorer();
 
 public slots:
 // void save_all();  
-
+void zoomin();
+void zoomout();
+  
 };
 
 char* find_desc(int item);
