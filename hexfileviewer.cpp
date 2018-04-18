@@ -101,6 +101,9 @@ QByteArray xdata;
 QString str;
 int pos;
 
+xdata=hed->dhex->data();
+memcpy(pdata,xdata.data(),plen);
+
 fileptr->replace_data((uint8_t*)pdata,plen);
 
 // удаляем звездочку из заголовка

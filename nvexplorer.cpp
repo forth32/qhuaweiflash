@@ -1,6 +1,7 @@
 //-------------- Редактор двоичных образов NVRAM ----------------------------
 #include "nvexplorer.h"
 #include "sio.h"
+#include "hexeditor.h"
 
 //**************************************************
 //* Конструктор класса
@@ -111,6 +112,12 @@ crcoff=pos;
 itemlist=new struct nv_item[nvhd.item_size];
 memcpy(itemlist,pdata+nvhd.item_offset,nvhd.item_size);
 
+// Вычисляем максимальный размер ячейки
+for(i=0;i<nvhd.item_count;i++) 
+ if (maxitemlen < itemlist[i].len) maxitemlen = itemlist[i].len;
+ 
+printf("\n Max item len = %i",maxitemlen); 
+ 
 // Создаем таблицу nvram
 nvtable=new QTableWidget(nvhd.item_count,5,central);
 
@@ -122,10 +129,10 @@ nvtable->setHorizontalHeaderLabels(plst);
 // выводим список ячеек в таблицу
 QTableWidgetItem* cell;
 
-char itembuf[32000];
+char itembuf[maxitemlen];
 int32_t itemlen;
 
-for(uint32_t i=0;i<nvhd.item_count;i++) {
+for(i=0;i<nvhd.item_count;i++) {
   // id ячейки
   str.setNum(itemlist[i].id);
   cell=new QTableWidgetItem(str);
@@ -198,7 +205,6 @@ menu_view->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт"
 toolbar->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт",this,SLOT(zoomin()));
 menu_view->addAction(QIcon::fromTheme("zoom-out"),"Уменьшить шрифт",this,SLOT(zoomout()),QKeySequence("Ctrl+-"));
 toolbar->addAction(QIcon::fromTheme("zoom-out"),"Уменьшить шрифт",this,SLOT(zoomout()));
-// // menu_view->aaddAction(QIcon::fromTheme("preferences-desktop-font"),"Шрифт...",this,SLOT(fontselector()));
 
 }
 
@@ -251,3 +257,46 @@ void nvexplorer::zoomin() { zoom(1); }
 void nvexplorer::zoomout() { zoom(-1); }
     
 
+//**********************************************************************
+//* Редактор ячеек
+//**********************************************************************
+void nvexplorer::edititem() {
+/*  
+int row=nvtable->currentRow();
+uint32_t len=itembuf[row].len;
+int res;
+
+// загружаем данные в буфер для редактирования
+QByteArray hexcup(pdata+itemoff_idx(row),len);
+
+// панель диалога
+QDialog* qd=new QDialog;
+QVboxLayout* vlm=new QVBoxLayout(qd);
+
+// HEX-редактор
+QHexEdit* dhex=new QHexEdit(qd);
+
+// Настройка внешнего вида редактора
+dhex->setAddressWidth(3);
+dhex->setOverwriteMode(true);
+dhex->setHexCaps(true);
+dhex->setHighlighting(true);
+
+// Загрузка данных в редактор
+dhex->setData(hexcup);
+
+dhex->setCursorPosition(0);
+dhex->show();
+dhex->setReadOnly(false);
+
+vlm->addWidget(dhex);
+
+QDialogButtonBox* butt=new QDialogButtonBox(QDialogButtonBox::Save|QDialogButtonBox::Cancel,Qt::Horizontal,qd);
+vlm->addWidget(butt);
+
+res=qd->exec();
+// if (res == QDialogButtonBox::AcceptRole) {
+  // изменения приняты
+  
+*/
+}

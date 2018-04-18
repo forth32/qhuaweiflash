@@ -85,6 +85,8 @@ uint32_t crcoff;
 struct nv_file flist[15];
 // каталог ячеек
 struct nv_item* itemlist;
+uint32_t maxitemlen=0; // максимальный размер ячейки
+
 
 // Подпрограммы библиотеки nvio для доступа к структурам nvram
 uint32_t fileoff(int fid);
@@ -123,7 +125,8 @@ public slots:
 // void save_all();  
 void zoomin();
 void zoomout();
-  
+void edititem();  
+
 };
 
 char* find_desc(int item);

@@ -165,7 +165,7 @@ for (i=0;i<dir->count();i++) {
   // индекс файла в векторе
   str.sprintf("%i",i);
   item=new QTableWidgetItem(str);
-  item->setFlags(Qt::ItemIsEditable);
+  item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
   item->setForeground(QBrush(Qt::black));
   cpiotable->setItem(i,0,item);
   
@@ -192,6 +192,7 @@ for (i=0;i<dir->count();i++) {
     // разрешить показ размера
     showsize=1;
   }  
+  item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
   cpiotable->setItem(i,1,item);
   if (i == 0) continue;
 
@@ -199,7 +200,7 @@ for (i=0;i<dir->count();i++) {
   if (showsize) {
    str.sprintf("%i",dir->at(i)->fsize());
    item=new QTableWidgetItem(str);
-   item->setFlags(Qt::ItemIsEditable);
+   item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
    item->setForeground(QBrush(Qt::blue));
    cpiotable->setItem(i,2,item);
   } 
@@ -209,7 +210,7 @@ for (i=0;i<dir->count();i++) {
   strftime(tstr,100,"%d-%b-%y  %H:%M",localtime(&ctime));
   str=tstr;
   item=new QTableWidgetItem(str);
-  item->setFlags(Qt::ItemIsEditable);
+  item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
   item->setForeground(QBrush(Qt::black));
   cpiotable->setItem(i,3,item);
   
@@ -221,27 +222,27 @@ for (i=0;i<dir->count();i++) {
   }  
   str=modestr;
   item=new QTableWidgetItem(str);
-  item->setFlags(Qt::ItemIsEditable);
+  item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
   item->setForeground(QBrush(Qt::red));
   cpiotable->setItem(i,4,item);
   
   // gid
   str.sprintf("%i",dir->at(i)->fgid());
   item=new QTableWidgetItem(str);
-  item->setFlags(Qt::ItemIsEditable);
+  item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
   item->setForeground(QBrush(Qt::black));
   cpiotable->setItem(i,5,item);
   
   // uid
   str.sprintf("%i",dir->at(i)->fuid());
   item=new QTableWidgetItem(str);
-  item->setFlags(Qt::ItemIsEditable);
+  item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
   item->setForeground(QBrush(Qt::black));
   cpiotable->setItem(i,6,item);
 
 } 
   //------------------------------------
-  cpiotable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+//   cpiotable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
   
   // прячем индексы файлов
