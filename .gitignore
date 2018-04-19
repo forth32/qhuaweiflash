@@ -1,3 +1,9 @@
 *.o
 *.bin
 *.fw
+moc_*.cpp
+*.pdf
+*.log
+*.cpio
+qrc_*.cpp
+*.user
