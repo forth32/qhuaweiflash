@@ -7,3 +7,6 @@ moc_*.cpp
 *.cpio
 qrc_*.cpp
 *.user
+Makefile
+qhuaweiflash
+*.nvm
