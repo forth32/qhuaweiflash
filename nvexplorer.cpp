@@ -6,7 +6,7 @@
 //**************************************************
 //* Конструктор класса
 //**************************************************
-nvexplorer::nvexplorer(uint8_t* srcdata, uint32_t srclen) : QMainWindow() {
+nvexplorer::nvexplorer(uint8_t* xsrcdata, uint32_t srclen) : QMainWindow() {
  
 uint32_t pos;
 uint32_t i;
@@ -14,8 +14,12 @@ QString str;
 QFont font;
 
 // сохраняем параметры буфера с данными
-pdata=srcdata;
+srcdata=xsrcdata;
 plen=srclen;
+
+// создаем локальныую копию для редактирования
+pdata=new uint8_t[plen];
+memcpy(pdata,srcdata,plen);
 
 // настройки геометрии окна
 show();  
@@ -85,7 +89,7 @@ switch (nvhd.crcflag) {
     break;
     
 }
-
+qDebug() << " crcmode: " << crcmode;
 //----- Читаем каталог файлов
 
 pos=nvhd.ctrl_size; // смещение до начала данных (конец управляющих структур)
@@ -112,11 +116,9 @@ itemlist=new struct nv_item[nvhd.item_size];
 memcpy(itemlist,pdata+nvhd.item_offset,nvhd.item_size);
 
 // Вычисляем максимальный размер ячейки
-for(i=0;i<nvhd.item_count;i++) 
- if (maxitemlen < itemlist[i].len) maxitemlen = itemlist[i].len;
- 
-printf("\n Max item len = %i",maxitemlen); 
- 
+// for(i=0;i<nvhd.item_count;i++) 
+//  if (maxitemlen < itemlist[i].len) maxitemlen = itemlist[i].len;
+  
 // Создаем таблицу nvram
 nvtable=new QTableWidget(nvhd.item_count,5,central);
 
@@ -195,24 +197,31 @@ toolbar->addAction(QIcon::fromTheme("zoom-out"),"Уменьшить шрифт",
 
 connect(nvtable,SIGNAL(cellActivated(int,int)),SLOT(edititem()));
 
+
 }
 
 //**********************************************************************
 //*  ДЕструктор класса
 //**********************************************************************
 nvexplorer::~nvexplorer() {
-QFont font;
 
-// сохраняем размер шрифта
-// font=ted->font();
-// config->setValue("/config/EditorFont",font);
+int reply;
+
+if (changed) {
+  reply=QMessageBox::warning(this,"Запись данных","Содержимое NVRAM изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
+  if (reply == QMessageBox::Ok) {
+    // сохранение данных
+    save_all();
+  }
+}  
 
 // геометрия главного окна
 QRect rect=geometry();
 config->setValue("/config/NvExplorerRect",rect);
 
-delete [] itemlist;  
 delete nvtable;
+delete [] itemlist;
+delete [] pdata;
 }
 //**********************************************************************
 //*  Ввод в таблицу содержимого ячейки
@@ -328,16 +337,49 @@ qd->resize(625,625);
 
 res=qd->exec();
 if (res == QDialog::Accepted) {
-  qDebug() << "Accepted";
   // изменения приняты
   hexcup=dhex->data();
   memcpy(pdata+itemoff_idx(row),hexcup.data(),len);
+  // пересчитываем индивидуальную CRC - для файлов образов прошивок это не требуется
+//   if (crcmode == 2) restore_item_crc(row);
+  // заголовок
+  if (!changed) {
+    // вводим звездочку в заголовок
+    title=windowTitle();
+    title.append(" *");
+    setWindowTitle(title);
+    changed=true;
+  }  
 }
+// перерисовываем строку данных в таблице
 datacell(row);
 qDebug ()<< qd->geometry();
 delete qd;
 }
 
 
+//**********************************************************************
+//* Сохранение всех изменений обратно в исходный буфер
+//**********************************************************************
+void nvexplorer::save_all() {
 
+QString str;  
+int pos;  
+
+// пересчитываем блочную CRC
+if (crcmode == 1) recalc_crc();
+
+// копируем весь массив наружу
+memcpy(srcdata,pdata,plen);
+  
+// удаляем звездочку из заголовка
+str=windowTitle();
+pos=str.indexOf('*');
+if (pos != -1) {
+  str.truncate(pos-1);
+  setWindowTitle(str);
+}  
+
+changed=false;
+}
 

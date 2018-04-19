@@ -17,6 +17,6 @@ HEADERS += MainWindow.h sio.h ptable.h usbloader.h fwsave.h signver.h parts.h cp
 SOURCES += main.cpp MainWindow.cpp sio.cpp ptable.cpp flasher.cpp usbloader.cpp fwsave.cpp \
   signver.cpp parts.cpp headcopy.cpp cpfiledir.cpp cpio.cpp nvexplorer.cpp nvio.cpp nvid.cpp \
   viewer.cpp hexfileviewer.cpp ulpatcher.cpp nvdedit.cpp hexeditor.cpp kerneledit.cpp \
-  hexedit2/commands.cpp hexedit2/qhexedit.cpp hexedit2/chunks.cpp
+  nvcrc.cpp hexedit2/commands.cpp hexedit2/qhexedit.cpp hexedit2/chunks.cpp
 RESOURCES = qhuaweiflash.qrc
 LIBS += -lz

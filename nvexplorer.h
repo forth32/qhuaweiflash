@@ -74,19 +74,17 @@ class nvexplorer  : public QMainWindow {
 Q_OBJECT
 
 bool changed=false;
+
+uint8_t* srcdata;
 uint8_t* pdata;
 uint32_t plen;
 
 struct nvfile_header nvhd; // заголовок nvram-файла
-int crcmode;
-// Смещение до поля CRC в образе nvram
-uint32_t crcoff;
 // Каталог файлов
 struct nv_file flist[15];
 // каталог ячеек
 struct nv_item* itemlist;
-uint32_t maxitemlen=0; // максимальный размер ячейки
-
+// uint32_t maxitemlen=0; // максимальный размер ячейки
 
 // Подпрограммы библиотеки nvio для доступа к структурам nvram
 uint32_t fileoff(int fid);
@@ -98,7 +96,23 @@ int32_t itemlen (int item);
 int load_item(int item, char* buf);
 void datacell(int);
 
+// тип CRC, используемый в файле
+// 0 - нет crc
+// 1 - первый тип CRC, для V7R11, с массивом контрольных сумм
+// 2 - второй тип CRC, для V7R22, с индивидуальной КС
+int crcmode;
+// Смещение до поля CRC в образе nvram
+uint32_t crcoff;
+// Подпрограммы работы с CRC
+uint32_t calc_crcsize();
+void recalc_crc();
+void recalc_ctrl_crc();
+uint32_t load_item_crc(int);
+uint32_t calc_item_crc(int);
+void restore_item_crc(int);
+bool verify_item_crc(int idx);
 
+// GUI
 QWidget* central;
 QSettings* config;
 QVBoxLayout* vlm;
@@ -122,7 +136,7 @@ nvexplorer(uint8_t* data, uint32_t len);
 ~nvexplorer();
 
 public slots:
-// void save_all();  
+void save_all();  
 void zoomin();
 void zoomout();
 void edititem();  
