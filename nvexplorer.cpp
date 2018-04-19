@@ -305,7 +305,14 @@ QVBoxLayout* vlm=new QVBoxLayout(qd);
 
 // заголовок
 title.sprintf("Редактирование ячейки %i",itemlist[row].id);
+config=new QSettings("forth32","qhuaweiflash",this);
 qd->setWindowTitle(title);
+
+// размер окна
+QRect rect=config->value("/config/ItemEditorRect").toRect();
+if (rect != QRect(0,0,0,0)) qd->setGeometry(rect);
+else qd->resize(625,625);
+
 
 // HEX-редактор
 QHexEdit* dhex=new QHexEdit(qd);
@@ -337,8 +344,6 @@ connect(butt, SIGNAL(accepted()), qd, SLOT(accept()));
 connect(butt, SIGNAL(rejected()), qd, SLOT(reject()));
 vlm->addWidget(butt);
 
-qd->resize(625,625);
-
 res=qd->exec();
 if (res == QDialog::Accepted) {
   // изменения приняты
@@ -349,6 +354,10 @@ if (res == QDialog::Accepted) {
   } 
 }
 qDebug ()<< qd->geometry();
+// геометрия окна
+rect=qd->geometry();
+config->setValue("/config/ItemEditorRect",rect);
+
 delete qd;
 }
 
