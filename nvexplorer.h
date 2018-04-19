@@ -96,7 +96,7 @@ int32_t itemidx(int item);
 int32_t itemoff (int item);
 int32_t itemlen (int item);
 int load_item(int item, char* buf);
-
+void datacell(int);
 
 
 QWidget* central;

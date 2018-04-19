@@ -10,7 +10,6 @@ nvexplorer::nvexplorer(uint8_t* srcdata, uint32_t srclen) : QMainWindow() {
  
 uint32_t pos;
 uint32_t i;
-int j; 
 QString str;
 QFont font;
 
@@ -129,8 +128,6 @@ nvtable->setHorizontalHeaderLabels(plst);
 // выводим список ячеек в таблицу
 QTableWidgetItem* cell;
 
-char itembuf[maxitemlen];
-int32_t itemlen;
 
 for(i=0;i<nvhd.item_count;i++) {
   // id ячейки
@@ -162,22 +159,7 @@ for(i=0;i<nvhd.item_count;i++) {
   nvtable->setItem(i,3,cell);
 
   // Содержимое  
-  char dstr[10];
-  str.clear();
-  itemlen=load_item((int)itemlist[i].id,itembuf);
-  for(j=0;j<itemlen;j++) {
-    sprintf(dstr,"%02X ",(uint32_t)(itembuf[j]&0xff));
-    str.append(dstr);
-  }
-    
-//  if (itemlen < itemlist[i].len) str.append("...");
-  cell=new QTableWidgetItem(str);
-  cell->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-  font=cell->font();
-  font.setFixedPitch(true);
-  cell->setFont(font);
-  nvtable->setItem(i,4,cell);
-  
+  datacell(i);
 }
 
 // ширина колонок
@@ -232,6 +214,32 @@ config->setValue("/config/NvExplorerRect",rect);
 delete [] itemlist;  
 delete nvtable;
 }
+//**********************************************************************
+//*  Ввод в таблицу содержимого ячейки
+//**********************************************************************
+void nvexplorer::datacell(int row) {
+  
+char dstr[10];
+QString str;
+uint32_t j;
+uint32_t off=itemoff_idx(row);
+QTableWidgetItem* cell;
+
+uint32_t itemlen=itemlist[row].len;
+
+for(j=0;j<itemlen;j++) {
+  sprintf(dstr,"%02X ",*((uint8_t*)(pdata+off+j))&0xff);
+  str.append(dstr);
+}
+    
+cell=new QTableWidgetItem(str);
+cell->setFlags(Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
+QFont font=cell->font();
+font.setFixedPitch(true);
+cell->setFont(font);
+nvtable->setItem(row,4,cell);
+}
+
 
 //**********************************************************************
 //* Увеличение/уменьшение шрифта
@@ -304,19 +312,32 @@ dhex->setReadOnly(false);
 
 vlm->addWidget(dhex);
 
+// комментарии к шорткутам
+QLabel* lbl=new QLabel("Enter - сохранить изменения,   Esc - отменить",qd);
+vlm->addWidget(lbl);
+
+// кнопки save и cancel
 QDialogButtonBox* butt=new QDialogButtonBox(QDialogButtonBox::Save|QDialogButtonBox::Cancel,Qt::Horizontal,qd);
+butt->button(QDialogButtonBox::Save)->setShortcut(QKeySequence(Qt::Key_Return));
+butt->button(QDialogButtonBox::Cancel)->setShortcut(QKeySequence(Qt::Key_Escape));
+connect(butt, SIGNAL(accepted()), qd, SLOT(accept()));
+connect(butt, SIGNAL(rejected()), qd, SLOT(reject()));
 vlm->addWidget(butt);
 
 qd->resize(625,625);
 
 res=qd->exec();
-if (res == QDialogButtonBox::AcceptRole) {
+if (res == QDialog::Accepted) {
+  qDebug() << "Accepted";
   // изменения приняты
   hexcup=dhex->data();
   memcpy(pdata+itemoff_idx(row),hexcup.data(),len);
 }
-
-QRect rect=qd->geometry();
-qDebug ()<< rect;
+datacell(row);
+qDebug ()<< qd->geometry();
 delete qd;
 }
+
+
+
+

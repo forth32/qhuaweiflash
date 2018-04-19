@@ -399,6 +399,10 @@ switch(pn) {
   case 2:  
     viewpanel=new viewer(custxmlpart,&hdr.cust_xml.len,0,"Base XML component");
     break;
+
+  default:
+    viewpanel=0;
+    return;
 }
 
 connect(viewpanel,SIGNAL(changed()),this,SLOT(setchanged()));
