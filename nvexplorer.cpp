@@ -342,9 +342,11 @@ qd->resize(625,625);
 res=qd->exec();
 if (res == QDialog::Accepted) {
   // изменения приняты
-  hexcup=dhex->data();
-  memcpy(pdata+itemoff_idx(row),hexcup.data(),len);
-  changed_item(row);
+  if (dhex->isModified()) {
+   hexcup=dhex->data();
+   memcpy(pdata+itemoff_idx(row),hexcup.data(),len);
+   changed_item(row);
+  } 
 }
 qDebug ()<< qd->geometry();
 delete qd;
