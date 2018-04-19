@@ -191,7 +191,7 @@ toolbar->addAction(QIcon(":/icon_hex.png"),"Редактировать ячей�
 menu_edit->addAction(QIcon::fromTheme("document-save"),"Извлечь ячейку в файл",this,SLOT(extract_item()),QKeySequence("F11"));
 toolbar->addAction(QIcon::fromTheme("document-save"),"Извлечь ячейку в файл",this,SLOT(extract_item()));
 
-menu_edit->addAction(QIcon::fromTheme("object-flip-vertical"),"Загрузить ячейку из файла",this,SLOT(replace_file()),0);
+menu_edit->addAction(QIcon::fromTheme("object-flip-vertical"),"Загрузить ячейку из файла",this,SLOT(replace_item()),0);
 toolbar->addAction(QIcon::fromTheme("object-flip-vertical"),"Загрузить ячейку из файла",this,SLOT(replace_item()));
 
 menu_view->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт",this,SLOT(zoomin()),QKeySequence("Ctrl++"));
