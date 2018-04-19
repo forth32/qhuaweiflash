@@ -4,5 +4,6 @@
     <file>icon_view.png</file>
     <file>icon_edit.png</file>
     <file>icon_hex.png</file>
+    <file>icon_extract.png</file>
   </qresource>
 </RCC>

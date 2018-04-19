@@ -188,8 +188,8 @@ toolbar->addSeparator();
 menu_edit->addAction(QIcon(":/icon_hex.png"),"Редактировать ячейку",this,SLOT(edititem()),QKeySequence("F2"));
 toolbar->addAction(QIcon(":/icon_hex.png"),"Редактировать ячейку",this,SLOT(edititem()));
 
-menu_edit->addAction(QIcon::fromTheme("document-save"),"Извлечь ячейку в файл",this,SLOT(extract_item()),QKeySequence("F11"));
-toolbar->addAction(QIcon::fromTheme("document-save"),"Извлечь ячейку в файл",this,SLOT(extract_item()));
+menu_edit->addAction(QIcon(":/icon_extract.png"),"Извлечь ячейку в файл",this,SLOT(extract_item()),QKeySequence("F11"));
+toolbar->addAction(QIcon(":/icon_extract.png"),"Извлечь ячейку в файл",this,SLOT(extract_item()));
 
 menu_edit->addAction(QIcon::fromTheme("object-flip-vertical"),"Загрузить ячейку из файла",this,SLOT(replace_item()),0);
 toolbar->addAction(QIcon::fromTheme("object-flip-vertical"),"Загрузить ячейку из файла",this,SLOT(replace_item()));
