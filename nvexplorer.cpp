@@ -188,7 +188,11 @@ toolbar->addSeparator();
 menu_edit->addAction(QIcon(":/icon_hex.png"),"Редактировать ячейку",this,SLOT(edititem()),QKeySequence("F2"));
 toolbar->addAction(QIcon(":/icon_hex.png"),"Редактировать ячейку",this,SLOT(edititem()));
 
-toolbar->addSeparator();
+menu_edit->addAction(QIcon::fromTheme("document-save"),"Извлечь ячейку в файл",this,SLOT(extract_item()),QKeySequence("F11"));
+toolbar->addAction(QIcon::fromTheme("document-save"),"Извлечь ячейку в файл",this,SLOT(extract_item()));
+
+menu_edit->addAction(QIcon::fromTheme("object-flip-vertical"),"Загрузить ячейку из файла",this,SLOT(replace_file()),0);
+toolbar->addAction(QIcon::fromTheme("object-flip-vertical"),"Загрузить ячейку из файла",this,SLOT(replace_item()));
 
 menu_view->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт",this,SLOT(zoomin()),QKeySequence("Ctrl++"));
 toolbar->addAction(QIcon::fromTheme("zoom-in"),"Увеличить шрифт",this,SLOT(zoomin()));
@@ -340,23 +344,35 @@ if (res == QDialog::Accepted) {
   // изменения приняты
   hexcup=dhex->data();
   memcpy(pdata+itemoff_idx(row),hexcup.data(),len);
-  // пересчитываем индивидуальную CRC - для файлов образов прошивок это не требуется
+  changed_item(row);
+}
+qDebug ()<< qd->geometry();
+delete qd;
+}
+
+
+
+//**********************************************************************
+//* Пост-обработка модификации ячеек
+//**********************************************************************
+void nvexplorer::changed_item(int row) {
+
+QString title;  
+
+// пересчитываем индивидуальную CRC - для файлов образов прошивок это не требуется
 //   if (crcmode == 2) restore_item_crc(row);
-  // заголовок
-  if (!changed) {
+
+// Вводим звездочку в заголовок
+if (!changed) {
     // вводим звездочку в заголовок
     title=windowTitle();
     title.append(" *");
     setWindowTitle(title);
     changed=true;
-  }  
-}
+}  
 // перерисовываем строку данных в таблице
 datacell(row);
-qDebug ()<< qd->geometry();
-delete qd;
 }
-
 
 //**********************************************************************
 //* Сохранение всех изменений обратно в исходный буфер
@@ -383,3 +399,59 @@ if (pos != -1) {
 changed=false;
 }
 
+//**********************************************************************
+//* Извлечение ячейки в файл
+//**********************************************************************
+void nvexplorer::extract_item() {
+
+QString filename;
+
+int row=nvtable->currentRow();
+filename.sprintf("nvitem-%05i.bin",itemlist[row].id);
+filename=QFileDialog::getSaveFileName(this,"Имя сохраняемого файла",filename,"All files (*.*)");
+if (filename.isEmpty()) return;
+  
+QFile out(filename,this);
+if (!out.open(QIODevice::WriteOnly)) {
+    QMessageBox::critical(0,"Ошибка","Ошибка создания файла");
+    return;
+}
+out.write((char*)(pdata+itemoff_idx(row)),itemlist[row].len);
+out.close();
+}
+
+//**********************************************************************
+//* Загрузка ячейки из файла
+//**********************************************************************
+void nvexplorer::replace_item() {
+
+QString filename;
+QString str;
+
+int row=nvtable->currentRow();
+filename.sprintf("nvitem-%05i.bin",itemlist[row].id);
+filename=QFileDialog::getOpenFileName(this,"Имя файла",filename,"All files (*.*)");
+if (filename.isEmpty()) return;
+  
+QFile in(filename,this);
+if (!in.open(QIODevice::ReadOnly)) {
+    QMessageBox::critical(0,"Ошибка","Ошибка открытия файла");
+    return;
+}
+
+if (in.size() != itemlist[row].len) {
+    in.close();
+    str.sprintf("Размер файла (%i) не совпадает с размером ячейки (%i)",(uint32_t)in.size(),(uint32_t)itemlist[row].len);
+    QMessageBox::critical(0,"Ошибка",str);
+    return;
+}  
+
+
+in.read((char*)(pdata+itemoff_idx(row)),itemlist[row].len);
+in.close();
+changed_item(row);
+
+}
+
+
+  

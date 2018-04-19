@@ -95,6 +95,7 @@ int32_t itemoff (int item);
 int32_t itemlen (int item);
 int load_item(int item, char* buf);
 void datacell(int);
+void changed_item(int);
 
 // тип CRC, используемый в файле
 // 0 - нет crc
@@ -140,6 +141,8 @@ void save_all();
 void zoomin();
 void zoomout();
 void edititem();  
+void extract_item();
+void replace_item();
 
 };
 
