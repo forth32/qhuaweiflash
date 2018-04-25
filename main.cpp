@@ -44,6 +44,10 @@ PortSelector->setCurrentIndex(0);
 void MainWindow::OpenFwFile(QString filename) {
   
 FILE* in;
+int idx;
+
+QSettings rc("forth32","qhuaweiflash",this);
+QStringList recent=rc.value("/recent/rfiles").toStringList();
 
 in=fopen(filename.toLocal8Bit(),"r");
 if (in == 0) {
@@ -51,8 +55,21 @@ if (in == 0) {
   return;
 }  
 
-// Поиск разделов и формирование таблицы разделов
+// добавляем файл в recent-список
+idx=recent.indexOf(filename); // поиск дубликатов
+if (idx == -1) { 
+  // дубликаты не найдены
+  recent.prepend(filename);
+  if (recent.count()>6) recent.removeLast();
+}
+else {
+  // такой файл уже есть - выводим его в начало списка
+  recent.move(idx,0);
+}  
+rc.setValue("/recent/rfiles",recent);
 
+
+// Поиск разделов и формирование таблицы разделов
 ptable->findparts(in); 
 regenerate_partlist();
 partlist->setCurrentRow(0);
@@ -121,6 +138,30 @@ AppendFwFile();
 EnableMenu();
 }
 
+//*****************************************
+//* Выбор последнего открытого файла
+//*****************************************
+void MainWindow::open_recent(int num) {
+
+static QString fname;
+    
+menu_part->setEnabled(0);
+Menu_Oper_flash->setEnabled(0);
+fileappend->setEnabled(0);
+filesave->setEnabled(0);
+ptable->clear();
+
+QSettings rc("forth32","qhuaweiflash",this);
+QStringList recent=rc.value("/recent/rfiles").toStringList();
+fname=recent.at(num);
+if (fname.isEmpty()) return;
+OpenFwFile(fname);
+//   имя по умолчанию
+fwfilename=&fname;
+
+EnableMenu();
+}  
+  
 //*****************************************
 //*  Разрешение пунктов меню
 //*****************************************

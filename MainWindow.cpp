@@ -177,6 +177,16 @@ filesave->setShortcut(QKeySequence::Save);
 menu_file->addAction(filesave);
 menu_file->addSeparator();
 
+// Последние открытые файлы
+char slotname[20];
+QStringList recent=config->value("/recent/rfiles").toStringList();
+for(int i=0;i<recent.count();i++) {
+  sprintf(slotname,"1Recent%1i()",i);
+  menu_file->addAction(recent.at(i),this,slotname);
+}
+
+menu_file->addSeparator();
+
 file_exit = new QAction("Выход",this);
 file_exit->setShortcut(QKeySequence::Quit);
 menu_file->addAction(file_exit);
