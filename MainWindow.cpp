@@ -178,11 +178,9 @@ menu_file->addAction(filesave);
 menu_file->addSeparator();
 
 // Последние открытые файлы
-char slotname[20];
 QStringList recent=config->value("/recent/rfiles").toStringList();
 for(int i=0;i<recent.count();i++) {
-  sprintf(slotname,"1Recent%1i()",i);
-  menu_file->addAction(recent.at(i),this,slotname);
+  menu_file->addAction(recent.at(i),this,SLOT(open_recent_file()));
 }
 
 menu_file->addSeparator();

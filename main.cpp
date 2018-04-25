@@ -141,26 +141,26 @@ EnableMenu();
 //*****************************************
 //* Выбор последнего открытого файла
 //*****************************************
-void MainWindow::open_recent(int num) {
+void MainWindow::open_recent_file() {
 
 static QString fname;
-    
+QAction *action = qobject_cast<QAction *>(sender());
+if (action == 0) return;
+
 menu_part->setEnabled(0);
 Menu_Oper_flash->setEnabled(0);
 fileappend->setEnabled(0);
 filesave->setEnabled(0);
 ptable->clear();
-
-QSettings rc("forth32","qhuaweiflash",this);
-QStringList recent=rc.value("/recent/rfiles").toStringList();
-fname=recent.at(num);
+fname=action->text();
 if (fname.isEmpty()) return;
 OpenFwFile(fname);
 //   имя по умолчанию
 fwfilename=&fname;
 
 EnableMenu();
-}  
+}
+
   
 //*****************************************
 //*  Разрешение пунктов меню

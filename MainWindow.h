@@ -129,13 +129,7 @@ void EnableMenu();
 void set_date();
 void ShowSignInfo();
 void HeadCopy();
-void Recent0() {open_recent(0);}
-void Recent1() {open_recent(1);}
-void Recent2() {open_recent(2);}
-void Recent3() {open_recent(3);}
-void Recent4() {open_recent(4);}
-void Recent5() {open_recent(5);}
-
+void open_recent_file();
 };
 
 // Независимые от лкасса обработчики
