@@ -89,7 +89,6 @@ switch (nvhd.crcflag) {
     break;
     
 }
-qDebug() << " crcmode: " << crcmode;
 //----- Читаем каталог файлов
 
 pos=nvhd.ctrl_size; // смещение до начала данных (конец управляющих структур)
@@ -353,7 +352,6 @@ if (res == QDialog::Accepted) {
    changed_item(row);
   } 
 }
-qDebug ()<< qd->geometry();
 // геометрия окна
 rect=qd->geometry();
 config->setValue("/config/ItemEditorRect",rect);

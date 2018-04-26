@@ -136,6 +136,7 @@ int res;
 
 // читаем заголовок в структуру
 fread(&table[npart].hd,1,sizeof(pheader),in); // заголовок
+
 //  Ищем символическое имя раздела по таблице 
 find_pname(code(npart),table[npart].pname,&table[npart].ptype);
 

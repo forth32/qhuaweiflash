@@ -206,10 +206,18 @@ modified=false;
 //*****************************************
 void MainWindow::ask_save() {
 
-if (modified) {  
- QMessageBox::StandardButton reply;
- reply=QMessageBox::warning(this,"Запись данных","Образ прошивки изменен, сохранить?",QMessageBox::Yes | QMessageBox::No);
- if (reply == QMessageBox::Yes) fw_saver();  
+  
+qDebug() <<"ask save, modified =" <<modified;
+if (modified) {
+ // создаем панель запроса на сохранение
+ QMessageBox msgBox;  
+ msgBox.setText("Образ прошивки изменен");
+ msgBox.setInformativeText("Сохранить изменения?");
+ msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard);
+ msgBox.setDefaultButton(QMessageBox::Save);
+ int reply = msgBox.exec();  
+ qDebug() << " reply = " <<reply;
+ if (reply == QMessageBox::Save) fw_saver();  
 }
 modified=false;
 }
@@ -728,7 +736,6 @@ void MainWindow::setModified() {
 modified=true;
 // добавляем звездочку в заголовок
 QString str=windowTitle();
-qDebug() << "title = " << str;
 str.append(" *");
 setWindowTitle(str);
 
@@ -760,7 +767,6 @@ parser.addPositionalArgument("firmware", "Файл прошивки");
 parser.process(app);    
 QStringList args = parser.positionalArguments();
 
-qDebug() << "args count " << args.size();
 if(args.size() > 0) deffile=args[0]; 
 
 mwin = new  MainWindow(deffile);
