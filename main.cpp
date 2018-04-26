@@ -206,8 +206,6 @@ modified=false;
 //*****************************************
 void MainWindow::ask_save() {
 
-  
-qDebug() <<"ask save, modified =" <<modified;
 if (modified) {
  // создаем панель запроса на сохранение
  QMessageBox msgBox;  
@@ -216,7 +214,6 @@ if (modified) {
  msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard);
  msgBox.setDefaultButton(QMessageBox::Save);
  int reply = msgBox.exec();  
- qDebug() << " reply = " <<reply;
  if (reply == QMessageBox::Save) fw_saver();  
 }
 modified=false;
