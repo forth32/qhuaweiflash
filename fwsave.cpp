@@ -52,7 +52,7 @@ char fname[200];
 int dlcode;
 
 QString deffilename=fwfilename;
-if (mode == 1) { 
+if ((mode == 1) || fwfilename.isEmpty())  { 
   // Сохранение под новым имененм
  QDialog* fsd=new fsdialog; 
  QGridLayout* lm = new QGridLayout(fsd);
