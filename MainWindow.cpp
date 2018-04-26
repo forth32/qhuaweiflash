@@ -5,12 +5,11 @@
 #include "MainWindow.h"
 // ссылка на селектор портов
 extern QComboBox* pselector;
-extern QString* fwfilename;
 
 //************************************************ 
 //* Конструктор класса главного окна
 //************************************************
-MainWindow::MainWindow(): QMainWindow() {
+MainWindow::MainWindow(QString startfile): QMainWindow() {
 
 this->resize(1000, 737);
 
@@ -26,6 +25,9 @@ font.setWeight(75);
 // Формируем иконку главного окна
 icon.addFile(QStringLiteral(":/icon.ico"), QSize(), QIcon::Normal, QIcon::Off);
 setWindowIcon(icon);
+
+// заголовок окна
+settitle();
 
 // Достаем из конфига размеры главного окна
 QRect mainrect=config->value("/config/MainWindowRect").toRect();
@@ -272,8 +274,8 @@ ptedit=0;
 cpio=0;
 
 // открываем файл из командной строки
-if (fwfilename != 0) {
-  OpenFwFile(*fwfilename);
+if (!startfile.isEmpty()) {
+  OpenFwFile(startfile);
 }
 }
 
@@ -283,6 +285,8 @@ if (fwfilename != 0) {
 MainWindow::~MainWindow() {
 
 QRect mainrect;  
+
+ask_save();
 
 if (hexedit != 0) delete hexedit;
 if (kedit != 0) delete kedit;

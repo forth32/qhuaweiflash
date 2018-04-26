@@ -12,7 +12,7 @@
 #include "ptable.h"
 #include "signver.h"
 
-extern QString* fwfilename;
+extern QString fwfilename;
 QLineEdit* filename;
 
 
@@ -21,7 +21,7 @@ QLineEdit* filename;
 //***************************************
 void fsdialog::browse() {
 
-QString fn=*fwfilename;
+QString fn=fwfilename;
 
 fn=QFileDialog::getSaveFileName(this,"Имя файла",fn,"firmware (*.fw);;All files (*.*)");
 if (fn.isEmpty()) return;
@@ -51,7 +51,7 @@ uint32_t percent;
 char fname[200];
 int dlcode;
 
-QString deffilename=*fwfilename;
+QString deffilename=fwfilename;
   
 QDialog* fsd=new fsdialog; 
 QGridLayout* lm = new QGridLayout(fsd);

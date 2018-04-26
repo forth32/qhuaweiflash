@@ -185,6 +185,7 @@ rspacer=new QSpacerItem(100,10,QSizePolicy::Expanding);
 lcomp->addItem(rspacer,1,4);
 
 vlm->addStretch(7);
+
 }
 
 //********************************************************************

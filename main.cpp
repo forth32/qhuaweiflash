@@ -23,8 +23,8 @@ QComboBox* pselector;
 ptable_list* ptable;
 int npart=0;
 
-QString* fwfilename=0;
-MainWindow* mw;  // глобальный указатель на главное окно
+QString fwfilename;
+MainWindow* mw;
 
 //*************************************************
 //  Поиск ttyUSB портов и сбор их имен в таблицу
@@ -83,6 +83,16 @@ if (signlen == -1) {
 }
 
 EnableMenu();
+if (fwfilename.isEmpty()) {
+  // имя файла по умолчанию
+  fwfilename=filename;
+  // имя файла в заголовке окна
+  settitle();
+  QString title=windowTitle();
+  title.append(" - ");
+  title.append(filename);
+  setWindowTitle(title);
+}
   
 }  
   
@@ -91,7 +101,7 @@ EnableMenu();
 //*****************************************
 void MainWindow::AppendFwFile() {
   
-static QString fwname;
+QString fwname;
 
 QFileDialog* qf=new QFileDialog(this);
 fwname=qf->getOpenFileName(0,"Выбор файла прошивки","","*.exe *.bin *.fw");
@@ -99,11 +109,6 @@ delete qf;
 if (fwname.isEmpty()) return;
 OpenFwFile(fwname);
 
-// если это первый открываемый файл 
-if (fwfilename == 0) {
-  //   - делаем его имя именем по умолчанию
-  fwfilename=&fwname;
-}
 }
 
 //********************************************
@@ -127,13 +132,15 @@ partlist->blockSignals(false);
 //*  Выбор нового файла прошивки
 //*****************************************
 void MainWindow::SelectFwFile() {
+
+ask_save();
   
 menu_part->setEnabled(0);
 Menu_Oper_flash->setEnabled(0);
 fileappend->setEnabled(0);
 filesave->setEnabled(0);
 ptable->clear();
-fwfilename=0;
+fwfilename.clear();
 AppendFwFile();
 EnableMenu();
 }
@@ -143,20 +150,21 @@ EnableMenu();
 //*****************************************
 void MainWindow::open_recent_file() {
 
-static QString fname;
+QString fname;
 QAction *action = qobject_cast<QAction *>(sender());
 if (action == 0) return;
+
+ask_save();
 
 menu_part->setEnabled(0);
 Menu_Oper_flash->setEnabled(0);
 fileappend->setEnabled(0);
 filesave->setEnabled(0);
 ptable->clear();
+fwfilename.clear();
 fname=action->text();
 if (fname.isEmpty()) return;
 OpenFwFile(fname);
-//   имя по умолчанию
-fwfilename=&fname;
 
 EnableMenu();
 }
@@ -182,7 +190,30 @@ if ((dload_id&8) != 0) Menu_Oper_signinfo->setEnabled(1);
 void MainWindow::SaveFwFile() {
 
 fw_saver();  
+// удаляем звездочку из заголовка
+QString str=windowTitle();
+int pos=str.indexOf('*');
+if (pos != -1) {
+  str.truncate(pos-1);
+  setWindowTitle(str);
+}  
+modified=false;
 }
+
+
+//*****************************************
+//* Запрос на запись измененного файла
+//*****************************************
+void MainWindow::ask_save() {
+
+if (modified) {  
+ QMessageBox::StandardButton reply;
+ reply=QMessageBox::warning(this,"Запись данных","Образ прошивки изменен, сохранить?",QMessageBox::Yes | QMessageBox::No);
+ if (reply == QMessageBox::Yes) fw_saver();  
+}
+modified=false;
+}
+  
 
 //*****************************************
 //* Копирование заголовков
@@ -614,7 +645,7 @@ if (oemedit != 0) {
   fieldcopy((uint8_t*)tdata,oemedit->text().toLocal8Bit(),oemedit->text().size());
   if (memcmp(tdata,ptable->iptr(hrow),ptable->psize(hrow)) != 0) {
     reply=QMessageBox::warning(this,"Запись раздела","Содержимое раздела изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
-    if (reply == QMessageBox::Ok) memcpy(ptable->iptr(hrow),tdata,ptable->psize(hrow));
+    if (reply == QMessageBox::Ok) ptable->replace(hrow,(uint8_t*)tdata,ptable->psize(hrow));
   }
   delete [] tdata;
   return;
@@ -626,7 +657,7 @@ if (hexedit != 0) {
   memcpy(tdata,hexcup.data(),ptable->psize(hrow));
   if (memcmp(tdata,ptable->iptr(hrow),ptable->psize(hrow)) != 0) {
     reply=QMessageBox::warning(this,"Запись раздела","Содержимое раздела изменено, сохранить?",QMessageBox::Ok | QMessageBox::Cancel);
-    if (reply == QMessageBox::Ok) memcpy(ptable->iptr(hrow),tdata,ptable->psize(hrow));
+    if (reply == QMessageBox::Ok) ptable->replace(hrow,(uint8_t*)tdata,ptable->psize(hrow));
   }
   delete [] tdata;
   return;
@@ -689,13 +720,32 @@ usbload();
 }
 
 
+//********************************************
+//* Установка признака модификации
+//********************************************
+void MainWindow::setModified() {
+  
+modified=true;
+// добавляем звездочку в заголовок
+QString str=windowTitle();
+qDebug() << "title = " << str;
+str.append(" *");
+setWindowTitle(str);
+
+}
+
+//********************************************************
+//* Статическая функция установки признака модификации
+//********************************************************
+void set_modified() { mw->setModified(); }
+
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@222
 
 int main(int argc, char* argv[]) {
   
 QApplication app(argc, argv);
-
+QString deffile;
 QCoreApplication::setApplicationName("Qt linux huawei flasher");
 QCoreApplication::setApplicationVersion("3.0");
 app.setOrganizationName("forth32");
@@ -709,11 +759,12 @@ parser.addPositionalArgument("firmware", "Файл прошивки");
 
 parser.process(app);    
 QStringList args = parser.positionalArguments();
-    
-if (args.size() > 0) fwfilename=&args[0];
-else fwfilename=0;
 
-mwin = new  MainWindow;
+qDebug() << "args count " << args.size();
+if(args.size() > 0) deffile=args[0]; 
+
+mwin = new  MainWindow(deffile);
+mw=mwin;
 mwin->setAttribute(Qt::WA_DeleteOnClose);
 mwin->show();
 return app.exec();

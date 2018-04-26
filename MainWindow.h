@@ -5,6 +5,7 @@
 #include "nvdedit.h"
 #include "cpio.h"
 
+
 //******************************************************************************
 //* Класс главного окна
 //******************************************************************************
@@ -21,6 +22,8 @@ kerneledit* kedit=0;  // редактор разделов kernel
 nvdedit* nvedit=0;  // редактор разделов kernel
 cpioedit* cpio=0;   // редактор файловых разделов
 
+bool modified=false;
+
 // Хранилище настроек
 QSettings* config;
 
@@ -31,7 +34,7 @@ enum parttypes partmode=part_bin;
 
 public:
 
-MainWindow();
+MainWindow(QString startfile);
 virtual ~MainWindow(); 
 
 // Базовый виджет - вертикальный сплиттер
@@ -101,6 +104,8 @@ QComboBox *PortSelector;
 QToolButton *RefreshPorts;
 
 void open_recent(int n);
+void settitle() {setWindowTitle("Huawei firmware editor/flasher");} 
+void ask_save();
 
 // Слоты обработчиков главного меню
 public slots: 
@@ -130,7 +135,11 @@ void set_date();
 void ShowSignInfo();
 void HeadCopy();
 void open_recent_file();
+
+void setModified();  
 };
 
 // Независимые от лкасса обработчики
 void head_copy();
+
+extern MainWindow* mw;
