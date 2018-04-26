@@ -177,6 +177,8 @@ filesave = new QAction("Сохранить",this);
 filesave->setEnabled(false);
 filesave->setShortcut(QKeySequence::Save);
 menu_file->addAction(filesave);
+
+menu_file->addAction("Сохранить как...",this,SLOT(save_as));
 menu_file->addSeparator();
 
 // Последние открытые файлы

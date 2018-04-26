@@ -112,6 +112,7 @@ public slots:
 void  SelectFwFile();  // выбор файла
 void  AppendFwFile();  // добавление файла
 void  SaveFwFile();    // запись полного образа на диск
+void  save_as();
 void  OpenFwFile(QString filename); // открытие файла прошивки
 void SelectPart();     // выбор раздела прошивки
 void Menu_Part_Store();
@@ -137,6 +138,7 @@ void HeadCopy();
 void open_recent_file();
 
 void setModified();  
+
 };
 
 // Независимые от лкасса обработчики

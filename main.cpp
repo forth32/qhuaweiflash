@@ -184,12 +184,12 @@ if (ptable->index() != 0) {
 if ((dload_id&8) != 0) Menu_Oper_signinfo->setEnabled(1);
 }
 
-//*****************************************
-//*  Запись на диск полного файла прошивки
-//*****************************************
-void MainWindow::SaveFwFile() {
+//******************************************************************
+//*  Запись на диск полного файла прошивки с указанием имени файла
+//******************************************************************
+void MainWindow::save_as() {
 
-fw_saver();  
+fw_saver(1);  
 // удаляем звездочку из заголовка
 QString str=windowTitle();
 int pos=str.indexOf('*');
@@ -200,6 +200,23 @@ if (pos != -1) {
 modified=false;
 }
 
+//*****************************************
+//*  Перезапись файла прошивки
+//*****************************************
+void MainWindow::SaveFwFile() {
+
+  
+fw_saver(0);  
+// удаляем звездочку из заголовка
+QString str=windowTitle();
+int pos=str.indexOf('*');
+if (pos != -1) {
+  str.truncate(pos-1);
+  setWindowTitle(str);
+}  
+modified=false;
+}
+  
 
 //*****************************************
 //* Запрос на запись измененного файла
@@ -214,7 +231,7 @@ if (modified) {
  msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard);
  msgBox.setDefaultButton(QMessageBox::Save);
  int reply = msgBox.exec();  
- if (reply == QMessageBox::Save) fw_saver();  
+ if (reply == QMessageBox::Save) fw_saver(0);  
 }
 modified=false;
 }

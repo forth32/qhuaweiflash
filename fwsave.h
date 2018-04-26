@@ -16,4 +16,4 @@ public slots:
   int exec();
 };  
 
-void fw_saver(); 
+void fw_saver(int); 
