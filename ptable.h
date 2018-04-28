@@ -71,6 +71,8 @@ public:
   uint8_t* iptr(int n) { return table[n].pimage; }
   // получение типа раздела
   enum parttypes ptype(int n) { return table[n].ptype; }
+  // получаение сжатого размера
+  uint32_t zsize(int n) { return table[n].zflag; }
   
   // получение ссылок на описательные поля заголовка
   uint8_t* platform(int n) { return table[n].hd.unlock; }
@@ -83,7 +85,7 @@ public:
   
   void findparts(FILE* in);
   void loadimage(int np, FILE* in);
-  void save_part(int n,FILE* out, uint8_t zflag);
+  void save_part(int n,FILE* out, bool zflag);
   void calc_crc16(int n);
   void calc_hd_crc16(int n); 
 

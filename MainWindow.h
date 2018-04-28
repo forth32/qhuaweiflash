@@ -72,6 +72,8 @@ QFormLayout* lphdr;    // редакторы полей заголовка
 QLineEdit *Date_input;
 QLineEdit *Time_input;
 QToolButton *setdate;
+QComboBox* dload_id_selector;
+QCheckBox* zflag_selector;
 QLineEdit *Version_input;
 QLineEdit *pcode;
 QLabel* hdlbl3;

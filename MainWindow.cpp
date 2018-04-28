@@ -11,6 +11,8 @@ extern QComboBox* pselector;
 //************************************************
 MainWindow::MainWindow(QString startfile): QMainWindow() {
 
+int i;  
+  
 this->resize(1000, 737);
 
 // Класс для загрузки конфигов
@@ -44,6 +46,26 @@ hdrpanel=new QWidget(centralwidget);
 centralwidget->addWidget(hdrpanel);
 centralwidget->setStretchFactor(0,1);
 vlhdr=new QVBoxLayout(hdrpanel);
+
+// параметры прошивки
+hdlbl3=new QLabel("Параметры файла");
+hdlbl3->setFont(font);
+vlhdr->addWidget(hdlbl3);
+
+QFormLayout* lfparm=new QFormLayout(0);
+vlhdr->addLayout(lfparm);
+
+// тип файла прошивки
+dload_id_selector=new QComboBox(centralwidget);
+lfparm->addRow("Тип файла",dload_id_selector);
+// флаг сжатия
+zflag_selector=new QCheckBox("zlib-cжатие разделов",centralwidget);
+vlhdr->addWidget(zflag_selector);
+// наполняем список кодов прошивки
+for(i=0;i<8;i++) {
+  dload_id_selector->insertItem(i,fw_description(i));
+ }   
+dload_id_selector->setCurrentIndex(0);
 
 // Список разделов
 hdlbl1=new QLabel("Список разделов",hdrpanel);
@@ -89,8 +111,7 @@ setdate = new QToolButton(hdrpanel);
 setdate->setText("Установить текущую дату");
 vlhdr->addWidget(setdate);
 
-hdlbl3=new QLabel("Версия прошивки",hdrpanel);
-vlhdr->addWidget(hdlbl3);
+vlhdr->addWidget(new QLabel("Версия прошивки",hdrpanel));
 
 QSize qs=Time_input->sizeHint();
 qs.rwidth() *=2;
@@ -178,7 +199,7 @@ filesave->setEnabled(false);
 filesave->setShortcut(QKeySequence::Save);
 menu_file->addAction(filesave);
 
-menu_file->addAction("Сохранить как...",this,SLOT(save_as));
+menu_file->addAction("Сохранить как...",this,SLOT(save_as()));
 menu_file->addSeparator();
 
 // Последние открытые файлы

@@ -93,7 +93,11 @@ if (fwfilename.isEmpty()) {
   title.append(filename);
   setWindowTitle(title);
 }
-  
+// устанавливаем правильный тип прошивки в селекторе типов
+dload_id_selector->setCurrentIndex(dload_id&7);
+// флаг сжатия
+if(ptable->zsize(0)) zflag_selector->setChecked(true);
+
 }  
   
 //*****************************************
@@ -167,6 +171,7 @@ if (fname.isEmpty()) return;
 OpenFwFile(fname);
 
 EnableMenu();
+
 }
 
   
@@ -189,14 +194,14 @@ if ((dload_id&8) != 0) Menu_Oper_signinfo->setEnabled(1);
 //******************************************************************
 void MainWindow::save_as() {
 
-fw_saver(1);  
-// удаляем звездочку из заголовка
-QString str=windowTitle();
-int pos=str.indexOf('*');
-if (pos != -1) {
-  str.truncate(pos-1);
-  setWindowTitle(str);
-}  
+fw_saver(true,zflag_selector->isChecked());  
+// новое имя файла в заголовке
+settitle();
+QString title=windowTitle();
+title.append(" - ");
+title.append(fwfilename);
+setWindowTitle(title);
+
 modified=false;
 }
 
@@ -206,7 +211,7 @@ modified=false;
 void MainWindow::SaveFwFile() {
 
   
-fw_saver(0);  
+fw_saver(false,zflag_selector->isChecked());  
 // удаляем звездочку из заголовка
 QString str=windowTitle();
 int pos=str.indexOf('*');
@@ -231,7 +236,7 @@ if (modified) {
  msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard);
  msgBox.setDefaultButton(QMessageBox::Save);
  int reply = msgBox.exec();  
- if (reply == QMessageBox::Save) fw_saver(0);  
+ if (reply == QMessageBox::Save) fw_saver(false,zflag_selector->isChecked());  
 }
 modified=false;
 }

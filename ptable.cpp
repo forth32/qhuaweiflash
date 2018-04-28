@@ -349,7 +349,7 @@ set_modified();
 //*******************************************************
 //* Запись полного образа раздела в файл
 //*******************************************************
-void ptable_list::save_part(int np,FILE* out,uint8_t zflag) {
+void ptable_list::save_part(int np,FILE* out,bool zflag) {
  
 uint32_t pos,i,cnt;
 uint8_t pad=0;  
