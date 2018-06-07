@@ -300,6 +300,7 @@ cpio=0;
 if (!startfile.isEmpty()) {
   OpenFwFile(startfile);
 }
+partlist->setFocus();
 }
 
 //*****************************************

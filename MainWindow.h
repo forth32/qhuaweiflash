@@ -108,6 +108,7 @@ QToolButton *RefreshPorts;
 void open_recent(int n);
 void settitle() {setWindowTitle("Huawei firmware editor/flasher");} 
 void ask_save();
+void removeEditor();
 
 // Слоты обработчиков главного меню
 public slots: 

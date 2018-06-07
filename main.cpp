@@ -251,47 +251,11 @@ head_copy();
 SelectPart();
 }
 
-//*****************************************
-//*  Выбор раздела из списка
-//*****************************************
-void MainWindow::SelectPart() {
 
-QString txt;  
-QStringList(plst);
-
-int idx=partlist->currentRow();
-if (idx == -1) return; // пустой список
-// Проверяем и, если надо, сохраняем измененные данные
-if ((hrow != -1)&&(hrow != idx)) {
-  HeaderChanged(); // сохраняем заголовок
-  DataChanged();  // сохранияем блок данных
-}  
-
-if ((hrow == idx) && (structure_mode_save == structure_mode->isChecked()))  return; // ложный сигнал, выбран все тот же элемент списка
-
-modebuttons->hide();
-
-structure_mode_save=structure_mode->isChecked();
-hrow=idx; // сохранияем для будущей записи заголовка
-
-
-// Вывод значений заголовка
-txt.sprintf("%-8.8s",ptable->platform(idx));
-Platform_input->setText(txt);
-
-txt.sprintf("%-16.16s",ptable->date(idx));
-Date_input->setText(txt);
-
-txt.sprintf("%-16.16s",ptable->time(idx));
-Time_input->setText(txt);
-
-txt.sprintf("%-32.32s",ptable->version(idx));
-Version_input->setText(txt);
-
-txt.sprintf("%04x",ptable->code(idx)>>16);
-pcode->setText(txt);
-
-// Удаляем все элементы просмотра разделов
+//*********************************************
+//* Удаляем все элементы просмотра разделов
+//*********************************************
+void MainWindow::removeEditor() {
 
 if (hexedit != 0) {
   EditorLayout->removeWidget(hexedit);
@@ -340,6 +304,50 @@ if (spacer != 0) {
   delete spacer;
   spacer=0;
 }  
+}
+
+//*****************************************
+//*  Выбор раздела из списка
+//*****************************************
+void MainWindow::SelectPart() {
+
+QString txt;  
+QStringList(plst);
+
+int idx=partlist->currentRow();
+if (idx == -1) return; // пустой список
+// Проверяем и, если надо, сохраняем измененные данные
+if ((hrow != -1)&&(hrow != idx)) {
+  HeaderChanged(); // сохраняем заголовок
+  DataChanged();  // сохранияем блок данных
+}  
+
+if ((hrow == idx) && (structure_mode_save == structure_mode->isChecked()))  return; // ложный сигнал, выбран все тот же элемент списка
+
+modebuttons->hide();
+
+structure_mode_save=structure_mode->isChecked();
+hrow=idx; // сохранияем для будущей записи заголовка
+
+
+// Вывод значений заголовка
+txt.sprintf("%-8.8s",ptable->platform(idx));
+Platform_input->setText(txt);
+
+txt.sprintf("%-16.16s",ptable->date(idx));
+Date_input->setText(txt);
+
+txt.sprintf("%-16.16s",ptable->time(idx));
+Time_input->setText(txt);
+
+txt.sprintf("%-32.32s",ptable->version(idx));
+Version_input->setText(txt);
+
+txt.sprintf("%04x",ptable->code(idx)>>16);
+pcode->setText(txt);
+
+// удаляем преддущий редактор
+removeEditor();
 
 modebuttons->show();
 
@@ -544,6 +552,7 @@ void MainWindow::Menu_Part_Delete() {
 int32_t ci=partlist->currentRow(); 
 
 if (ptable->index() == 1) return; // последний раздел удалять нельзя
+removeEditor(); // удаляем текущий редактор
 ptable->delpart(ci);
 regenerate_partlist();
 if (ci< (ptable->index()-1)) partlist->setCurrentRow(ci);
@@ -751,7 +760,8 @@ usbload();
 //* Установка признака модификации
 //********************************************
 void MainWindow::setModified() {
-  
+
+if (modified) return;  
 modified=true;
 // добавляем звездочку в заголовок
 QString str=windowTitle();
