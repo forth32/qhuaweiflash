@@ -7,7 +7,7 @@ TARGET = qhuaweiflash
 INCLUDEPATH += .
 QT             += widgets
 
-QMAKE_CXXFLAGS  += -Wno-unused-result -std=c++11 -g -Wno-write-strings
+QMAKE_CXXFLAGS  += -Wno-unused-result -std=c++11 -g -Wno-write-strings -fpermissive
 #QMAKE_LFLAGS += -static
 # Input
 HEADERS += MainWindow.h sio.h ptable.h usbloader.h fwsave.h signver.h parts.h cpfiledir.h \

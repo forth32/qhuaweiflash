@@ -61,6 +61,7 @@ void replace_file();  // замена файлов
 void delete_file();  // удаление файлов
 void view_file();   // просмотр
 void edit_file();   // просмотр
+void add_file();    // добавить новый файл
 void hexedit_file();   // hex-просмотр/редактор
 void setModified() {is_modified=true;}  // установка признака модификации содержимого архива
 void saveall();

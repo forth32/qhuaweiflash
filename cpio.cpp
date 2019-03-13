@@ -48,6 +48,8 @@ menu_edit->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",t
 menu_edit->addAction(QIcon(":/icon_hex.png"),"HEX-просмотр/редактор",this,SLOT(hexedit_file()),QKeySequence("F2"));
 menu_edit->addAction(QIcon(":/icon_view.png"),"Текстовый просмотр",this,SLOT(view_file()),QKeySequence("F3"));
 menu_edit->addAction(QIcon(":/icon_edit.png"),"Текстовый редактор",this,SLOT(edit_file()),QKeySequence("F4"));
+menu_edit->addAction(QIcon::fromTheme("list-add"),"Добавить новый файл",this,SLOT(add_file()),QKeySequence("+"));
+menu_edit->addSeparator();
 menu_edit->addAction(QIcon::fromTheme("file-save"),"Сохранить изменения",this,SLOT(saveall()),QKeySequence("Ctrl+S"));
 
 // Пункты тулбара
@@ -58,6 +60,8 @@ toolbar->addAction(QIcon::fromTheme("edit-delete"),"Удалить файл",thi
 toolbar->addAction(QIcon(":/icon_hex.png"),"HEX-просмотр/редактор",this,SLOT(hexedit_file()));
 toolbar->addAction(QIcon(":/icon_view.png"),"Текстовый просмотр",this,SLOT(view_file()));
 toolbar->addAction(QIcon(":/icon_edit.png"),"Текстовый редактор",this,SLOT(edit_file()));
+toolbar->addSeparator();
+toolbar->addAction(QIcon::fromTheme("list-add"),"Добавить новый файл",this,SLOT(add_file()));
 toolbar->setEnabled(false);
 // закрываем доступ к меню
 menu_edit->setEnabled(false);
@@ -492,4 +496,78 @@ pdata=ndata;
 plen=nlen;
 }
 
-  
+//*********************************************************************
+//* Добавление нового файла
+//*********************************************************************
+void cpioedit::add_file() {
+
+cpfiledir* fd;
+QString fn;
+uint32_t fsize;
+uint8_t* fbuf=0;
+uint8_t filename[100];
+char str[10];
+
+// эмуляция заголовка cpio
+cpio_header_t hdr;    
+// заполняем константы заголовка
+memset(&hdr,'0',sizeof(hdr));
+memcpy(hdr.c_magic,"070701",6);
+memcpy(hdr.c_mode,"000081B4",8);
+
+fn=QFileDialog::getOpenFileName(this,"Добавление нового файла",fn,"All files (*.*)");
+if (fn.isEmpty()) return;
+
+QFile in(fn,this);
+if (!in.open(QIODevice::ReadOnly)) {
+    QMessageBox::critical(0,"Ошибка","Ошибка чтения файла");
+    return;
+}
+fsize=in.size();
+if (fsize != 0) {
+  fbuf=new uint8_t[fsize]; // файловый буфер
+  // читаем весь файл в буфер
+  in.read((char*)fbuf,fsize);
+}
+
+// Получаем информацию о файле
+QFileInfo fi=QFileInfo(in);
+// дата-время
+sprintf(str,"%08x",fi.created().toSecsSinceEpoch()&0xffffffff);
+memcpy(hdr.c_mtime,str,8);
+// gid
+sprintf(str,"%08x",fi.groupId());
+memcpy(hdr.c_gid,str,8);
+// uid
+sprintf(str,"%08x",fi.ownerId());
+memcpy(hdr.c_uid,str,8);
+// атрибуты
+uint32_t attr=fi.permissions()&0xfff;
+attr=(attr&7) | ((attr&0xf0)>>1) | ((attr&0xf00)>>2); // преобразуем из формата QT в нормальный юниксовый
+attr|=0x8000;  // поднимаем флаг регулярного файла  //81b4  1000 000 110 110 100   6644  110 0110 0100 0100
+//printf("\n attr = %08x\n",fi.permissions());
+sprintf(str,"%08x",attr);
+memcpy(hdr.c_mode,str,8);
+// имя файла
+fn=fi.fileName();
+sprintf(str,"%08x",fn.size()+1); // длина имени файла
+memcpy(hdr.c_namesize,str,8);
+memcpy(filename,fn.toLocal8Bit().data(),fn.size()+1); // имя файла
+// размер файла
+sprintf(str,"%08x",fsize); 
+memcpy(hdr.c_filesize,str,8);
+
+// файл больше не нужен
+in.close();
+
+// создаем ноую запись о файле
+fd=new cpfiledir(&hdr, filename, fbuf);
+if (fbuf != 0) delete [] fbuf;
+
+// добавляем файл в текущий каталог
+currentdir->append(fd);
+cpio_hide_dir();
+cpio_show_dir(currentdir,true);
+
+}
+

@@ -71,6 +71,7 @@ class cpfiledir {
     
 public:
   cpfiledir(uint8_t* hdr);
+  cpfiledir(cpio_header_t* header, uint8_t* fname, uint8_t* data);
   ~cpfiledir();
   QList<cpfiledir*>* subdir=0; // ссылка на контейнер поддиректории
 
