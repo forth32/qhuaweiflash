@@ -533,7 +533,7 @@ if (fsize != 0) {
 // Получаем информацию о файле
 QFileInfo fi=QFileInfo(in);
 // дата-время
-sprintf(str,"%08x",fi.created().toSecsSinceEpoch()&0xffffffff);
+sprintf(str,"%08x",fi.created().toTime_t()&0xffffffff);
 memcpy(hdr.c_mtime,str,8);
 // gid
 sprintf(str,"%08x",fi.groupId());
