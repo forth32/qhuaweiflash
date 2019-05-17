@@ -52,7 +52,7 @@ menu_edit->addAction(QIcon::fromTheme("list-add"),"Добавить новый �
 menu_edit->addAction(QIcon::fromTheme("folder-new"),"Создать каталог",this,SLOT(add_dir()),QKeySequence("F7"));
 
 menu_edit->addSeparator();
-menu_edit->addAction(QIcon::fromTheme("file-save"),"Сохранить изменения",this,SLOT(saveall()),QKeySequence("Ctrl+S"));
+menu_edit->addAction(QIcon::fromTheme("file-save"),"Сохранить изменения",this,SLOT(saveall()),QKeySequence("Ctrl+W"));
 
 // Пункты тулбара
 toolbar->addAction(QIcon::fromTheme("go-up"),"Перейти на уровень выше",this,SLOT(go_up()));
