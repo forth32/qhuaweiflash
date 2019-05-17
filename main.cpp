@@ -108,7 +108,7 @@ void MainWindow::AppendFwFile() {
 QString fwname;
 
 QFileDialog* qf=new QFileDialog(this);
-fwname=qf->getOpenFileName(0,"Выбор файла прошивки","","*.exe *.bin *.fw");
+fwname=qf->getOpenFileName(0,"Выбор файла прошивки",".","firmware (*.fw *.exe *.bin *.BIN);;All files (*.*)");
 delete qf;
 if (fwname.isEmpty()) return;
 OpenFwFile(fwname);

@@ -199,6 +199,7 @@ void viewer::find() {
 int res;  
   
 QInputDialog* pd=new QInputDialog(this);  
+pd->setLabelText("Поиск в файле:");
 res=pd->exec();
 if (res == QDialog::Accepted) {
  findtext=pd->textValue();

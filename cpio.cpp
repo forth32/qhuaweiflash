@@ -49,6 +49,8 @@ menu_edit->addAction(QIcon(":/icon_hex.png"),"HEX-просмотр/редакт�
 menu_edit->addAction(QIcon(":/icon_view.png"),"Текстовый просмотр",this,SLOT(view_file()),QKeySequence("F3"));
 menu_edit->addAction(QIcon(":/icon_edit.png"),"Текстовый редактор",this,SLOT(edit_file()),QKeySequence("F4"));
 menu_edit->addAction(QIcon::fromTheme("list-add"),"Добавить новый файл",this,SLOT(add_file()),QKeySequence("+"));
+menu_edit->addAction(QIcon::fromTheme("folder-new"),"Создать каталог",this,SLOT(add_dir()),QKeySequence("F7"));
+
 menu_edit->addSeparator();
 menu_edit->addAction(QIcon::fromTheme("file-save"),"Сохранить изменения",this,SLOT(saveall()),QKeySequence("Ctrl+S"));
 
@@ -62,6 +64,7 @@ toolbar->addAction(QIcon(":/icon_view.png"),"Текстовый просмотр
 toolbar->addAction(QIcon(":/icon_edit.png"),"Текстовый редактор",this,SLOT(edit_file()));
 toolbar->addSeparator();
 toolbar->addAction(QIcon::fromTheme("list-add"),"Добавить новый файл",this,SLOT(add_file()));
+toolbar->addAction(QIcon::fromTheme("folder-new"),"Создать каталог",this,SLOT(add_dir()));
 toolbar->setEnabled(false);
 // закрываем доступ к меню
 menu_edit->setEnabled(false);
@@ -533,7 +536,7 @@ if (fsize != 0) {
 // Получаем информацию о файле
 QFileInfo fi=QFileInfo(in);
 // дата-время
-sprintf(str,"%08x",fi.created().toTime_t()&0xffffffff);
+sprintf(str,"%08x",fi.created().toSecsSinceEpoch()&0xffffffff);
 memcpy(hdr.c_mtime,str,8);
 // gid
 sprintf(str,"%08x",fi.groupId());
@@ -560,7 +563,7 @@ memcpy(hdr.c_filesize,str,8);
 // файл больше не нужен
 in.close();
 
-// создаем ноую запись о файле
+// создаем новую запись о файле
 fd=new cpfiledir(&hdr, filename, fbuf);
 if (fbuf != 0) delete [] fbuf;
 
@@ -571,3 +574,58 @@ cpio_show_dir(currentdir,true);
 
 }
 
+//*********************************************************************
+//* Создание каталога
+//*********************************************************************
+void cpioedit::add_dir() {
+
+cpfiledir* fd;
+char dirname[100];
+char str[10];
+
+int res;
+
+// эмуляция заголовка cpio
+cpio_header_t hdr;    
+// заполняем константы заголовка
+memset(&hdr,'0',sizeof(hdr));
+memcpy(hdr.c_magic,"070701",6);
+memcpy(hdr.c_mode,"000041ED",8);
+
+QInputDialog* pd=new QInputDialog(this);  
+pd->setLabelText("Имя каталога:");
+res=pd->exec();
+
+if (res == QDialog::Accepted) {
+ // ответ получен - создаем каталог   
+ strcpy(dirname,pd->textValue().toLocal8Bit().data());  // имя каталога 
+ // дата-время
+ sprintf(str,"%08x",time(0));
+ memcpy(hdr.c_mtime,str,8);
+ // длина имени каталога
+ sprintf(str,"%08x",strlen(dirname)+1);
+ memcpy(hdr.c_namesize,str,8);
+
+ // создаем новую запись о файле
+ fd=new cpfiledir(&hdr, dirname, 0);
+
+  // вектор подкаталога
+ fd->subdir=new QList<cpfiledir*>;
+ // указатель на каталог верхнего уровня (то есть вот этот)
+ cpfiledir* upfd=new cpfiledir(&hdr," ",0);
+ upfd->subdir=currentdir;
+ // имя файла для него - ".."
+ upfd->setfname("..");
+ upfd->updirflag=true;  // признак ссылки на каталог верхнего уровня
+ // добавляем эту запись первой в вектор подкаталога
+ fd->subdir->append(upfd);
+
+// добавляем файл в текущий каталог
+ currentdir->append(fd);
+ cpio_hide_dir();
+ cpio_show_dir(currentdir,true);
+
+}
+delete pd;
+
+}
