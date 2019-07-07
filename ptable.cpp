@@ -286,7 +286,7 @@ fseek(in,-0x60,SEEK_CUR); // отъезжаем на начало BIN-файла
 fread(prefix,0x5c,1,in);
 if (dload_id == -1) {
   // Для первого загруженного файла вынимаем тип прошивки
-  dload_id=*((uint32_t*)&prefix[0]);
+  dload_id=prefix[0];
   // если принудительно dload_id не установлен - выбираем его из заголовка
   if (dload_id > 0xf) {
     QMessageBox::critical(0,"Ошибка","Неверный код типа прошивки (dload_id) в заголовке");
