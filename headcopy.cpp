@@ -72,9 +72,27 @@ if (res !=  QDialog::Accepted) return;
 
 // оператор подтвердил выполнение
 
+// структура описания заголовка раздела
+struct __attribute__ ((__packed__)) pheader {
+ uint32_t magic;    //   0xa55aaa55
+ uint32_t hdsize;   // размер заголовка
+ uint32_t hdversion; // вресия заголовка
+ uint8_t unlock[8]; // платформа
+ uint32_t code;     // тип раздела
+ uint32_t psize;    // разме поля данных
+ uint8_t date[16];
+ uint8_t time[16];  // дата-время сборки прошивки
+ uint8_t version[32];   // версия пршоивки
+ uint16_t crc;   // CRC заголовка
+ uint32_t blocksize;  // размер блока CRC образа прошивки
+}; 
+
+
 for(i=0;i<ptable->index();i++) {
   if ((i == dst) || (dst == -1)) {
-    memcpy(ptable->hptr(i),ptable->hptr(src),sizeof(struct pheader));
+    memcpy(ptable->hptr(i)->date,ptable->hptr(src)->date,16);
+    memcpy(ptable->hptr(i)->time,ptable->hptr(src)->time,16);
+    memcpy(ptable->hptr(i)->version,ptable->hptr(src)->version,32);
   }
 }
 }  
